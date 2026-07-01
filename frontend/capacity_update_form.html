@@ -1,1 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Update Storage Capacity — Hub Dashboard</title>
+<style>
+  :root {
+    --bg: #FAF7F2;
+    --card: #FFFFFF;
+    --border: #E6DED0;
+    --text: #33302A;
+    --text-muted: #7A7468;
+    --green: #2D4A3E;
+    --green-dark: #1F332A;
+    --tomato: #C1502E;
+    --tomato-light: #F4E3DA;
+    --success: #3C7A5A;
+    --radius: 10px;
+  }
 
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--tomato);
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--green-dark);
+    margin-bottom: 4px;
+  }
+
+  .subhead {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--green-dark);
+    margin-bottom: 6px;
+  }
+
+  .hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.15s ease;
+  }
+
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--green);
+    background: #fff;
+  }
+
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 1px;
+  }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Capacity visual — the signature element */
+  .capacity-visual {
+    background: var(--green-dark);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+
+  .capacity-visual-label {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #B9CFC2;
+    margin-bottom: 10px;
+  }
+
+  .capacity-numbers {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .capacity-current {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+  }
+
+  .capacity-total {
+    font-size: 15px;
+    color: #B9CFC2;
+  }
+
+  .capacity-bar-track {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.14);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .capacity-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4E8368, #6FA987);
+    border-radius: 999px;
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+
+  .capacity-bar-fill.over-limit {
+    background: linear-gradient(90deg, var(--tomato), #D97347);
+  }
+
+  .capacity-status {
+    font-size: 12px;
+    color: #B9CFC2;
+    margin-top: 8px;
+  }
+
+  .capacity-status.warn {
+    color: #F0C9B8;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--green);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  button[type="submit"]:hover {
+    background: var(--green-dark);
+  }
+
+  button[type="submit"]:focus-visible {
+    outline: 2px solid var(--tomato);
+    outline-offset: 2px;
+  }
+
+  .confirm-banner {
+    display: none;
+    background: #EAF3EC;
+    border: 1px solid var(--success);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--success);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .confirm-banner.visible {
+    display: block;
+  }
+
+  @media (max-width: 400px) {
+    .row-2 { grid-template-columns: 1fr; }
+    .capacity-current { font-size: 26px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .capacity-bar-fill, input, select, button { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="eyebrow">Hub Dashboard</div>
+  <h1>Update storage capacity</h1>
+  <p class="subhead">Let transporters know how much room you have for incoming tomato deliveries.</p>
+
+  <div id="confirmBanner" class="confirm-banner">Capacity updated. Transporters will see this immediately.</div>
+
+  <!-- Live capacity visual -->
+  <div class="capacity-visual">
+    <div class="capacity-visual-label">Available now</div>
+    <div class="capacity-numbers">
+      <span class="capacity-current" id="capCurrent">0</span>
+      <span class="capacity-total" id="capTotalLabel">/ 0 kg total</span>
+    </div>
+    <div class="capacity-bar-track">
+      <div class="capacity-bar-fill" id="capBarFill"></div>
+    </div>
+    <div class="capacity-status" id="capStatus">Enter your hub's numbers below.</div>
+  </div>
+
+  <form id="capacityForm">
+    <div class="card">
+
+      <div class="field">
+        <label for="hubName">Hub name</label>
+        <select id="hubName" name="hubName" required>
+          <option value="" disabled selected>Select your hub</option>
+          <option value="kamonyi-central">Kamonyi Central Storage Hub</option>
+          <option value="nyamiyaga">Nyamiyaga Collection Point</option>
+          <option value="rukoma">Rukoma Cold Storage</option>
+        </select>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label for="totalCapacity">Total capacity (kg)</label>
+          <input type="number" id="totalCapacity" name="totalCapacity" min="0" step="10" placeholder="e.g. 2000" required>
+        </div>
+        <div class="field">
+          <label for="availableCapacity">Available now (kg)</label>
+          <input type="number" id="availableCapacity" name="availableCapacity" min="0" step="10" placeholder="e.g. 850" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="produceType">Produce type</label>
+        <select id="produceType" name="produceType" required>
+          <option value="tomatoes" selected>Tomatoes</option>
+        </select>
+        <p class="hint">Pilot phase covers tomatoes only.</p>
+      </div>
+
+      <div class="field">
+        <label for="notes">Notes (optional)</label>
+        <input type="text" id="notes" name="notes" placeholder="e.g. cooling unit under maintenance">
+      </div>
+
+    </div>
+
+    <button type="submit">Save capacity update</button>
+  </form>
+
+</div>
+
+<script>
+  const totalInput = document.getElementById('totalCapacity');
+  const availInput = document.getElementById('availableCapacity');
+  const capCurrent = document.getElementById('capCurrent');
+  const capTotalLabel = document.getElementById('capTotalLabel');
+  const capBarFill = document.getElementById('capBarFill');
+  const capStatus = document.getElementById('capStatus');
+  const form = document.getElementById('capacityForm');
+  const confirmBanner = document.getElementById('confirmBanner');
+
+  function updateCapacityVisual() {
+    const total = parseFloat(totalInput.value) || 0;
+    const available = parseFloat(availInput.value) || 0;
+
+    capCurrent.textContent = available.toLocaleString();
+    capTotalLabel.textContent = `/ ${total.toLocaleString()} kg total`;
+
+    if (total === 0) {
+      capBarFill.style.width = '0%';
+      capBarFill.classList.remove('over-limit');
+      capStatus.textContent = "Enter your hub's numbers below.";
+      capStatus.classList.remove('warn');
+      return;
+    }
+
+    const pct = Math.min((available / total) * 100, 100);
+    capBarFill.style.width = pct + '%';
+
+    if (available > total) {
+      capBarFill.classList.add('over-limit');
+      capStatus.textContent = "Available can't exceed total capacity — check your numbers.";
+      capStatus.classList.add('warn');
+    } else {
+      capBarFill.classList.remove('over-limit');
+      capStatus.classList.remove('warn');
+      if (pct < 15) {
+        capStatus.textContent = 'Nearly full — transporters will see limited space.';
+      } else {
+        capStatus.textContent = `${Math.round(pct)}% of capacity free for incoming produce.`;
+      }
+    }
+  }
+
+  totalInput.addEventListener('input', updateCapacityVisual);
+  availInput.addEventListener('input', updateCapacityVisual);
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const available = parseFloat(availInput.value) || 0;
+    const total = parseFloat(totalInput.value) || 0;
+    if (available > total) {
+      capStatus.textContent = "Fix available capacity before saving — it can't exceed total.";
+      capStatus.classList.add('warn');
+      return;
+    }
+
+    // TODO: replace with actual POST to backend capacity endpoint
+    // fetch('/api/hub/capacity', { method: 'POST', body: new FormData(form) })
+
+    confirmBanner.classList.add('visible');
+    setTimeout(() => confirmBanner.classList.remove('visible'), 4000);
+  });
+</script>
+
+</body>
+</html>
