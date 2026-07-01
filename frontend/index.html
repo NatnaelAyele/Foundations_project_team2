@@ -6,287 +6,283 @@
     <title>FreshLink | Tomato cold-chain coordination</title>
     <meta
       name="description"
-      content="FreshLink helps admins, cold hubs, and truck providers coordinate tomato harvest storage and pickups while farmers receive updates by SMS."
+      content="FreshLink helps admins, cold hubs, and transport providers coordinate tomato harvest storage and pickups while farmers receive updates by SMS."
     >
+    <link rel="stylesheet" href="static/css/landing.css">
+    <script src="static/js/landing.js" defer></script>
   </head>
   <body>
-    <header>
-      <nav aria-label="Main navigation">
-        <a href="#top" aria-label="FreshLink home">FreshLink</a>
+    <header class="site-header">
+      <nav class="nav container" aria-label="Main navigation">
+        <a class="brand" href="#top" aria-label="FreshLink home">
+          <span class="brand-mark" aria-hidden="true">FL</span>
+          <span>FreshLink</span>
+        </a>
 
-        <ul>
-          <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#users">For Users</a></li>
-          <li><a href="#pilot">Pilot</a></li>
-          <li><a href="/login">Login</a></li>
-          <li><a href="#get-started">Get Started</a></li>
-        </ul>
+        <button class="menu-toggle" type="button" aria-controls="nav-links" aria-expanded="false">
+          <span class="sr-only">Open menu</span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+
+        <div class="nav-links" id="nav-links">
+          <a href="#how-it-works">How It Works</a>
+          <a href="#features">Features</a>
+          <a href="#users">For Users</a>
+          <a href="#pilot">Pilot</a>
+          <a href="/login">Login</a>
+          <a class="nav-cta" href="#get-started">Get Started</a>
+        </div>
       </nav>
     </header>
 
     <main id="top">
-      <section aria-labelledby="hero-title">
-        <p>Tomato harvest planning for admins, hubs, and truck providers</p>
-        <h1 id="hero-title">Keep tomatoes fresh from farm to market.</h1>
-        <p>
-          FreshLink helps admins register tomato farmers and harvest forecasts, cold hubs share
-          available storage, and truck providers coordinate pickups while farmers receive updates by SMS.
-        </p>
+      <section class="hero" aria-labelledby="hero-title">
+        <img
+          class="hero-image"
+          src="static/images/freshlink-hero.png"
+          alt="Tomato crates near a cold hub and refrigerated truck"
+        >
+        <div class="hero-overlay" aria-hidden="true"></div>
 
-        <p>
-          <a href="#get-started">Get Started</a>
-          <a href="#how-it-works">See How It Works</a>
-        </p>
-
-        <aside aria-label="Pilot coordination snapshot">
-          <h2>Pilot coordination snapshot</h2>
-          <ul>
-            <li>Tomato farmers registered by admin: 94</li>
-            <li>Total hub space available: 12,000 kg</li>
-            <li>Cold trucks available: 250</li>
-          </ul>
-        </aside>
-      </section>
-
-      <section aria-labelledby="problem-title">
-        <p>The problem</p>
-        <h2 id="problem-title">Farmers lose value when coordination happens too late.</h2>
-        <p>
-          Tomatoes lose quality quickly after harvest. When planning waits until harvest time,
-          and storage and transport are not confirmed in advance, farmers may be forced to sell
-          immediately or risk spoilage.
-        </p>
-
-        <article>
-          <h3>No early tomato harvest planning</h3>
-          <p>
-            Admins, hub operators, and truck providers need harvest details early enough to plan
-            storage and pickups.
-          </p>
-        </article>
-
-        <article>
-          <h3>Uncoordinated transport</h3>
-          <p>
-            Separate phone calls and WhatsApp messages can lead to half-empty truck trips and missed
-            pickup windows.
-          </p>
-        </article>
-      </section>
-
-      <section aria-labelledby="solution-title">
-        <p>Our solution</p>
-        <h2 id="solution-title">One platform for admins, cold hubs, and truck providers.</h2>
-        <p>
-          FreshLink replaces scattered calls and messages with admin-managed farmer records,
-          tomato harvest forecasts, visible cold-storage capacity, grouped pickup planning, and SMS
-          updates for farmers.
-        </p>
-
-        <article>
-          <h3>Farmers by SMS</h3>
-          <p>
-            Farmers do not need a dashboard. They receive pickup, storage, and confirmation updates
-            through SMS.
-          </p>
-        </article>
-
-        <article>
-          <h3>Cold Hubs</h3>
-          <p>Update available storage capacity and prepare for incoming tomato harvests.</p>
-          <a href="/register?role=hub">Register a Hub</a>
-        </article>
-
-        <article>
-          <h3>Truck Providers</h3>
-          <p>Share truck availability, view grouped tomato pickup requests, and follow suggested routes.</p>
-          <a href="/register?role=transporter">Register a Truck</a>
-        </article>
-      </section>
-
-      <section id="how-it-works" aria-labelledby="works-title">
-        <p>How it works</p>
-        <h2 id="works-title">How FreshLink works</h2>
-
-        <ol>
-          <li>
-            <h3>Register farmer and forecast</h3>
-            <p>
-              An admin records the farmer profile, tomato quantity, harvest date, and location in
-              the platform.
+        <div class="container hero-content">
+          <div class="hero-copy">
+            <p class="eyebrow">Tomato harvest planning for admins, hubs, and truck providers</p>
+            <h1 id="hero-title">Keep tomatoes fresh from farm to market.</h1>
+            <p class="hero-lede">
+              FreshLink helps admins register tomato farmers and harvest forecasts, cold hubs share
+              available storage, and truck providers coordinate pickups while farmers receive updates by SMS.
             </p>
-          </li>
-          <li>
-            <h3>Check hub capacity</h3>
+            <div class="hero-actions" aria-label="Primary actions">
+              <a class="button button-primary" href="#get-started">Get Started</a>
+              <a class="button button-secondary" href="#how-it-works">See How It Works</a>
+            </div>
+          </div>
+
+          <aside class="plan-panel" aria-label="Pilot coordination snapshot">
+            <div class="panel-header">
+              <span>Our work in numbers</span>
+            </div>
+            <div class="plan-stats">
+              <div><span>Tomato farmers registered</span><strong>94</strong></div>
+              <div><span>Total hub space available</span><strong>12,000 kg</strong></div>
+              <div><span>Cold trucks available</span><strong>250</strong></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="problem-title">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">The problem</p>
+            <h2 id="problem-title">Farmers lose value when coordination happens too late.</h2>
             <p>
-              Cold-hub operators update available storage space so the system can see where tomatoes
-              can go.
+              Tomatoes lose quality quickly after harvest. When planning waits until harvest time,
+              and storage and transport are not confirmed in advance, farmers may be forced to sell
+              immediately or risk spoilage.
             </p>
-          </li>
-          <li>
-            <h3>Match and group pickups</h3>
+          </div>
+
+          <div class="card-grid three">
+            <article class="info-card">
+              <span class="icon clock" aria-hidden="true"></span>
+              <h3>No early tomato harvest planning</h3>
+              <p>Admins, hub operators, and truck providers need harvest details early enough to plan storage and pickups.</p>
+            </article>
+            <article class="info-card">
+              <span class="icon truck" aria-hidden="true"></span>
+              <h3>Uncoordinated transport</h3>
+              <p>Separate phone calls and WhatsApp messages can lead to half-empty truck trips and missed pickup windows.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-tint" aria-labelledby="solution-title">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Our solution</p>
+            <h2 id="solution-title">One platform for admins, cold hubs, and truck providers.</h2>
             <p>
-              The coordination logic matches tomato harvests to nearby hubs and groups farmers into
-              efficient truck trips.
+              FreshLink replaces scattered calls and messages with admin-managed farmer records,
+              tomato harvest forecasts, visible cold-storage capacity, grouped pickup planning, and SMS updates for farmers.
             </p>
-          </li>
-          <li>
-            <h3>Notify the right people</h3>
+          </div>
+
+          <div class="card-grid three">
+            <article class="role-card">
+              <h3>Farmers by SMS</h3>
+              <p>Farmers do not need a dashboard. They receive pickup, storage, and confirmation updates through SMS.</p>
+            </article>
+            <article class="role-card">
+              <h3>Cold Hubs</h3>
+              <p>Update available storage capacity and prepare for incoming tomato harvests.</p>
+              <a href="/register?role=hub">Register a Hub</a>
+            </article>
+            <article class="role-card">
+              <h3>Truck Providers</h3>
+              <p>Share truck availability, view grouped tomato pickup requests, and follow suggested routes.</p>
+              <a href="/register?role=transporter">Register a Truck</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="how-it-works" aria-labelledby="works-title">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">How it works</p>
+            <h2 id="works-title">How FreshLink works</h2>
+          </div>
+
+          <ol class="timeline">
+            <li>
+              <span>1</span>
+              <h3>Register farmer and forecast</h3>
+              <p>An admin records the farmer profile, tomato quantity, harvest date, and location in the platform.</p>
+            </li>
+            <li>
+              <span>2</span>
+              <h3>Check hub capacity</h3>
+              <p>Cold-hub operators update available storage space so the system can see where tomatoes can go.</p>
+            </li>
+            <li>
+              <span>3</span>
+              <h3>Match and group pickups</h3>
+              <p>The coordination logic matches tomato harvests to nearby hubs and groups farmers into efficient truck trips.</p>
+            </li>
+            <li>
+              <span>4</span>
+              <h3>Notify the right people</h3>
+              <p>Hub operators, admins, and truck providers use their dashboards, while farmers receive confirmation through SMS alerts.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section section-tint" id="features" aria-labelledby="features-title">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Features</p>
+            <h2 id="features-title">Built for tomato cold-chain coordination from harvest to pickup.</h2>
+          </div>
+
+          <div class="card-grid features">
+            <article class="info-card"><h3>Admin-Managed Forecasting</h3><p>Admins register farmers and log expected tomato harvest dates, locations, and estimated quantities before tomatoes are ready.</p></article>
+            <article class="info-card"><h3>Capacity Tracking</h3><p>Cold hubs update available storage space so admins and truck providers can plan with real information.</p></article>
+            <article class="info-card"><h3>Transport Matching</h3><p>The system groups nearby tomato farmers and suggests pickup plans based on available trucks and hub space.</p></article>
+            <article class="info-card"><h3>Farmer SMS Alerts</h3><p>Farmers receive match confirmations and pickup updates by SMS, without needing to access a dashboard.</p></article>
+            <article class="info-card"><h3>Admin Dashboard</h3><p>Project admins can monitor farmers, hub status, matches, completed pickups, and excluded forecasts.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="users" aria-labelledby="users-title">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">Dashboards and SMS</p>
+            <h2 id="users-title">Dashboards for operators, SMS updates for farmers.</h2>
+          </div>
+
+          <div class="card-grid roles">
+            <article class="dashboard-card">
+              <h3>Farmer SMS Updates</h3>
+              <ul>
+                <li>No platform login required</li>
+                <li>Receive pickup confirmation</li>
+                <li>Receive storage allocation updates</li>
+                <li>Receive truck and pickup time details</li>
+              </ul>
+            </article>
+            <article class="dashboard-card">
+              <h3>Hub Operator Dashboard</h3>
+              <ul>
+                <li>Update hub capacity</li>
+                <li>View incoming harvest allocations</li>
+                <li>Mark storage availability</li>
+                <li>Confirm received tomatoes</li>
+              </ul>
+            </article>
+            <article class="dashboard-card">
+              <h3>Truck Provider Dashboard</h3>
+              <ul>
+                <li>Register truck availability</li>
+                <li>View route plan</li>
+                <li>See grouped farmer pickups</li>
+                <li>Update trip status</li>
+              </ul>
+            </article>
+            <article class="dashboard-card admin">
+              <h3>Admin Dashboard</h3>
+              <ul>
+                <li>Register tomato farmers</li>
+                <li>Enter and update harvest forecasts</li>
+                <li>Review coordination plans</li>
+                <li>Track successful and excluded matches</li>
+                <li>Monitor pilot metrics</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-tint" id="pilot" aria-labelledby="pilot-title">
+        <div class="container pilot-layout">
+          <div>
+            <p class="eyebrow">Pilot context</p>
+            <h2 id="pilot-title">Designed for a pilot in Kamonyi District, Rwanda.</h2>
             <p>
-              Hub operators, admins, and truck providers use their dashboards, while farmers receive
-              confirmation through SMS alerts.
+              The prototype focuses on smallholder tomato farmers in Kamonyi District, Rwanda.
+              The goal is to support planning and coordination between tomato farmers, cold storage
+              operators, and cold truck providers to reduce post-harvest losses.
             </p>
-          </li>
-        </ol>
+          </div>
+
+          <div class="stats-grid" aria-label="Pilot scope">
+            <div><strong>25-40</strong><span>tomato farmers registered by admin</span></div>
+            <div><strong>2-3</strong><span>cold hubs and transport providers</span></div>
+            <div><strong>6 weeks</strong><span>pilot evaluation window</span></div>
+            <div><strong>SMS + Dashboards</strong><span>farmers by SMS, operators by web</span></div>
+          </div>
+        </div>
       </section>
 
-      <section id="features" aria-labelledby="features-title">
-        <p>Features</p>
-        <h2 id="features-title">Built for tomato cold-chain coordination from harvest to pickup.</h2>
-
-        <article>
-          <h3>Admin-Managed Forecasting</h3>
-          <p>
-            Admins register farmers and log expected tomato harvest dates, locations, and estimated
-            quantities before tomatoes are ready.
-          </p>
-        </article>
-
-        <article>
-          <h3>Capacity Tracking</h3>
-          <p>
-            Cold hubs update available storage space so admins and truck providers can plan with
-            real information.
-          </p>
-        </article>
-
-        <article>
-          <h3>Transport Matching</h3>
-          <p>
-            The system groups nearby tomato farmers and suggests pickup plans based on available
-            trucks and hub space.
-          </p>
-        </article>
-
-        <article>
-          <h3>Farmer SMS Alerts</h3>
-          <p>
-            Farmers receive match confirmations and pickup updates by SMS, without needing to access
-            a dashboard.
-          </p>
-        </article>
-
-        <article>
-          <h3>Admin Dashboard</h3>
-          <p>
-            Project admins can monitor farmers, hub status, matches, completed pickups, and excluded
-            forecasts.
-          </p>
-        </article>
-      </section>
-
-      <section id="users" aria-labelledby="users-title">
-        <p>Dashboards and SMS</p>
-        <h2 id="users-title">Dashboards for operators, SMS updates for farmers.</h2>
-
-        <article>
-          <h3>Farmer SMS Updates</h3>
-          <ul>
-            <li>No platform login required</li>
-            <li>Receive pickup confirmation</li>
-            <li>Receive storage allocation updates</li>
-            <li>Receive truck and pickup time details</li>
-          </ul>
-        </article>
-
-        <article>
-          <h3>Hub Operator Dashboard</h3>
-          <ul>
-            <li>Update hub capacity</li>
-            <li>View incoming harvest allocations</li>
-            <li>Mark storage availability</li>
-            <li>Confirm received tomatoes</li>
-          </ul>
-        </article>
-
-        <article>
-          <h3>Truck Provider Dashboard</h3>
-          <ul>
-            <li>Register truck availability</li>
-            <li>View route plan</li>
-            <li>See grouped farmer pickups</li>
-            <li>Update trip status</li>
-          </ul>
-        </article>
-
-        <article>
-          <h3>Admin Dashboard</h3>
-          <ul>
-            <li>Register tomato farmers</li>
-            <li>Enter and update harvest forecasts</li>
-            <li>Review coordination plans</li>
-            <li>Track successful and excluded matches</li>
-            <li>Monitor pilot metrics</li>
-          </ul>
-        </article>
-      </section>
-
-      <section id="pilot" aria-labelledby="pilot-title">
-        <p>Pilot context</p>
-        <h2 id="pilot-title">Designed for a realistic pilot in Rwanda.</h2>
-        <p>
-          The prototype focuses on tomato farmers around Bumbogo and nearby market destinations
-          such as Kimironko. The goal is to test whether admin-led coordination, hub capacity
-          updates, truck planning, and farmer SMS alerts can improve access to cold storage and transport.
-        </p>
-
-        <ul aria-label="Pilot scope">
-          <li>25-40 tomato farmers registered by admin</li>
-          <li>2-3 cold hubs and transport providers</li>
-          <li>6 weeks pilot evaluation window</li>
-          <li>SMS and dashboards: farmers by SMS, operators by web</li>
-        </ul>
-      </section>
-
-      <section id="get-started" aria-labelledby="cta-title">
-        <h2 id="cta-title">Ready to coordinate the next tomato harvest?</h2>
-        <p>
-          Use the admin, cold-hub, or truck provider dashboard to plan storage and transport before
-          harvest day.
-        </p>
-
-        <p>
-          <a href="/register?role=admin">Register as Admin</a>
-          <a href="/register?role=hub">Register as Hub Operator</a>
-          <a href="/register?role=transporter">Register as Truck Provider</a>
-        </p>
+      <section class="final-cta" id="get-started" aria-labelledby="cta-title">
+        <div class="container">
+          <h2 id="cta-title">Ready to coordinate the next tomato harvest?</h2>
+          <div class="cta-actions">
+            <a class="button button-primary" href="/register?role=admin">Register as Admin</a>
+            <a class="button button-light" href="/register?role=hub">Register as Hub Operator</a>
+            <a class="button button-light" href="/register?role=transporter">Register as Truck Provider</a>
+          </div>
+        </div>
       </section>
     </main>
 
-    <footer>
-      <section aria-labelledby="footer-title">
-        <h2 id="footer-title">FreshLink</h2>
-        <p>
-          Helping farmers, cold hubs, and truck providers coordinate tomato harvests.
-        </p>
-      </section>
-
-      <nav aria-label="Footer navigation">
-        <h2>Links</h2>
-        <ul>
-          <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#pilot">Pilot</a></li>
-          <li><a href="/login">Login</a></li>
-        </ul>
-      </nav>
-
-      <section aria-labelledby="contact-title">
-        <h2 id="contact-title">Contact</h2>
-        <p>info.lego@gmail.com</p>
-        <p>2026 FreshLink. Team Lego.</p>
-      </section>
+    <footer class="site-footer">
+      <div class="container footer-layout">
+        <div>
+          <a class="brand footer-brand" href="#top">
+            <span class="brand-mark" aria-hidden="true">FL</span>
+            <span>FreshLink</span>
+          </a>
+          <p>Helping farmers, cold hubs, and truck providers coordinate tomato harvests.</p>
+        </div>
+        <div>
+          <h2>Links</h2>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#features">Features</a>
+          <a href="#pilot">Pilot</a>
+          <a href="/login">Login</a>
+        </div>
+        <div>
+          <h2>Contact</h2>
+          <p>info.lego@gmail.com</p>
+          <p>2026 FreshLink. Team lego.</p>
+        </div>
+      </div>
     </footer>
   </body>
 </html>
