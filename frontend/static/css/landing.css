@@ -66,6 +66,7 @@ button:focus-visible {
 }
 
 .site-header {
+  /* COMMIT 1: Header, navigation, and hero styling */
   position: sticky;
   top: 0;
   z-index: 20;
@@ -373,4 +374,363 @@ h3 {
   font-size: 0.78rem;
   font-weight: 800;
   text-align: center;
+}
+
+.card-grid.roles {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.info-card,
+.role-card,
+.dashboard-card {
+  padding: 24px;
+  height: 100%;
+}
+
+.info-card p,
+.role-card p,
+.dashboard-card li {
+  color: var(--color-muted);
+}
+
+.icon {
+  display: inline-block;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 18px;
+  border-radius: var(--radius);
+  background: #e7f5ec;
+}
+
+.icon.clock {
+  background:
+    radial-gradient(circle at 50% 50%, transparent 38%, var(--color-primary) 40% 44%, transparent 46%),
+    linear-gradient(var(--color-primary), var(--color-primary)) 50% 50% / 2px 14px no-repeat,
+    linear-gradient(90deg, var(--color-primary), var(--color-primary)) 50% 50% / 11px 2px no-repeat,
+    #e7f5ec;
+}
+
+.icon.snow {
+  background:
+    linear-gradient(var(--color-secondary), var(--color-secondary)) 50% 50% / 2px 24px no-repeat,
+    linear-gradient(90deg, var(--color-secondary), var(--color-secondary)) 50% 50% / 24px 2px no-repeat,
+    linear-gradient(45deg, transparent 47%, var(--color-secondary) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, var(--color-secondary) 48% 52%, transparent 53%),
+    #eaf6fd;
+}
+
+.icon.truck {
+  background:
+    linear-gradient(var(--color-primary), var(--color-primary)) 10px 18px / 19px 10px no-repeat,
+    linear-gradient(var(--color-secondary), var(--color-secondary)) 27px 21px / 9px 7px no-repeat,
+    radial-gradient(circle at 15px 31px, var(--color-text) 0 3px, transparent 4px),
+    radial-gradient(circle at 31px 31px, var(--color-text) 0 3px, transparent 4px),
+    #edf8fb;
+}
+
+.role-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.role-card a {
+  margin-top: auto;
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.timeline li {
+  position: relative;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.timeline span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--color-primary);
+  font-weight: 900;
+}
+
+.timeline p {
+  color: var(--color-muted);
+}
+
+.dashboard-card ul {
+  padding-left: 20px;
+  margin: 18px 0 0;
+}
+
+.dashboard-card.admin {
+  border-color: #b9dded;
+}
+
+.pilot-layout,
+.preview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  align-items: center;
+  gap: 42px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.stats-grid div {
+  padding: 22px;
+}
+
+.stats-grid strong {
+  font-size: 1.8rem;
+}
+
+.mock-dashboard {
+  padding: 22px;
+}
+
+.route-card,
+.sms-preview {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: var(--radius);
+}
+
+.route-card {
+  border: 1px solid #cbe4d2;
+  background: #f6fbf7;
+}
+
+.route-card p,
+.sms-preview p {
+  color: var(--color-muted);
+}
+
+.route-card dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0 0;
+}
+
+.route-card dl div {
+  padding: 10px;
+  border-radius: var(--radius);
+  background: #ffffff;
+}
+
+dt {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+}
+
+dd {
+  margin: 2px 0 0;
+  color: var(--color-primary-dark);
+  font-weight: 800;
+}
+
+.sms-preview {
+  color: #ffffff;
+  background: var(--color-primary-dark);
+}
+
+.sms-preview p {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.final-cta {
+  padding: 92px 0;
+  color: #ffffff;
+  background: var(--color-primary-dark);
+  text-align: center;
+}
+
+.final-cta h2 {
+  color: #ffffff;
+}
+
+.final-cta p {
+  max-width: 650px;
+  margin: 18px auto 0;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.cta-actions {
+  justify-content: center;
+}
+
+.site-footer {
+  padding: 52px 0;
+  background: #102f22;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.footer-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 0.7fr 1fr;
+  gap: 32px;
+}
+
+.footer-brand {
+  color: #ffffff;
+}
+
+.site-footer h2 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.site-footer a:not(.brand) {
+  display: block;
+  margin-top: 8px;
+}
+
+.site-footer p {
+  margin: 12px 0 0;
+}
+
+@media (max-width: 940px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 72px;
+    left: 16px;
+    right: 16px;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    box-shadow: var(--shadow);
+  }
+
+  .nav-links.is-open {
+    display: flex;
+  }
+
+  .nav-links a {
+    padding: 12px;
+    border-radius: var(--radius);
+  }
+
+  .hero-content,
+  .pilot-layout,
+  .preview-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-content {
+    padding-top: 64px;
+  }
+
+  .plan-panel {
+    max-width: 560px;
+  }
+
+  .card-grid.three,
+  .card-grid.features,
+  .card-grid.roles,
+  .timeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card-grid.features .info-card,
+  .card-grid.features .info-card:nth-last-child(2),
+  .card-grid.features .info-card:last-child {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    width: calc(100% - 24px);
+    max-width: 1120px;
+  }
+
+  .hero {
+    min-height: auto;
+  }
+
+  .hero-overlay {
+    background: rgba(10, 35, 24, 0.76);
+  }
+
+  .hero-content {
+    gap: 28px;
+    padding: 56px 0 42px;
+  }
+
+  h1 {
+    max-width: 11ch;
+    font-size: 2rem;
+  }
+
+  .hero .eyebrow {
+    max-width: 340px;
+    font-size: 0.7rem;
+  }
+
+  .hero-lede {
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  .hero-actions,
+  .cta-actions {
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+
+  .plan-stats,
+  .metrics,
+  .route-strip,
+  .stats-grid,
+  .route-card dl,
+  .card-grid.three,
+  .card-grid.features,
+  .card-grid.roles,
+  .timeline,
+  .footer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .section,
+  .final-cta {
+    padding: 64px 0;
+  }
+
+  .section-heading {
+    text-align: left;
+  }
 }
