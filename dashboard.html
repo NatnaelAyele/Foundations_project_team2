@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operations Workspace · Post-Harvest Coordination</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <!-- I built the sidebar collapsed by default and only expand it on
+         hover/focus - see sidebar.js for the behavior. -->
+    <aside class="sidebar" tabindex="0">
+      <div class="sidebar-collapsed-mark"><span>MENU</span></div>
+
+      <div class="sidebar-content">
+        <div class="sidebar-org">Kamonyi District</div>
+        <div class="sidebar-title">Post-Harvest Coordination</div>
+
+        <nav>
+          <div class="sidebar-group">
+            <a href="dashboard.html" class="sidebar-link is-current">Operations Workspace</a>
+          </div>
+
+          <div class="sidebar-group">
+            <div class="sidebar-group-label">Farmers</div>
+            <a href="register-farmer.html" class="sidebar-sub">Register Farmer</a>
+            <a href="#" class="sidebar-sub">View Farmers</a>
+          </div>
+
+          <div class="sidebar-group">
+            <div class="sidebar-group-label">Harvest Forecast</div>
+            <a href="forecast.html" class="sidebar-sub">New Forecast</a>
+            <a href="#" class="sidebar-sub">View Forecasts</a>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="#" class="sidebar-link js-logout">Logout</a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <span class="topbar-crumb">Operations Workspace</span>
+        <span class="topbar-user">Signed in as Admin</span>
+      </div>
+
+      <section class="welcome-section">
+        <h1 class="js-greeting">Good Morning, Admin.</h1>
+        <p class="welcome-sub">Welcome to the Post-Harvest Logistics Coordination Platform.</p>
+
+        <div class="welcome-focus-label">Today's Focus</div>
+        <ul class="welcome-focus-list">
+          <li>Register new farmers</li>
+          <li>Capture harvest forecasts</li>
+          <li>Coordinate logistics efficiently</li>
+        </ul>
+      </section>
+
+      <!-- I kept these cards small and plain on purpose - this is an
+           operations tool, not an analytics page. -->
+      <div class="summary-row">
+        <div class="summary-card">
+          <div class="summary-label">Registered Farmers</div>
+          <div class="summary-value">128</div>
+          <div class="summary-meta">6 added this week</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-label">Harvest Forecasts Submitted</div>
+          <div class="summary-value">94</div>
+          <div class="summary-meta">12 added this week</div>
+        </div>
+
+        <div class="summary-card is-attention">
+          <div class="summary-label">Pending Forecasts</div>
+          <div class="summary-value">17</div>
+          <div class="summary-meta">Awaiting pickup confirmation</div>
+        </div>
+      </div>
+
+      <div class="workspace-tables">
+        <div class="table-panel">
+          <div class="table-panel-header">
+            <h2>Recent Farmer Registrations</h2>
+            <a href="#">View all</a>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Sector</th>
+                <th>Crop</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Uwimana Claudine</td>
+                <td>Rukoma</td>
+                <td>Tomato</td>
+              </tr>
+              <tr>
+                <td>Ndayisenga Eric</td>
+                <td>Nyarubaka</td>
+                <td>Tomato</td>
+              </tr>
+              <tr>
+                <td>Mukamana Alice</td>
+                <td>Runda</td>
+                <td>Tomato</td>
+              </tr>
+              <tr>
+                <td>Habimana Jean Paul</td>
+                <td>Musambira</td>
+                <td>Tomato</td>
+              </tr>
+              <tr>
+                <td>Uwase Solange</td>
+                <td>Kayenzi</td>
+                <td>Tomato</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-panel">
+          <div class="table-panel-header">
+            <h2>Recent Harvest Forecasts</h2>
+            <a href="#">View all</a>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Farmer</th>
+                <th>Quantity</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Uwimana Claudine</td>
+                <td>320 kg</td>
+                <td><span class="status-pill is-done">Confirmed</span></td>
+              </tr>
+              <tr>
+                <td>Ndayisenga Eric</td>
+                <td>180 kg</td>
+                <td><span class="status-pill is-pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td>Mukamana Alice</td>
+                <td>410 kg</td>
+                <td><span class="status-pill is-done">Confirmed</span></td>
+              </tr>
+              <tr>
+                <td>Habimana Jean Paul</td>
+                <td>150 kg</td>
+                <td><span class="status-pill is-pending">Pending</span></td>
+              </tr>
+              <tr>
+                <td>Uwase Solange</td>
+                <td>275 kg</td>
+                <td><span class="status-pill is-done">Confirmed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/sidebar.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
