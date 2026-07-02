@@ -31,7 +31,7 @@
           <a href="#features">Features</a>
           <a href="#users">For Users</a>
           <a href="#pilot">Pilot</a>
-          <a href="/login">Login</a>
+          <a href="login.html">Login</a>
           <a class="nav-cta" href="#get-started">Get Started</a>
         </div>
       </nav>
@@ -39,20 +39,45 @@
 
     <main id="top">
       <section class="hero" aria-labelledby="hero-title">
-        <img
-          class="hero-image"
-          src="static/images/freshlink-hero.png"
-          alt="Tomato crates near a cold hub and refrigerated truck"
-        >
+        <div class="hero-carousel" aria-label="FreshLink tomato coordination images">
+          <img
+            class="hero-image is-active"
+            src="static/images/hero-farming.png"
+            alt="Fresh tomato harvest crates beside tomato plants"
+          >
+          <img
+            class="hero-image"
+            src="static/images/hero-transport.png"
+            alt="Tomato crates being prepared for cold truck transport"
+          >
+          <img
+            class="hero-image"
+            src="static/images/hero-spoilage.png"
+            alt="Spoiled tomatoes in crates showing post-harvest loss"
+          >
+
+          <div class="carousel-controls" aria-label="Hero image controls">
+            <div class="carousel-dots" aria-label="Choose hero image">
+              <button class="carousel-dot is-active" type="button" data-carousel-slide="0" aria-label="Show tomato farming image">
+                <span></span>
+              </button>
+              <button class="carousel-dot" type="button" data-carousel-slide="1" aria-label="Show tomato transport image">
+                <span></span>
+              </button>
+              <button class="carousel-dot" type="button" data-carousel-slide="2" aria-label="Show tomato spoilage image">
+                <span></span>
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="hero-overlay" aria-hidden="true"></div>
 
         <div class="container hero-content">
           <div class="hero-copy">
-            <p class="eyebrow">Tomato harvest planning for admins, hubs, and truck providers</p>
+            <p class="eyebrow">Tomato harvest planning for farmers, truck providers, and storage hubs</p>
             <h1 id="hero-title">Keep tomatoes fresh from farm to market.</h1>
             <p class="hero-lede">
-              FreshLink helps admins register tomato farmers and harvest forecasts, cold hubs share
-              available storage, and truck providers coordinate pickups while farmers receive updates by SMS.
+              FreshLink helps forecast harvest, match tomato farmers with cold hubs and transport providers, and send SMS updates to farmers.
             </p>
             <div class="hero-actions" aria-label="Primary actions">
               <a class="button button-primary" href="#get-started">Get Started</a>
@@ -60,16 +85,6 @@
             </div>
           </div>
 
-          <aside class="plan-panel" aria-label="Pilot coordination snapshot">
-            <div class="panel-header">
-              <span>Our work in numbers</span>
-            </div>
-            <div class="plan-stats">
-              <div><span>Tomato farmers registered</span><strong>94</strong></div>
-              <div><span>Total hub space available</span><strong>12,000 kg</strong></div>
-              <div><span>Cold trucks available</span><strong>250</strong></div>
-            </div>
-          </aside>
         </div>
       </section>
 
@@ -113,18 +128,18 @@
 
           <div class="card-grid three">
             <article class="role-card">
-              <h3>Farmers by SMS</h3>
-              <p>Farmers do not need a dashboard. They receive pickup, storage, and confirmation updates through SMS.</p>
+              <h3>Farmers by USSD & SMS</h3>
+              <p>Farmers use USSD to access functionalities of the dashboard. And receive pickup, storage, and confirmation updates through SMS.</p>
             </article>
             <article class="role-card">
               <h3>Cold Hubs</h3>
               <p>Update available storage capacity and prepare for incoming tomato harvests.</p>
-              <a href="/register?role=hub">Register a Hub</a>
+              <a href="register.html#hub-registration">Register a Hub</a>
             </article>
             <article class="role-card">
               <h3>Truck Providers</h3>
               <p>Share truck availability, view grouped tomato pickup requests, and follow suggested routes.</p>
-              <a href="/register?role=transporter">Register a Truck</a>
+              <a href="register.html#truck-registration">Register a Truck</a>
             </article>
           </div>
         </div>
@@ -183,7 +198,7 @@
         <div class="container">
           <div class="section-heading">
             <p class="eyebrow">Dashboards and SMS</p>
-            <h2 id="users-title">Dashboards for operators, SMS updates for farmers.</h2>
+            <h2 id="users-title">Dashboards for operators, USSD & SMS updates for farmers.</h2>
           </div>
 
           <div class="card-grid roles">
@@ -191,6 +206,7 @@
               <h3>Farmer SMS Updates</h3>
               <ul>
                 <li>No platform login required</li>
+                <li>use USSD inplace of a dashboard</li>
                 <li>Receive pickup confirmation</li>
                 <li>Receive storage allocation updates</li>
                 <li>Receive truck and pickup time details</li>
@@ -241,10 +257,10 @@
           </div>
 
           <div class="stats-grid" aria-label="Pilot scope">
-            <div><strong>25-40</strong><span>tomato farmers registered by admin</span></div>
-            <div><strong>2-3</strong><span>cold hubs and transport providers</span></div>
+            <div><strong>10-15</strong><span>tomato farmers registered</span></div>
+            <div><strong>5-7</strong><span>cold hubs and transport providers</span></div>
             <div><strong>6 weeks</strong><span>pilot evaluation window</span></div>
-            <div><strong>SMS + Dashboards</strong><span>farmers by SMS, operators by web</span></div>
+            <div><strong>SMS, Dashboards, & USSD</strong><span>farmers by SMS/USSD, operators by web</span></div>
           </div>
         </div>
       </section>
@@ -253,9 +269,8 @@
         <div class="container">
           <h2 id="cta-title">Ready to coordinate the next tomato harvest?</h2>
           <div class="cta-actions">
-            <a class="button button-primary" href="/register?role=admin">Register as Admin</a>
-            <a class="button button-light" href="/register?role=hub">Register as Hub Operator</a>
-            <a class="button button-light" href="/register?role=transporter">Register as Truck Provider</a>
+            <a class="button button-primary" href="register.html#hub-registration">Register as Hub Operator</a>
+            <a class="button button-primary" href="register.html#truck-registration">Register as Truck Provider</a>
           </div>
         </div>
       </section>
@@ -275,7 +290,7 @@
           <a href="#how-it-works">How It Works</a>
           <a href="#features">Features</a>
           <a href="#pilot">Pilot</a>
-          <a href="/login">Login</a>
+          <a href="login.html">Login</a>
         </div>
         <div>
           <h2>Contact</h2>
