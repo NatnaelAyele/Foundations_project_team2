@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FreshLink Operations Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <!-- Top navigation, same structure across every admin page -->
+  <nav class="top-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="admin-dashboard.html">
+        <span class="mark"></span>
+        FreshLink
+      </a>
+
+      <ul class="nav-links">
+        <li><a class="nav-link active" href="admin-dashboard.html">Workspace</a></li>
+
+        <li class="has-dropdown">
+          <a class="nav-link" href="#">Farmers <span class="nav-caret">&#9662;</span></a>
+          <div class="dropdown">
+            <a href="register-farmer.html">Register Farmer</a>
+            <a href="view-farmers.html">View Farmers</a>
+          </div>
+        </li>
+
+        <li class="has-dropdown">
+          <a class="nav-link" href="#">Harvest Forecast <span class="nav-caret">&#9662;</span></a>
+          <div class="dropdown">
+            <a href="forecast.html">New Forecast</a>
+            <a href="view-forecasts.html">View Forecasts</a>
+          </div>
+        </li>
+
+        <li><a class="nav-link" href="reports.html">Reports</a></li>
+        <li><a class="nav-link nav-logout" href="login.html">Logout</a></li>
+      </ul>
+
+      <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+    </div>
+  </nav>
+
+  <main class="shell">
+
+    <!-- Welcome section -->
+    <section class="workspace-hero">
+      <div>
+        <p class="greeting">Good morning, Admin</p>
+        <h1>Welcome to the FreshLink Operations Workspace</h1>
+        <p>Use this workspace to register farmers, capture harvest forecasts, and coordinate tomato harvest planning before losses happen.</p>
+      </div>
+      <div class="hero-date">
+        <p class="date-label">Today</p>
+        <p class="date-value" id="today-date">Friday, 3 July 2026</p>
+      </div>
+    </section>
+
+    <!-- Today's coordination focus -->
+    <div class="section-heading">
+      <h2>Today's Coordination Focus</h2>
+    </div>
+    <ul class="focus-list">
+      <li>Register new farmers joining the Kamonyi District network</li>
+      <li>Capture expected harvest quantities for the coming week</li>
+      <li>Review forecasts that still need transport or storage</li>
+      <li>Keep farmer records organized and up to date</li>
+    </ul>
+
+    <!-- Summary cards -->
+    <div class="section-heading">
+      <h2>Overview</h2>
+      <span class="section-sub">Updated a few minutes ago</span>
+    </div>
+    <div class="card-grid">
+      <div class="summary-card">
+        <p class="card-label">Registered Farmers</p>
+        <p class="card-value">128</p>
+        <p class="card-note">+6 this week</p>
+      </div>
+      <div class="summary-card">
+        <p class="card-label">Harvest Forecasts Submitted</p>
+        <p class="card-value">42</p>
+        <p class="card-note">+9 this week</p>
+      </div>
+      <div class="summary-card">
+        <p class="card-label">Forecasts Needing Transport</p>
+        <p class="card-value">17</p>
+        <p class="card-note">Coordinate with truck providers</p>
+      </div>
+      <div class="summary-card">
+        <p class="card-label">Forecasts Needing Storage</p>
+        <p class="card-value">11</p>
+        <p class="card-note">Coordinate with cold hubs</p>
+      </div>
+    </div>
+
+    <!-- Recent farmer registrations -->
+    <div class="section-heading">
+      <h2>Recent Farmer Registrations</h2>
+      <a class="section-sub" href="view-farmers.html">View all farmers &rarr;</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Farmer Name</th>
+            <th>Sector</th>
+            <th>Village</th>
+            <th>Phone Number</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- I used this data so the table does not look empty before backend integration. -->
+          <tr>
+            <td>Jean Baptiste Nzeyimana</td>
+            <td>Nyarubaka</td>
+            <td>Kavumu</td>
+            <td>+250 788 221 340</td>
+            <td><span class="status-pill status-active">Active</span></td>
+          </tr>
+          <tr>
+            <td>Alice Uwamahoro</td>
+            <td>Rukoma</td>
+            <td>Gahogo</td>
+            <td>+250 722 118 065</td>
+            <td><span class="status-pill status-new">New</span></td>
+          </tr>
+          <tr>
+            <td>Emmanuel Habimana</td>
+            <td>Runda</td>
+            <td>Nyagisozi</td>
+            <td>+250 788 904 512</td>
+            <td><span class="status-pill status-active">Active</span></td>
+          </tr>
+          <tr>
+            <td>Claudine Mukamana</td>
+            <td>Nyamiyaga</td>
+            <td>Kabuye</td>
+            <td>+250 733 552 871</td>
+            <td><span class="status-pill status-pending">Pending Review</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent harvest forecasts -->
+    <div class="section-heading">
+      <h2>Recent Harvest Forecasts</h2>
+      <a class="section-sub" href="view-forecasts.html">View all forecasts &rarr;</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Farmer Name</th>
+            <th>Harvest Date</th>
+            <th>Quantity</th>
+            <th>Transport Needed</th>
+            <th>Storage Needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Jean Baptiste Nzeyimana</td>
+            <td>10 Jul 2026</td>
+            <td>420 kg</td>
+            <td><span class="tag-yes">Yes</span></td>
+            <td><span class="tag-no">No</span></td>
+          </tr>
+          <tr>
+            <td>Alice Uwamahoro</td>
+            <td>12 Jul 2026</td>
+            <td>310 kg</td>
+            <td><span class="tag-yes">Yes</span></td>
+            <td><span class="tag-yes">Yes</span></td>
+          </tr>
+          <tr>
+            <td>Emmanuel Habimana</td>
+            <td>14 Jul 2026</td>
+            <td>580 kg</td>
+            <td><span class="tag-no">No</span></td>
+            <td><span class="tag-yes">Yes</span></td>
+          </tr>
+          <tr>
+            <td>Claudine Mukamana</td>
+            <td>16 Jul 2026</td>
+            <td>245 kg</td>
+            <td><span class="tag-yes">Yes</span></td>
+            <td><span class="tag-no">No</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="site-footer">
+      FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District
+    </footer>
+
+  </main>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
