@@ -41,7 +41,7 @@ def print_received_notification(notification):
         time_label = "Time"
         type_label = "Type"
 
-    print("\n========== SMS NOTIFICATION ==========")
+    print("\n========== SMS NOTIFICATION ===========")
     print(f"{from_label}: Tomato Logistics")
     print(f"{to_label}: {notification['phone_number']}")
     print(f"{time_label}: {notification['sent_at']}")

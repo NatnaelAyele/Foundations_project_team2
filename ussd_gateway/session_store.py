@@ -1,16 +1,16 @@
-# Sprint 1: stores active USSD sessions in memory.
-# Future: this can move to Redis or a database session table.
+# Currently stores active sessions
+# But in the future will be moved to Redis or databas
 SESSIONS = {}
 
-# Sprint 1: stores harvest reports in memory.
-# Future: this will become the harvest_forecasts table.
+# Currently stores harvest forecast
+# Will be moved to the db in the future
 FORECASTS = []
 
 
 def reset_state():
     """
     Clears all temporary demo data.
-    Used before tests or fresh simulations.
+    Employed before making a new test or demo.
     """
     SESSIONS.clear()
     FORECASTS.clear()
@@ -19,9 +19,6 @@ def reset_state():
 def save_forecast(forecast):
     """
     Saves a new harvest forecast.
-
-    Future database connection:
-    Replace this with INSERT INTO harvest_forecasts.
     """
     FORECASTS.append(forecast)
     return forecast
@@ -30,9 +27,6 @@ def save_forecast(forecast):
 def get_latest_forecast(phone_number):
     """
     Gets the latest harvest forecast for one farmer.
-
-    Future database connection:
-    Replace this with SELECT latest forecast WHERE phone_number = ...
     """
     farmer_forecasts = [
         forecast for forecast in FORECASTS
@@ -48,9 +42,6 @@ def get_latest_forecast(phone_number):
 def update_forecast(forecast, quantity_kg, harvest_date, harvest_time):
     """
     Updates a pending harvest forecast.
-
-    Farmers may harvest more or less than expected, so this allows them
-    to correct the quantity, date, or time before coordination happens.
     """
     forecast["quantity_kg"] = quantity_kg
     forecast["harvest_date"] = harvest_date
@@ -63,9 +54,6 @@ def update_forecast(forecast, quantity_kg, harvest_date, harvest_time):
 def cancel_forecast(forecast):
     """
     Cancels a pending harvest forecast.
-
-    Only pending reports should be cancelled through USSD.
-    Allocated trips should be handled by the admin.
     """
     forecast["status"] = "cancelled"
     return forecast

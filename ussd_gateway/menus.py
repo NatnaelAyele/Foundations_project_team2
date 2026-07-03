@@ -8,7 +8,6 @@ def language_menu():
         "2. Kinyarwanda"
     )
 
-
 def main_menu(farmer, language):
     """
     Main farmer menu.
@@ -32,7 +31,7 @@ def main_menu(farmer, language):
         "2. Check pickup status\n"
         "3. Update latest harvest report\n"
         "4. Cancel latest harvest report\n"
-        "5. View SMS messages\n"
+        "5. View my SMS messages\n"
         "6. Help\n"
         "7. Change language\n"
         "0. Exit"
@@ -44,9 +43,9 @@ def quantity_prompt(language):
     Asks farmer to enter tomato quantity.
     """
     if language == "rw":
-        return "Andika ingano y'inyanya muri kg.\nUrugero: 300\n\n9. Subira inyuma\n0. Sohoka"
+        return "Andika ingano y'inyanya muri kg.(nka: 300)\n9. Subira inyuma\n0. Sohoka"
 
-    return "Enter tomato quantity in kg.\nExample: 300\n\n9. Back\n0. Exit"
+    return "Enter tomato quantity in kg. (e.g: 300)\n9. Back\n0. Exit"
 
 
 def date_prompt(language):
@@ -54,9 +53,9 @@ def date_prompt(language):
     Asks farmer to enter harvest date.
     """
     if language == "rw":
-        return "Andika itariki yo gusarura.\nUrugero: 2026-07-03\n\n9. Subira inyuma\n0. Sohoka"
+        return "Andika itariki yo gusarura.(nka: 2026-07-03)\n9. Subira inyuma\n0. Sohoka"
 
-    return "Enter harvest date.\nExample: 2026-07-03\n\n9. Back\n0. Exit"
+    return "Enter harvest date. (e.g: 2026-07-03)\n9. Back\n0. Exit"
 
 
 def time_prompt(language):
@@ -64,9 +63,9 @@ def time_prompt(language):
     Asks farmer to enter harvest time.
     """
     if language == "rw":
-        return "Andika isaha yo gusarura.\nUrugero: 08:00\n\n9. Subira inyuma\n0. Sohoka"
+        return "Andika isaha yo gusarura.(nka): 08:00)\n9. Subira inyuma\n0. Sohoka"
 
-    return "Enter harvest time.\nExample: 08:00\n\n9. Back\n0. Exit"
+    return "Enter harvest time.(e.g: 08:00)\n9. Back\n0. Exit"
 
 
 def confirm_harvest_message(session):
@@ -81,7 +80,7 @@ def confirm_harvest_message(session):
         submit_word = "Ohereza" if action == "CREATE" else "Vugurura"
 
         return (
-            f"{title}\n"
+            f"-----------------------------------\n{title}\n"
             f"Ingano: {session['quantity_kg']}kg z'inyanya\n"
             f"Itariki: {session['harvest_date']}\n"
             f"Igihe: {session['harvest_time']}\n\n"
@@ -90,11 +89,11 @@ def confirm_harvest_message(session):
             "0. Sohoka"
         )
 
-    title = "Confirm harvest report:" if action == "CREATE" else "Confirm harvest update:"
+    title = "Confirm your harvest report:" if action == "CREATE" else "Confirm harvest update:"
     submit_word = "Submit" if action == "CREATE" else "Update"
 
     return (
-        f"{title}\n"
+        f"------------------------------------\n{title}\n"
         f"Quantity: {session['quantity_kg']}kg tomatoes\n"
         f"Date: {session['harvest_date']}\n"
         f"Time: {session['harvest_time']}\n\n"
@@ -102,7 +101,6 @@ def confirm_harvest_message(session):
         "9. Back\n"
         "0. Exit"
     )
-
 
 def submitted_message(language):
     """
@@ -177,9 +175,9 @@ def invalid_quantity(language):
     Message for invalid quantity.
     """
     if language == "rw":
-        return "Ingano siyo. Andika umubare gusa.\nUrugero: 300"
+        return "Ingano siyo. \nAndika umubare gusa.(nka: 300)"
 
-    return "Invalid quantity. Enter a number only.\nExample: 300"
+    return "Invalid quantity. \nEnter a number only.(e.g: 300)"
 
 
 def invalid_date(language):
@@ -187,9 +185,9 @@ def invalid_date(language):
     Message for invalid date format.
     """
     if language == "rw":
-        return "Itariki siyo.\nKoresha YYYY-MM-DD.\nUrugero: 2026-07-03"
+        return "Itariki siyo.\nKoresha YYYY-MM-DD. (nka: 2026-07-03)"
 
-    return "Invalid date format.\nUse YYYY-MM-DD.\nExample: 2026-07-03"
+    return "Invalid date format.\nUse YYYY-MM-DD. (e.g: 2026-07-03)"
 
 
 def invalid_time(language):
@@ -197,6 +195,6 @@ def invalid_time(language):
     Message for invalid time format.
     """
     if language == "rw":
-        return "Igihe si cyo.\nKoresha HH:MM.\nUrugero: 08:00"
+        return "Igihe si cyo.\nKoresha HH:MM. (nka: 08:00)"
 
-    return "Invalid time format.\nUse HH:MM.\nExample: 08:00"
+    return "Invalid time format.\nUse HH:MM. (e.g: 08:00)"

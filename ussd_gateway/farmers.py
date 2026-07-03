@@ -1,5 +1,3 @@
-# ussd_gateway/farmers.py
-
 # Sprint 1: this file simulates registered farmers.
 # Future: this file will connect to the farmers table in PostgreSQL.
 
@@ -20,12 +18,7 @@ REGISTERED_FARMERS = {
 def normalize_phone(phone_number):
     """
     Converts phone numbers into one standard format.
-
-    Example:
-    0788000001 becomes +250788000001
-
-    This helps the system recognize the same farmer even if the
-    phone number is typed in local format.
+    Eg: 0788000001 becomes +250788000001
     """
     phone_number = phone_number.strip().replace(" ", "")
 
@@ -38,13 +31,8 @@ def normalize_phone(phone_number):
 def get_farmer_by_phone(phone_number):
     """
     Finds a registered farmer using their phone number.
-
-    Sprint 1:
-    - Looks inside REGISTERED_FARMERS.
-
-    Future:
-    - Replace this with a database query:
-      SELECT * FROM farmers WHERE phone = phone_number
+    This currently looks in the registered farmer list, 
+    But in the future will be replaced with sql querries
     """
     phone_number = normalize_phone(phone_number)
     return REGISTERED_FARMERS.get(phone_number)

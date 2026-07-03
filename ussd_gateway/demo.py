@@ -16,15 +16,12 @@ def print_response(response):
 def run_demo():
     """
     Runs a terminal-based USSD simulation.
-
-    This lets the team test the farmer experience without paying for
-    a real USSD code like *304#.
+    Testing a fermer experince of dailing *304#
     """
     print("\nTomato Logistics USSD Demo")
-    print("--------------------------")
-    print("This simulates dialing *304#.")
-    print("Use a registered phone number:")
-    print("+250788000001 or 0788000001")
+    print("-----------------------------------------")
+    print("Enter your registered number to continue.")
+    print("Eg: +250788000001 or 0788000001")
     print("Type EXIT to stop.\n")
 
     phone_number = input("Farmer phone number: ")

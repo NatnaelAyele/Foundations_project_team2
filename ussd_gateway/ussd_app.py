@@ -192,7 +192,6 @@ def handle_info_screen(phone_number, choice):
 def clear_harvest_draft(session):
     """
     Removes temporary harvest values from the session.
-
     This prevents old quantity/date/time values from being reused by mistake.
     """
     session.pop("quantity_kg", None)
@@ -259,7 +258,6 @@ def start_update_flow(phone_number):
 def handle_quantity(phone_number, text):
     """
     Validates quantity and moves to date step.
-
     9 takes the farmer back to the main menu.
     """
     session = SESSIONS[phone_number]
@@ -286,7 +284,6 @@ def handle_quantity(phone_number, text):
 def handle_date(phone_number, text):
     """
     Validates date and moves to time step.
-
     9 returns the farmer to quantity entry.
     """
     session = SESSIONS[phone_number]
@@ -310,7 +307,6 @@ def handle_date(phone_number, text):
 def handle_time(phone_number, text):
     """
     Validates time and moves to confirmation screen.
-
     9 returns the farmer to date entry.
     """
     session = SESSIONS[phone_number]

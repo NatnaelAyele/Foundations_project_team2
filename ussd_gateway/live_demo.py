@@ -74,11 +74,9 @@ def run_live_demo():
     clear_notifications()
 
     print("\nTomato Logistics Phone Simulator")
-    print("--------------------------------")
-    print("This simulates dialing *304# and receiving SMS messages.")
-    print("Type INBOX anytime to view SMS messages.")
-    print("Use a registered phone number:")
-    print("+250788000001 or 0788000001")
+    print("-----------------------------------------")
+    print("Enter your registered number to continue.")
+    print("Eg: +250788000001 or 0788000001")
     print("Type EXIT to stop the simulator.\n")
 
     while True:
