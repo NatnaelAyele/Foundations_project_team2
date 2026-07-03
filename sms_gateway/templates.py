@@ -1,6 +1,8 @@
+# message templates that will be used
+
 def harvest_recorded_message(forecast, language="en"):
     """
-    Builds the SMS sent after a farmer submits a new harvest report.
+    Builds the SMS message sent after a farmer submits a new harvest report.
     """
     if language == "rw":
         return (
@@ -22,7 +24,7 @@ def harvest_recorded_message(forecast, language="en"):
 
 def harvest_updated_message(forecast, language="en"):
     """
-    Builds the SMS sent after a farmer updates a pending harvest report.
+    Builds the SMS message sent after a farmer updates a pending harvest report.
     """
     if language == "rw":
         return (
@@ -44,7 +46,7 @@ def harvest_updated_message(forecast, language="en"):
 
 def harvest_cancelled_message(forecast, language="en"):
     """
-    Builds the SMS sent after a farmer cancels a pending harvest report.
+    Builds the SMS message sent after a farmer cancels a pending harvest report.
     """
     if language == "rw":
         return (
@@ -64,8 +66,7 @@ def harvest_cancelled_message(forecast, language="en"):
 
 def trip_assigned_message(trip, language="en"):
     """
-    Builds the SMS sent after the coordination engine assigns a pickup trip.
-    This will be used later when trip allocation is connected.
+    Builds the SMS message sent after the coordination engine assigns a pickup trip.
     """
     if language == "rw":
         return (
@@ -87,7 +88,7 @@ def trip_assigned_message(trip, language="en"):
 
 def trip_cancelled_message(trip, language="en"):
     """
-    Builds the SMS sent when an assigned pickup trip is cancelled.
+    Builds the SMS message sent when an assigned pickup trip is cancelled.
     """
     if language == "rw":
         return (
