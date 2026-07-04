@@ -195,7 +195,7 @@ img {
   cursor: pointer;
 }
 
-/*  Page header  */
+/* ---------- Page header ---------- */
 
 .page-header {
   padding: 40px 0 8px;
@@ -228,19 +228,24 @@ img {
   margin: 0;
 }
 
-/*  Welcome / hero section on the workspace page  */
+/* ---------- Welcome / hero section on the workspace page ---------- */
 
 .workspace-hero {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  padding: 36px 40px;
+  padding: 32px 36px;
   margin: 28px 0 32px;
   box-shadow: var(--shadow-card);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 32px;
+  gap: 28px;
+}
+
+.hero-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .workspace-hero h1 {
@@ -251,12 +256,10 @@ img {
 }
 
 .workspace-hero .greeting {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin: 0 0 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-muted);
+  margin: 0 0 6px;
 }
 
 .workspace-hero p {
@@ -265,26 +268,61 @@ img {
   margin: 0;
 }
 
-.hero-date {
-  text-align: right;
-  flex-shrink: 0;
-  padding-top: 4px;
+/* I moved the date under the copy as a small inline chip so the illustration could take the right-hand slot instead. */
+.hero-date-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  max-width: none;
 }
 
-.hero-date .date-label {
-  font-size: 13px;
+.hero-date-inline .date-label {
+  font-size: 12.5px;
   color: var(--color-muted);
-  margin: 0 0 4px;
 }
 
-.hero-date .date-value {
-  font-size: 15px;
+.hero-date-inline .date-value {
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--color-text);
-  margin: 0;
 }
 
-/*  Section headings  */
+/* Hero image - kept small and paired with a live stat so it reads as supporting context, not a marketing banner. */
+.hero-illustration {
+  flex-shrink: 0;
+  width: 200px;
+  height: 170px;
+  border-radius: var(--radius-control);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  position: relative;
+}
+
+.hero-illustration img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-illustration .photo-stat {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 6px 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(to top, rgba(20, 92, 56, 0.8), transparent);
+}
+
+/* ---------- Section headings ---------- */
 
 .section-heading {
   display: flex;
@@ -304,7 +342,7 @@ img {
   color: var(--color-muted);
 }
 
-/*  Today's focus list  */
+/* ---------- Today's focus list ---------- */
 
 .focus-list {
   list-style: none;
@@ -336,7 +374,7 @@ img {
   flex-shrink: 0;
 }
 
-/*  Summary cards  */
+/* ---------- Summary cards ---------- */
 
 .card-grid {
   display: grid;
@@ -373,7 +411,7 @@ img {
   margin: 0;
 }
 
-/*  Cards / panels  */
+/* ---------- Cards / panels ---------- */
 
 .panel {
   background: var(--color-surface);
@@ -383,7 +421,7 @@ img {
   padding: 28px;
 }
 
-/*   Tables    */
+/* ---------- Tables ---------- */
 
 .table-wrap {
   background: var(--color-surface);
@@ -460,7 +498,7 @@ tbody tr:hover {
   color: var(--color-muted);
 }
 
-/*  Buttons  */
+/* ---------- Buttons ---------- */
 
 .btn {
   display: inline-flex;
@@ -510,7 +548,7 @@ tbody tr:hover {
   transform: translateY(1px);
 }
 
-/*  Forms  */
+/* ---------- Forms ---------- */
 
 .form-section {
   margin-bottom: 32px;
@@ -747,7 +785,48 @@ tbody tr:hover {
   font-weight: 600;
 }
 
-/*  Page footer  */
+/* ---------- Toast notification (used for the logout confirmation) ---------- */
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translate(-50%, 16px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-card);
+  padding: 14px 20px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--color-text);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  z-index: 200;
+  max-width: min(90vw, 380px);
+}
+
+.toast.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.toast .toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+}
+
+/* ---------- Page footer ---------- */
 
 .site-footer {
   margin-top: 64px;
@@ -758,7 +837,7 @@ tbody tr:hover {
   font-size: 13.5px;
 }
 
-/*  Responsive  */
+/* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {
   .card-grid {
@@ -772,9 +851,12 @@ tbody tr:hover {
   }
   .workspace-hero {
     flex-direction: column;
+    align-items: flex-start;
   }
-  .hero-date {
-    text-align: left;
+  .hero-illustration {
+    width: 100%;
+    height: 160px;
+    align-self: stretch;
   }
 }
 

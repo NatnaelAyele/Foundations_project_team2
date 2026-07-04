@@ -51,13 +51,15 @@ document.addEventListener("DOMContentLoaded", function () {
 // ---------- Logout confirmation ----------
 // I intercepted the click so we don't send the admin to a login page that isn't merged in yet.
 // This is a placeholder: it shows the confirmation message instead of navigating and throwing a 404.
-document.querySelectorAll(".nav-logout").forEach(function (logoutLink) {
-  logoutLink.addEventListener("click", function (e) {
-    e.preventDefault();
-    showToast("Logged out successfully.");
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".nav-logout").forEach(function (logoutLink) {
+    logoutLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      showToast("Logged out successfully.");
 
-    // Once the real login page is merged in, swap this placeholder for an actual redirect, e.g.:
-    // setTimeout(function () { window.location.href = logoutLink.getAttribute("href"); }, 1200);
+      // Once the real login page is merged in, swap this placeholder for an actual redirect, e.g.:
+      // setTimeout(function () { window.location.href = logoutLink.getAttribute("href"); }, 1200);
+    });
   });
 });
 
