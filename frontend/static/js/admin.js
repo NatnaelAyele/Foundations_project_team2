@@ -112,7 +112,6 @@ function getRadioValue(formEl, name) {
   return checked ? checked.value : "";
 }
 
-// ---------- Register Farmer form ----------
 var registerForm = document.getElementById("register-farmer-form");
 if (registerForm) {
   registerForm.addEventListener("submit", function (e) {
@@ -132,7 +131,6 @@ if (registerForm) {
   });
 }
 
-// ---------- Harvest Forecast form ----------
 var forecastForm = document.getElementById("forecast-form");
 if (forecastForm) {
   forecastForm.addEventListener("submit", function (e) {
@@ -151,7 +149,6 @@ if (forecastForm) {
   });
 }
 
-// ---------- Farmer records search ----------
 // I filtered on name, village, and phone since those are what an admin would actually search by.
 var farmerSearch = document.getElementById("farmer-search");
 if (farmerSearch) {
@@ -160,7 +157,6 @@ if (farmerSearch) {
   });
 }
 
-// ---------- Forecast records search ----------
 var forecastSearch = document.getElementById("forecast-search");
 if (forecastSearch) {
   forecastSearch.addEventListener("input", function () {
