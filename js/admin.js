@@ -48,6 +48,40 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// ---------- Logout confirmation ----------
+// I intercepted the click so we don't send the admin to a login page that isn't merged in yet.
+// This is a placeholder: it shows the confirmation message instead of navigating and throwing a 404.
+document.querySelectorAll(".nav-logout").forEach(function (logoutLink) {
+  logoutLink.addEventListener("click", function (e) {
+    e.preventDefault();
+    showToast("Logged out successfully.");
+
+    // Once the real login page is merged in, swap this placeholder for an actual redirect, e.g.:
+    // setTimeout(function () { window.location.href = logoutLink.getAttribute("href"); }, 1200);
+  });
+});
+
+// I made this reusable so any page can trigger a toast, not just logout.
+function showToast(message) {
+  var toast = document.getElementById("app-toast");
+
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "app-toast";
+    toast.className = "toast";
+    toast.innerHTML = '<span class="toast-dot"></span><span class="toast-text"></span>';
+    document.body.appendChild(toast);
+  }
+
+  toast.querySelector(".toast-text").textContent = message;
+  toast.classList.add("show");
+
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(function () {
+    toast.classList.remove("show");
+  }, 2600);
+}
+
 // ---------- Generic field validation helper ----------
 // I kept validation simple because the backend is not connected yet, this just checks for empty required fields.
 function validateForm(formEl) {
