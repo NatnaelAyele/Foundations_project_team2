@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Transporter Dashboard | FreshLink</title>
+    <meta name="description" content="View grouped tomato pickups, follow your route plan, and update truck status.">
+    <link rel="stylesheet" href="../static/css/transporter_dashboard.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav container" aria-label="Main navigation">
+        <a class="brand" href="#top" aria-label="FreshLink home">
+          <span class="brand-mark" aria-hidden="true">FL</span>
+          <span>FreshLink</span>
+        </a>
+        <button class="menu-toggle" type="button" aria-controls="nav-links" aria-expanded="false">
+          <span class="sr-only">Open menu</span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <div class="nav-links" id="nav-links">
+          <a href="#top">Home</a>
+          <a class="nav-cta" href="truck_status_update_form.html">Update Truck Status</a>
+        </div>
+      </nav>
+    </header>
+    <main id="top">
+      <section class="page-banner">
+        <div class="container">
+          <p class="eyebrow">Transporter Dashboard</p>
+          <h1>Today's grouped pickups</h1>
+          <p>See tomato pickups grouped by nearby farmers, follow the suggested route, and keep your truck status current so admins and hubs can plan around it.</p>
+        </div>
+      </section>
+      <section class="page-body">
+        <div class="container page-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-title">
+                <div>
+                  <h2>Grouped farmer pickups</h2>
+                  <p>Consolidated stops for your assigned route today.</p>
+                </div>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Farmer group</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Pickup window</th>
+                    <th scope="col">Destination hub</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Nyamiyaga cluster (3 farmers)</td>
+                    <td>410 kg</td>
+                    <td>9:00 – 10:00 AM</td>
+                    <td>Kamonyi Central Storage Hub</td>
+                    <td><span class="status-pill available">Confirmed</span></td>
+                  </tr>
+                  <tr>
+                    <td>Rukoma cluster (2 farmers)</td>
+                    <td>260 kg</td>
+                    <td>11:30 AM – 12:30 PM</td>
+                    <td>Rukoma Cold Storage</td>
+                    <td><span class="status-pill limited">Pending</span></td>
+                  </tr>
+                  <tr>
+                    <td>Kamonyi Central cluster (4 farmers)</td>
+                    <td>530 kg</td>
+                    <td>2:00 – 3:00 PM</td>
+                    <td>Kamonyi Central Storage Hub</td>
+                    <td><span class="status-pill limited">Pending</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="panel">
+              <div class="panel-title">
+                <div>
+                  <h2>Route plan</h2>
+                  <p>Suggested stop order based on farmer location and hub capacity.</p>
+                </div>
+              </div>
+              <div class="route-card">
+                <p>3 stops &middot; est. 38 km &middot; 1,200 kg total load</p>
+                <div class="route-strip">
+                  <span>Depot</span>
+                  <span>Nyamiyaga</span>
+                  <span>Rukoma</span>
+                  <span>Kamonyi Central Hub</span>
+                </div>
+                <dl>
+                  <div><dt>Distance</dt><dd>38 km</dd></div>
+                  <div><dt>Stops</dt><dd>3</dd></div>
+                  <div><dt>Load</dt><dd>1,200 kg</dd></div>
+                  <div><dt>Est. duration</dt><dd>2h 45m</dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-title">
+                <h2>Your truck</h2>
+              </div>
+              <div class="metrics" style="grid-template-columns: 1fr;">
+                <div><span>Truck</span><strong>RAD 812 K &middot; 2,000 kg cold truck</strong></div>
+                <div><span>Current status</span><strong><span class="status-pill available">Available</span></strong></div>
+              </div>
+              <a class="button button-primary" href="truck_status_update_form.html" style="margin-top: 18px; display: flex;">Update truck status</a>
+            </div>
+            <div class="panel">
+              <div class="panel-title">
+                <h2>Today at a glance</h2>
+              </div>
+              <div class="metrics">
+                <div><span>Grouped pickups</span><strong>3</strong></div>
+                <div><span>Confirmed</span><strong>1</strong></div>
+                <div><span>Total load</span><strong>1,200 kg</strong></div>
+                <div><span>Completed trips</span><strong>0</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container footer-layout">
+        <div>
+          <a class="brand footer-brand" href="#top">
+            <span class="brand-mark" aria-hidden="true">FL</span>
+            <span>FreshLink</span>
+          </a>
+          <p>Helping farmers, cold hubs, and truck providers coordinate tomato harvests.</p>
+        </div>
+        <div>
+          <h2>Links</h2>
+          <a href="../storagehub_dashboard/hub_dashboard.html">Hub Dashboard</a>
+          <a href="transporter_dashboard.html">Transporter Dashboard</a>
+        </div>
+        <div>
+          <h2>Contact</h2>
+          <p>info.lego@gmail.com</p>
+          <p>2026 FreshLink. Team lego.</p>
+        </div>
+      </div>
+    </footer>
+    <script src="../static/js/transporter_dashboard.js"></script>
+  </body>
+</html>

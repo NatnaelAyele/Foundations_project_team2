@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Update Storage Capacity | FreshLink</title>
+    <meta name="description" content="Let admins and transporters know how much cold storage space your hub has for incoming tomato deliveries.">
+    <link rel="stylesheet" href="../static/css/capacity_update_form.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav container" aria-label="Main navigation">
+        <a class="brand" href="#top" aria-label="FreshLink home">
+          <span class="brand-mark" aria-hidden="true">FL</span>
+          <span>FreshLink</span>
+        </a>
+        <button class="menu-toggle" type="button" aria-controls="nav-links" aria-expanded="false">
+          <span class="sr-only">Open menu</span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <div class="nav-links" id="nav-links">
+          <a href="#top">Home</a>
+          <a class="nav-cta" href="capacity_update_form.html" aria-current="page">Update Capacity</a>
+        </div>
+      </nav>
+    </header>
+    <main id="top">
+      <section class="page-banner">
+        <div class="container">
+          <p class="eyebrow">Hub Dashboard</p>
+          <h1>Update storage capacity</h1>
+          <p>Let transporters and admins know how much room you have for incoming tomato deliveries.</p>
+        </div>
+      </section>
+      <section class="page-body">
+        <div class="container page-grid">
+          <div>
+            <div id="confirmBanner" class="confirm-banner">Capacity updated. Transporters will see this immediately.</div>
+            <form id="capacityForm">
+              <div class="panel">
+                <div class="panel-title">
+                  <h2>Hub &amp; capacity details</h2>
+                </div>
+                <div class="field">
+                  <label for="hubName">Hub name</label>
+                  <select id="hubName" name="hubName" required>
+                    <option value="" disabled selected>Select your hub</option>
+                    <option value="kamonyi-central">Kamonyi Central Storage Hub</option>
+                    <option value="nyamiyaga">Nyamiyaga Collection Point</option>
+                    <option value="rukoma">Rukoma Cold Storage</option>
+                  </select>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="totalCapacity">Total capacity (kg)</label>
+                    <input type="number" id="totalCapacity" name="totalCapacity" min="0" step="10" placeholder="e.g. 2000" required>
+                  </div>
+                  <div class="field">
+                    <label for="availableCapacity">Available now (kg)</label>
+                    <input type="number" id="availableCapacity" name="availableCapacity" min="0" step="10" placeholder="e.g. 850" required>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="produceType">Produce type</label>
+                  <select id="produceType" name="produceType" required>
+                    <option value="tomatoes" selected>Tomatoes</option>
+                  </select>
+                  <p class="hint">Pilot phase covers tomatoes only.</p>
+                </div>
+                <div class="field">
+                  <label for="notes">Notes (optional)</label>
+                  <input type="text" id="notes" name="notes" placeholder="e.g. cooling unit under maintenance">
+                </div>
+              </div>
+              <button class="button button-primary" type="submit">Save capacity update</button>
+            </form>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-title">
+                <h2>Live preview</h2>
+              </div>
+              <div class="capacity-visual">
+                <div class="capacity-visual-label">Available now</div>
+                <div class="capacity-numbers">
+                  <span class="capacity-current" id="capCurrent">0</span>
+                  <span class="capacity-total" id="capTotalLabel">/ 0 kg total</span>
+                </div>
+                <div class="capacity-bar-track">
+                  <div class="capacity-bar-fill" id="capBarFill"></div>
+                </div>
+                <div class="capacity-status" id="capStatus">Enter your hub's numbers to preview.</div>
+              </div>
+              <p class="hint" style="margin-top: 14px;">This is what admins and transporters will see on their dashboards once you save.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container footer-layout">
+        <div>
+          <a class="brand footer-brand" href="#top">
+            <span class="brand-mark" aria-hidden="true">FL</span>
+            <span>FreshLink</span>
+          </a>
+          <p>Helping farmers, cold hubs, and truck providers coordinate tomato harvests.</p>
+        </div>
+        <div>
+          <h2>Links</h2>
+          <a href="hub_dashboard.html">Hub Dashboard</a>
+          <a href="../transporter_dashboard/transporter_dashboard.html">Transporter Dashboard</a>
+        </div>
+        <div>
+          <h2>Contact</h2>
+          <p>info.lego@gmail.com</p>
+          <p>2026 FreshLink. Team lego.</p>
+        </div>
+      </div>
+    </footer>
+    <script src="../static/js/capacity_update_form.js"></script>
+  </body>
+</html>
