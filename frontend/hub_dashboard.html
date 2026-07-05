@@ -1,1 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hub Dashboard | FreshLink</title>
+    <meta name="description" content="Update storage capacity, review incoming tomato harvest allocations, and confirm deliveries at your cold hub.">
+    <link rel="stylesheet" href="hub_dashboard.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav container" aria-label="Main navigation">
+        <a class="brand" href="index.html#top" aria-label="FreshLink home">
+          <span class="brand-mark" aria-hidden="true">FL</span>
+          <span>FreshLink</span>
+        </a>
+        <button class="menu-toggle" type="button" aria-controls="nav-links" aria-expanded="false">
+          <span class="sr-only">Open menu</span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+        <div class="nav-links" id="nav-links">
+          <a href="index.html#top">Home</a>
+          <a class="nav-cta" href="capacity_update_form.html">Update Capacity</a>
+        </div>
+      </nav>
+    </header>
+    <main id="top">
+      <section class="page-banner">
+        <div class="container">
+          <p class="eyebrow">Hub Dashboard</p>
+          <h1>Kamonyi Central Storage Hub</h1>
+          <p>Review incoming tomato harvest allocations, confirm deliveries as they arrive, and keep your available capacity up to date so admins and transporters can plan around it.</p>
+        </div>
+      </section>
+      <section class="page-body">
+        <div class="container page-grid">
+          <div>
+            <div class="panel">
+              <div class="panel-title">
+                <div>
+                  <h2>Incoming harvest allocations</h2>
+                  <p>Tomato deliveries matched to your hub by the coordination system.</p>
+                </div>
+              </div>
+              <table class="data-table" id="allocationsTable">
+                <thead>
+                  <tr>
+                    <th scope="col">Farmer</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Expected pickup</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-row-id="1">
+                    <td>Uwase Diane</td>
+                    <td>220 kg</td>
+                    <td>Today, 2:00 PM</td>
+                    <td><span class="status-pill limited">Pending</span></td>
+                    <td><button class="button button-secondary confirm-btn" type="button" data-row-id="1">Confirm received</button></td>
+                  </tr>
+                  <tr data-row-id="2">
+                    <td>Nkurunziza Eric</td>
+                    <td>150 kg</td>
+                    <td>Today, 4:30 PM</td>
+                    <td><span class="status-pill limited">Pending</span></td>
+                    <td><button class="button button-secondary confirm-btn" type="button" data-row-id="2">Confirm received</button></td>
+                  </tr>
+                  <tr data-row-id="3">
+                    <td>Mukamana Alice</td>
+                    <td>90 kg</td>
+                    <td>Yesterday, 5:15 PM</td>
+                    <td><span class="status-pill available">Confirmed</span></td>
+                    <td>&mdash;</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="panel">
+              <div class="panel-title">
+                <div>
+                  <h2>Storage availability</h2>
+                  <p>What transporters and admins currently see for your hub.</p>
+                </div>
+              </div>
+              <div class="capacity-visual">
+                <div class="capacity-visual-label">Available now</div>
+                <div class="capacity-numbers">
+                  <span class="capacity-current">850</span>
+                  <span class="capacity-total">/ 2,000 kg total</span>
+                </div>
+                <div class="capacity-bar-track">
+                  <div class="capacity-bar-fill" style="width: 42.5%;"></div>
+                </div>
+                <div class="capacity-status">42% of capacity free for incoming produce.</div>
+              </div>
+              <p class="hint" style="margin-top: 14px;">
+                Numbers change often &mdash; use <a href="capacity_update_form.html">Update Capacity</a> whenever space changes.
+              </p>
+            </div>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-title">
+                <h2>Today at a glance</h2>
+              </div>
+              <div class="metrics">
+                <div><span>Pending allocations</span><strong>2</strong></div>
+                <div><span>Confirmed today</span><strong>1</strong></div>
+                <div><span>Total capacity</span><strong>2,000 kg</strong></div>
+                <div><span>Available now</span><strong>850 kg</strong></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-title">
+                <h2>Hub details</h2>
+              </div>
+              <div class="metrics" style="grid-template-columns: 1fr;">
+                <div><span>Hub</span><strong>Kamonyi Central Storage Hub</strong></div>
+                <div><span>Produce type</span><strong>Tomatoes (pilot)</strong></div>
+                <div><span>Status</span><strong>Accepting deliveries</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container footer-layout">
+        <div>
+          <a class="brand footer-brand" href="index.html#top">
+            <span class="brand-mark" aria-hidden="true">FL</span>
+            <span>FreshLink</span>
+          </a>
+          <p>Helping farmers, cold hubs, and truck providers coordinate tomato harvests.</p>
+        </div>
+        <div>
+          <h2>Links</h2>
+          <a href="hub_dashboard.html">Hub Dashboard</a>
+          <a href="transporter_dashboard.html">Transporter Dashboard</a>
+          <a href="login.html">Login</a>
+        </div>
+        <div>
+          <h2>Contact</h2>
+          <p>info.lego@gmail.com</p>
+          <p>2026 FreshLink. Team lego.</p>
+        </div>
+      </div>
+    </footer>
+    <script src="hub_dashboard.js"></script>
+  </body>
+</html>
 
