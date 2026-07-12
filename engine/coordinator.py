@@ -20,7 +20,8 @@ from planner import Planner
 from reservation import ReservationManager
 from notifier import Notifier
 from logger import EngineLogger
-    
+
+
 class CoordinationEngine:
     """
     Coordinates the complete logistics pipeline.
@@ -96,17 +97,18 @@ class CoordinationEngine:
             )
 
             self.logger.info("Creating trip allocations...")
-            trip_allocations = self.planner.create_trip_allocations(
+            planning_results = self.planner.plan_trips(
+                plan["plan_id"],
                 hub_matches
             )
 
             self.logger.info("Reserving resources...")
             reservations = self.reservation.reserve(
-                trip_allocations
+                planning_results
             )
 
             self.logger.info("Sending notifications...")
-            notifications = self.notifier.send_notifications(
+            notifications = self.notifier.create_notifications(
                 reservations
             )
 
@@ -131,8 +133,8 @@ class CoordinationEngine:
                 self.fail_plan(plan)
 
             return {
-                "status":"failed",
-                "error":str(error)
+                "status": "failed",
+                "error": str(error)
             }
         finally:
 
@@ -141,3 +143,36 @@ class CoordinationEngine:
 
             self.logger.info(f"Coordination engine finished at {end_time}.")
             self.logger.info(f"Coordination engine execution duration: {duration}.")
+
+    def create_coordination_plan(self):
+        """
+        Create a temporary coordination plan.
+
+        Later, the service layer can replace this with a real database record.
+        """
+        return {
+            "plan_id": 1,
+            "status": "RUNNING",
+            "generated_at": datetime.now()
+        }
+
+    def load_pending_forecasts(self):
+        """
+        Load pending forecasts.
+
+        This placeholder keeps the coordinator runnable while Group 1 finishes
+        the real data loading work.
+        """
+        return []
+
+    def complete_coordination_plan(self, plan):
+        """Mark the temporary coordination plan as completed."""
+        plan["status"] = "COMPLETED"
+        plan["completed_at"] = datetime.now()
+        return plan
+
+    def fail_plan(self, plan):
+        """Mark the temporary coordination plan as failed."""
+        plan["status"] = "FAILED"
+        plan["failed_at"] = datetime.now()
+        return plan
