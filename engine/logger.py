@@ -1,9 +1,7 @@
 """
-logger.py
-
 Logging utility for the Tomato Logistics Platform.
 
-This module provides a simple logger that can be shared across
+This is a simple logger that can be shared across
 the coordination engine modules.
 """
 
