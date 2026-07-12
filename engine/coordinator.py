@@ -1,6 +1,4 @@
 """
-coordination.py
-
 Main orchestration engine for the Tomato Logistics Platform.
 
 This module coordinates the entire logistics workflow by calling
@@ -160,8 +158,6 @@ class CoordinationEngine:
         """
         Load pending forecasts.
 
-        This placeholder keeps the coordinator runnable while Group 1 finishes
-        the real data loading work.
         """
         return []
 
