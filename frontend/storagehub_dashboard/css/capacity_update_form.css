@@ -130,7 +130,7 @@ button:focus-visible {
 }
 .hero {
   position: relative;
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - 150px);
   display: grid;
   align-items: center;
   overflow: hidden;

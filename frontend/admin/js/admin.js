@@ -1,187 +1,145 @@
-// FreshLink Admin Operations Workspace
-// I put all the shared behavior in one file so every page loads the same script tag.
+/* =====================================================================
+   FreshLink — Admin Console (shared JS across all admin pages)
+   Maps to: farmers, harvest_forecasts, sectors, trip_allocations,
+   coordination_plans. Replace API stubs with FastAPI when ready.
+   ===================================================================== */
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
-// I only needed a simple show/hide here since the project is mostly used on desktop.
-document.addEventListener("DOMContentLoaded", function () {
-  var toggle = document.querySelector(".nav-toggle");
-  var links = document.querySelector(".nav-links");
+function initTheme() {
+  const btn = $("#themeToggle");
+  if (!btn) return;
+  const apply = (theme) => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try { localStorage.setItem("freshlink-theme", theme); } catch (e) {}
+  };
+  btn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") || "light";
+    apply(cur === "light" ? "dark" : "light");
+  });
+}
 
-  if (toggle && links) {
-    toggle.addEventListener("click", function () {
-      links.classList.toggle("nav-open");
-      // I toggled display directly because the mobile menu isn't styled as a full overlay yet.
-      if (links.classList.contains("nav-open")) {
-        links.style.display = "flex";
-        links.style.flexDirection = "column";
-        links.style.position = "absolute";
-        links.style.top = "72px";
-        links.style.left = "0";
-        links.style.right = "0";
-        links.style.background = "#ffffff";
-        links.style.borderBottom = "1px solid var(--color-border)";
-        links.style.padding = "12px";
-      } else {
-        links.style.display = "none";
+function initSidebar() {
+  const sidebar = $("#sidebar"), collapse = $("#sidebarCollapse"), menuToggle = $("#menuToggle");
+  if (collapse) collapse.addEventListener("click", () => sidebar.classList.toggle("collapsed"));
+  const backdrop = document.createElement("div");
+  backdrop.className = "backdrop"; document.body.appendChild(backdrop);
+  const open = () => { sidebar.classList.add("open"); backdrop.classList.add("show"); };
+  const close = () => { sidebar.classList.remove("open"); backdrop.classList.remove("show"); };
+  if (menuToggle) menuToggle.addEventListener("click", open);
+  backdrop.addEventListener("click", close);
+  $$(".side-link").forEach((l) => l.addEventListener("click", () => { if (window.innerWidth <= 820) close(); }));
+}
+
+function initGreetingAndDate() {
+  const now = new Date();
+  const h = now.getHours();
+  const greet = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  const g = $("#greeting"); if (g) g.textContent = greet + ", Admin";
+  const d = $("#todayDate");
+  if (d) d.textContent = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+}
+
+function animateCount(el) {
+  const raw = el.dataset.target || "0";
+  const suffix = el.dataset.suffix || "";
+  const target = Number(raw);
+  if (!target) { el.textContent = raw + suffix; return; }
+  const dur = 900, start = performance.now();
+  function tick(now) {
+    const p = Math.min((now - start) / dur, 1);
+    el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString("en-US") + suffix;
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+function initCounts() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    $$(".count").forEach((el) => (el.textContent = (el.dataset.target || "0") + (el.dataset.suffix || "")));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { animateCount(e.target); io.unobserve(e.target); } });
+  }, { threshold: 0.4 });
+  $$(".count").forEach((el) => io.observe(el));
+}
+
+function initTableSearch(inputId, tbodyId, noResultsId) {
+  const input = $("#" + inputId);
+  const tbody = $("#" + tbodyId);
+  if (!input || !tbody) return;
+  const noResults = noResultsId ? $("#" + noResultsId) : null;
+  input.addEventListener("input", () => {
+    const q = input.value.trim().toLowerCase();
+    let shown = 0;
+    $$("tr", tbody).forEach((row) => {
+      const match = row.textContent.toLowerCase().includes(q);
+      row.style.display = match ? "" : "none";
+      if (match) shown++;
+    });
+    if (noResults) noResults.style.display = shown === 0 ? "block" : "none";
+  });
+}
+
+function initForm(formId, successId) {
+  const form = $("#" + formId);
+  if (!form) return;
+  const success = successId ? $("#" + successId) : null;
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let valid = true;
+    $$("input[required], select[required], textarea[required]", form).forEach((field) => {
+      const wrap = field.closest(".field");
+      const ok = field.value && field.value.trim() !== "";
+      if (wrap) wrap.classList.toggle("error", !ok);
+      if (!ok) valid = false;
+    });
+    const radioGroups = new Set();
+    $$('input[type="radio"][required]', form).forEach((r) => radioGroups.add(r.name));
+    radioGroups.forEach((name) => {
+      const checked = form.querySelector(`input[name="${name}"]:checked`);
+      const wrap = form.querySelector(`input[name="${name}"]`).closest(".field");
+      if (wrap) wrap.classList.toggle("error", !checked);
+      if (!checked) valid = false;
+    });
+    if (!valid) return;
+    // API POST goes here, e.g. fetch("/api/farmers", {method:"POST", body:new FormData(form)})
+    if (success) {
+      success.classList.add("show");
+      form.reset();
+      success.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => success.classList.remove("show"), 4000);
+    }
+  });
+  $$("input, select, textarea", form).forEach((field) => {
+    field.addEventListener("input", () => field.closest(".field")?.classList.remove("error"));
+    field.addEventListener("change", () => field.closest(".field")?.classList.remove("error"));
+  });
+}
+
+function initReportBars() {
+  const bars = $$(".bar-fill");
+  if (!bars.length) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        const w = e.target.dataset.width || "0%";
+        requestAnimationFrame(() => { e.target.style.width = w; });
+        io.unobserve(e.target);
       }
     });
-  }
+  }, { threshold: 0.3 });
+  bars.forEach((b) => io.observe(b));
+}
 
-  // I also let tapping a dropdown label on touch screens open the submenu, since hover doesn't exist there.
-  var dropdownTriggers = document.querySelectorAll(".has-dropdown > .nav-link");
-  dropdownTriggers.forEach(function (trigger) {
-    trigger.addEventListener("click", function (e) {
-      if (window.innerWidth <= 720) {
-        e.preventDefault();
-        var parent = trigger.parentElement;
-        parent.classList.toggle("dropdown-open");
-        var dropdown = parent.querySelector(".dropdown");
-        if (dropdown) {
-          dropdown.style.opacity = parent.classList.contains("dropdown-open") ? "1" : "";
-          dropdown.style.visibility = parent.classList.contains("dropdown-open") ? "visible" : "";
-          dropdown.style.position = "static";
-          dropdown.style.boxShadow = "none";
-          dropdown.style.transform = "none";
-          dropdown.style.display = parent.classList.contains("dropdown-open") ? "block" : "none";
-        }
-      }
-    });
-  });
+document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  initSidebar();
+  initGreetingAndDate();
+  initCounts();
+  initReportBars();
+  initTableSearch("farmer-search", "farmer-table-body", "farmer-no-results");
+  initTableSearch("forecast-search", "forecast-table-body", "forecast-no-results");
+  initForm("register-farmer-form", "register-success");
+  initForm("forecast-form", "forecast-success");
 });
-
-// ---------- Logout confirmation ----------
-// I intercepted the click so we don't send the admin to a login page that isn't merged in yet.
-// This is a placeholder: it shows the confirmation message instead of navigating and throwing a 404.
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll(".nav-logout").forEach(function (logoutLink) {
-    logoutLink.addEventListener("click", function (e) {
-      e.preventDefault();
-      showToast("Logged out successfully.");
-
-      // Once the real login page is merged in, swap this placeholder for an actual redirect, e.g.:
-      // setTimeout(function () { window.location.href = logoutLink.getAttribute("href"); }, 1200);
-    });
-  });
-});
-
-// I made this reusable so any page can trigger a toast, not just logout.
-function showToast(message) {
-  var toast = document.getElementById("app-toast");
-
-  if (!toast) {
-    toast = document.createElement("div");
-    toast.id = "app-toast";
-    toast.className = "toast";
-    toast.innerHTML = '<span class="toast-dot"></span><span class="toast-text"></span>';
-    document.body.appendChild(toast);
-  }
-
-  toast.querySelector(".toast-text").textContent = message;
-  toast.classList.add("show");
-
-  clearTimeout(toast._hideTimer);
-  toast._hideTimer = setTimeout(function () {
-    toast.classList.remove("show");
-  }, 2600);
-}
-
-// ---------- Generic field validation helper ----------
-// I kept validation simple because the backend is not connected yet, this just checks for empty required fields.
-function validateForm(formEl) {
-  var isValid = true;
-  var requiredFields = formEl.querySelectorAll("[required]");
-
-  requiredFields.forEach(function (field) {
-    var errorText = field.closest(".field") ? field.closest(".field").querySelector(".field-error-text") : null;
-    var value = field.type === "radio" ? getRadioValue(formEl, field.name) : field.value.trim();
-
-    if (!value) {
-      isValid = false;
-      field.classList.add("field-error");
-      if (errorText) errorText.classList.add("show");
-    } else {
-      field.classList.remove("field-error");
-      if (errorText) errorText.classList.remove("show");
-    }
-  });
-
-  return isValid;
-}
-
-function getRadioValue(formEl, name) {
-  var checked = formEl.querySelector('input[name="' + name + '"]:checked');
-  return checked ? checked.value : "";
-}
-
-var registerForm = document.getElementById("register-farmer-form");
-if (registerForm) {
-  registerForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var ok = validateForm(registerForm);
-    var successBox = document.getElementById("register-success");
-
-    if (ok) {
-      // I showed this message to make the form feel responsive after submission, even without a backend.
-      successBox.classList.add("show");
-      successBox.textContent = "Farmer saved. The record will appear in View Farmers once the backend is connected.";
-      registerForm.reset();
-      window.scrollTo({ top: successBox.offsetTop - 120, behavior: "smooth" });
-    } else {
-      if (successBox) successBox.classList.remove("show");
-    }
-  });
-}
-
-var forecastForm = document.getElementById("forecast-form");
-if (forecastForm) {
-  forecastForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var ok = validateForm(forecastForm);
-    var successBox = document.getElementById("forecast-success");
-
-    if (ok) {
-      successBox.classList.add("show");
-      successBox.textContent = "Forecast submitted. It will appear in View Forecasts once the backend is connected.";
-      forecastForm.reset();
-      window.scrollTo({ top: successBox.offsetTop - 120, behavior: "smooth" });
-    } else {
-      if (successBox) successBox.classList.remove("show");
-    }
-  });
-}
-
-// I filtered on name, village, and phone since those are what an admin would actually search by.
-var farmerSearch = document.getElementById("farmer-search");
-if (farmerSearch) {
-  farmerSearch.addEventListener("input", function () {
-    filterTable("farmer-table-body", farmerSearch.value, "farmer-no-results");
-  });
-}
-
-var forecastSearch = document.getElementById("forecast-search");
-if (forecastSearch) {
-  forecastSearch.addEventListener("input", function () {
-    filterTable("forecast-table-body", forecastSearch.value, "forecast-no-results");
-  });
-}
-
-function filterTable(tbodyId, query, noResultsId) {
-  var tbody = document.getElementById(tbodyId);
-  if (!tbody) return;
-
-  var rows = tbody.querySelectorAll("tr");
-  var normalizedQuery = query.trim().toLowerCase();
-  var visibleCount = 0;
-
-  rows.forEach(function (row) {
-    var rowText = row.textContent.toLowerCase();
-    var matches = rowText.indexOf(normalizedQuery) !== -1;
-    row.style.display = matches ? "" : "none";
-    if (matches) visibleCount++;
-  });
-
-  // I added a no-results state so the page doesn't look broken when a search comes up empty.
-  var noResultsEl = document.getElementById(noResultsId);
-  if (noResultsEl) {
-    noResultsEl.classList.toggle("show", visibleCount === 0);
-  }
-}

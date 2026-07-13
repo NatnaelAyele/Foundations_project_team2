@@ -16,43 +16,40 @@ if (toggle && navLinks) {
 }
 
 const heroImages = document.querySelectorAll(".hero-image");
+const heroLines = document.querySelectorAll(".hero-line");
 const carouselDots = document.querySelectorAll(".carousel-dot");
 let currentSlide = 0;
 let carouselTimer;
 
+function setActive(nodeList, index) {
+  nodeList.forEach((node, i) => {
+    node.classList.toggle("is-active", i === index);
+  });
+}
+
 function showHeroSlide(slideIndex) {
+  const total = heroImages.length;
   if (slideIndex < 0) {
-    currentSlide = heroImages.length - 1;
-  } else if (slideIndex >= heroImages.length) {
+    currentSlide = total - 1;
+  } else if (slideIndex >= total) {
     currentSlide = 0;
   } else {
     currentSlide = slideIndex;
   }
 
-  heroImages.forEach((image, index) => {
-    if (index === currentSlide) {
-      image.classList.add("is-active");
-    } else {
-      image.classList.remove("is-active");
-    }
-  });
+  // image, headline text, and dot all move together
+  setActive(heroImages, currentSlide);
+  setActive(heroLines, currentSlide);
+  setActive(carouselDots, currentSlide);
 
-  carouselDots.forEach((dot, index) => {
-    if (index === currentSlide) {
-      dot.classList.add("is-active");
-    } else {
-      dot.classList.remove("is-active");
-    }
-  });
-
+  // restart the progress animation on the active dot
   const activeDot = carouselDots[currentSlide];
-
   if (activeDot) {
     const activeProgress = activeDot.querySelector("span");
-
     if (activeProgress) {
       activeProgress.style.animation = "none";
-      activeProgress.offsetHeight;
+      // force reflow so the animation restarts
+      void activeProgress.offsetHeight;
       activeProgress.style.animation = "";
     }
   }
@@ -73,7 +70,6 @@ if (heroImages.length > 1) {
   carouselDots.forEach((dot) => {
     dot.addEventListener("click", () => {
       const slideIndex = Number(dot.dataset.carouselSlide);
-
       showHeroSlide(slideIndex);
       resetCarouselTimer();
     });
