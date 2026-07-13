@@ -16,6 +16,7 @@ from truck_matcher import TruckMatcher
 from hub_matcher import HubMatcher
 from planner import Planner
 from reservation import ReservationManager
+from payment import PaymentManager
 from notifier import Notifier
 from logger import EngineLogger
 
@@ -42,6 +43,8 @@ class CoordinationEngine:
         self.planner = Planner()
 
         self.reservation = ReservationManager()
+
+        self.payment = PaymentManager()
 
         self.notifier = Notifier()
 
@@ -105,9 +108,14 @@ class CoordinationEngine:
                 planning_results
             )
 
+            self.logger.info("Initializing payments...")
+            payment_results = self.payment.initialize_payment(
+                reservations
+            )
+
             self.logger.info("Sending notifications...")
             notifications = self.notifier.create_notifications(
-                reservations
+                payment_results
             )
 
             self.logger.info("Completing coordination plan...")
@@ -119,6 +127,7 @@ class CoordinationEngine:
             return {
                 "status": "success",
                 "plan": plan,
+                "payments": payment_results,
                 "notifications": notifications
             }
 
