@@ -1,214 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FreshLink Operations Workspace</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./css/admin.css?v=2" />
-</head>
-<body>
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>try{var t=localStorage.getItem("freshlink-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+    <title>Overview | FreshLink Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/admin.css">
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
+        <div class="resize-handle" id="resizeHandle" title="Drag to resize" aria-hidden="true"></div>
+        <div class="sidebar-top">
+          <a class="brand" href="admin-dashboard.html" aria-label="FreshLink home"><span class="brand-mark" aria-hidden="true">FL</span><span class="brand-name">FreshLink</span></a>
+          <button class="sidebar-collapse" id="sidebarCollapse" type="button" aria-label="Collapse sidebar">&#8676;</button>
+        </div>
+        <nav class="side-nav" aria-label="Main">
+          <p class="side-label">Console</p>
+          <a class="side-link active" href="admin-dashboard.html"><span class="side-ico" aria-hidden="true">&#9638;</span><span class="side-text">Overview</span></a>
+          <p class="side-label">Farmers</p>
+          <a class="side-link" href="view-farmers.html"><span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">View Farmers</span></a>
+          <a class="side-link" href="register-farmer.html"><span class="side-ico" aria-hidden="true">&#43;</span><span class="side-text">Register Farmer</span></a>
+          <p class="side-label">Forecasts</p>
+          <a class="side-link" href="view-forecasts.html"><span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">View Forecasts</span></a>
+          <a class="side-link" href="forecast.html"><span class="side-ico" aria-hidden="true">&#43;</span><span class="side-text">New Forecast</span></a>
+          <p class="side-label">Insights</p>
+          <a class="side-link" href="reports.html"><span class="side-ico" aria-hidden="true">&#9707;</span><span class="side-text">Reports</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
+          <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
+          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+        </div>
+      </aside>
 
-  <!-- Top navigation, same structure across every admin page -->
-  <nav class="top-nav">
-    <div class="nav-inner">
-      <a class="nav-brand" href="admin-dashboard.html">
-        <span class="mark"></span>
-        FreshLink
-      </a>
+      <div class="main">
+        <header class="topbar">
+          <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">&#9776;</button>
+          <div class="topbar-title"><p class="eyebrow">Admin Console</p><h1>Operations Workspace</h1></div>
+          <a class="topbar-cta" href="register-farmer.html">Register Farmer</a>
+        </header>
+        <div class="content">
 
-      <ul class="nav-links">
-        <li><a class="nav-link active" href="admin-dashboard.html">Workspace</a></li>
+          <section class="hero" id="hero" style="--hero-img: url('../images/harvest-tomatoes.jpg');">
+            <div class="hero-scrim" aria-hidden="true"></div>
+            <div class="glass greeting-card">
+              <span class="role-chip">Kamonyi District &middot; Coordination</span>
+              <h2 id="greeting">Good morning, Admin</h2>
+              <p class="greeting-sub" id="todayDate">&mdash;</p>
+              <p class="greeting-copy">Register farmers, capture harvest forecasts, and monitor how the coordination engine is matching tomato harvests to transport and storage.</p>
+              <a class="greeting-action" href="forecast.html">Capture a forecast &rarr;</a>
+            </div>
+            <div class="glass hub-tag">
+              <span class="hub-tag-label">Network status</span>
+              <span class="hub-tag-value"><span class="dot ok"></span> Coordinating live</span>
+            </div>
+            <div class="hero-stats" aria-label="Network statistics">
+              <article class="glass stat-card stripe-darkgreen"><p class="stat-label">Registered Farmers</p><p class="stat-value"><span class="count" data-target="128">0</span></p><p class="stat-note">+6 this week</p></article>
+              <article class="glass stat-card stripe-lightgreen"><p class="stat-label">Forecasts Submitted</p><p class="stat-value"><span class="count" data-target="42">0</span></p><p class="stat-note">+9 this week</p></article>
+              <article class="glass stat-card stripe-navy"><p class="stat-label">Needing Transport</p><p class="stat-value"><span class="count" data-target="17">0</span></p><p class="stat-note">match with trucks</p></article>
+              <article class="glass stat-card stripe-orange"><p class="stat-label">Needing Storage</p><p class="stat-value"><span class="count" data-target="11">0</span></p><p class="stat-note">match with hubs</p></article>
+            </div>
+          </section>
 
-        <li class="has-dropdown">
-          <a class="nav-link" href="#">Farmers <span class="nav-caret">&#9662;</span></a>
-          <div class="dropdown">
-            <a href="register-farmer.html">Register Farmer</a>
-            <a href="view-farmers.html">View Farmers</a>
+          <div class="quick-actions">
+            <a class="qa-card" href="register-farmer.html"><span class="qa-ico">&#43;</span><span class="qa-text"><b>Register a farmer</b><span>Add a new smallholder to the network</span></span></a>
+            <a class="qa-card" href="forecast.html"><span class="qa-ico">&#9636;</span><span class="qa-text"><b>New harvest forecast</b><span>Capture an expected harvest</span></span></a>
+            <a class="qa-card" href="reports.html"><span class="qa-ico">&#9707;</span><span class="qa-text"><b>View reports</b><span>Trends across the district</span></span></a>
           </div>
-        </li>
 
-        <li class="has-dropdown">
-          <a class="nav-link" href="#">Harvest Forecast <span class="nav-caret">&#9662;</span></a>
-          <div class="dropdown">
-            <a href="forecast.html">New Forecast</a>
-            <a href="view-forecasts.html">View Forecasts</a>
+          <div class="section-heading"><h2>Recent Farmer Registrations</h2><a class="section-sub" href="view-farmers.html">View all farmers &rarr;</a></div>
+          <div class="panel" style="padding:0;">
+            <div class="table-scroll" style="max-height:none;">
+              <table class="data-table">
+                <thead><tr><th>Farmer Name</th><th>Sector</th><th>Village</th><th>Phone Number</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Jean Baptiste Nzeyimana</td><td>Nyarubaka</td><td>Kavumu</td><td>+250 788 221 340</td><td><span class="status-pill status-active">Active</span></td></tr>
+                  <tr><td>Alice Uwamahoro</td><td>Rukoma</td><td>Gahogo</td><td>+250 722 118 065</td><td><span class="status-pill status-new">New</span></td></tr>
+                  <tr><td>Emmanuel Habimana</td><td>Runda</td><td>Nyagisozi</td><td>+250 788 904 512</td><td><span class="status-pill status-active">Active</span></td></tr>
+                  <tr><td>Claudine Mukamana</td><td>Nyamiyaga</td><td>Kabuye</td><td>+250 733 552 871</td><td><span class="status-pill status-pending">Pending Review</span></td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </li>
 
-        <li><a class="nav-link" href="reports.html">Reports</a></li>
-        <li><a class="nav-link nav-logout" href="login.html">Logout</a></li>
-      </ul>
+          <div class="section-heading"><h2>Recent Harvest Forecasts</h2><a class="section-sub" href="view-forecasts.html">View all forecasts &rarr;</a></div>
+          <div class="panel" style="padding:0;">
+            <div class="table-scroll" style="max-height:none;">
+              <table class="data-table">
+                <thead><tr><th>Farmer Name</th><th>Harvest Date</th><th>Quantity</th><th>Transport</th><th>Storage</th></tr></thead>
+                <tbody>
+                  <tr><td>Jean Baptiste Nzeyimana</td><td>10 Jul 2026</td><td>420 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-no">No</span></td></tr>
+                  <tr><td>Alice Uwamahoro</td><td>12 Jul 2026</td><td>310 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-yes">Yes</span></td></tr>
+                  <tr><td>Emmanuel Habimana</td><td>14 Jul 2026</td><td>580 kg</td><td><span class="tag-no">No</span></td><td><span class="tag-yes">Yes</span></td></tr>
+                  <tr><td>Claudine Mukamana</td><td>16 Jul 2026</td><td>245 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-no">No</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
-    </div>
-  </nav>
-
-  <main class="shell">
-
-    <!-- Welcome section -->
-    <section class="workspace-hero">
-      <div class="hero-content">
-        <p class="greeting">Good morning, Admin</p>
-        <h1>Welcome to the FreshLink Operations Workspace</h1>
-        <p>Use this workspace to register farmers, capture harvest forecasts, and coordinate tomato harvest planning before losses happen.</p>
-        <p class="hero-date-inline">
-          <span class="date-label">Today</span>
-          <span class="date-value" id="today-date">Friday, 3 July 2026</span>
-        </p>
-      </div>
-      <!-- Photo supplied by the project owner: tomatoes being harvested and bagged in the field. -->
-      <div class="hero-illustration">
-        <img src="../static/images/harvest-tomatoes.jpg" alt="Freshly harvested tomatoes being sorted into bags in the field" />
-        <!-- <span class="photo-stat">128 farmers coordinated</span> -->
-      </div>
-    </section>
-
-    <!-- Today's coordination focus -->
-    <div class="section-heading">
-      <h2>Today's Coordination Focus</h2>
-    </div>
-    <ul class="focus-list">
-      <li>Register new farmers joining the Kamonyi District network</li>
-      <li>Capture expected harvest quantities for the coming week</li>
-      <li>Review forecasts that still need transport or storage</li>
-      <li>Keep farmer records organized and up to date</li>
-    </ul>
-
-    <!-- Summary cards -->
-    <div class="section-heading">
-      <h2>Overview</h2>
-      <span class="section-sub">Updated a few minutes ago</span>
-    </div>
-    <div class="card-grid">
-      <div class="summary-card">
-        <p class="card-label">Registered Farmers</p>
-        <p class="card-value">128</p>
-        <p class="card-note">+6 this week</p>
-      </div>
-      <div class="summary-card">
-        <p class="card-label">Harvest Forecasts Submitted</p>
-        <p class="card-value">42</p>
-        <p class="card-note">+9 this week</p>
-      </div>
-      <div class="summary-card">
-        <p class="card-label">Forecasts Needing Transport</p>
-        <p class="card-value">17</p>
-        <p class="card-note">Coordinate with truck providers</p>
-      </div>
-      <div class="summary-card">
-        <p class="card-label">Forecasts Needing Storage</p>
-        <p class="card-value">11</p>
-        <p class="card-note">Coordinate with cold hubs</p>
+          <footer class="dash-footer">FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District</footer>
+        </div>
       </div>
     </div>
-
-    <!-- Recent farmer registrations -->
-    <div class="section-heading">
-      <h2>Recent Farmer Registrations</h2>
-      <a class="section-sub" href="view-farmers.html">View all farmers &rarr;</a>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Farmer Name</th>
-            <th>Sector</th>
-            <th>Village</th>
-            <th>Phone Number</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- I used this data so the table does not look empty before backend integration. -->
-          <tr>
-            <td>Jean Baptiste Nzeyimana</td>
-            <td>Nyarubaka</td>
-            <td>Kavumu</td>
-            <td>+250 788 221 340</td>
-            <td><span class="status-pill status-active">Active</span></td>
-          </tr>
-          <tr>
-            <td>Alice Uwamahoro</td>
-            <td>Rukoma</td>
-            <td>Gahogo</td>
-            <td>+250 722 118 065</td>
-            <td><span class="status-pill status-new">New</span></td>
-          </tr>
-          <tr>
-            <td>Emmanuel Habimana</td>
-            <td>Runda</td>
-            <td>Nyagisozi</td>
-            <td>+250 788 904 512</td>
-            <td><span class="status-pill status-active">Active</span></td>
-          </tr>
-          <tr>
-            <td>Claudine Mukamana</td>
-            <td>Nyamiyaga</td>
-            <td>Kabuye</td>
-            <td>+250 733 552 871</td>
-            <td><span class="status-pill status-pending">Pending Review</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Recent harvest forecasts -->
-    <div class="section-heading">
-      <h2>Recent Harvest Forecasts</h2>
-      <a class="section-sub" href="view-forecasts.html">View all forecasts &rarr;</a>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Farmer Name</th>
-            <th>Harvest Date</th>
-            <th>Quantity</th>
-            <th>Transport Needed</th>
-            <th>Storage Needed</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Jean Baptiste Nzeyimana</td>
-            <td>10 Jul 2026</td>
-            <td>420 kg</td>
-            <td><span class="tag-yes">Yes</span></td>
-            <td><span class="tag-no">No</span></td>
-          </tr>
-          <tr>
-            <td>Alice Uwamahoro</td>
-            <td>12 Jul 2026</td>
-            <td>310 kg</td>
-            <td><span class="tag-yes">Yes</span></td>
-            <td><span class="tag-yes">Yes</span></td>
-          </tr>
-          <tr>
-            <td>Emmanuel Habimana</td>
-            <td>14 Jul 2026</td>
-            <td>580 kg</td>
-            <td><span class="tag-no">No</span></td>
-            <td><span class="tag-yes">Yes</span></td>
-          </tr>
-          <tr>
-            <td>Claudine Mukamana</td>
-            <td>16 Jul 2026</td>
-            <td>245 kg</td>
-            <td><span class="tag-yes">Yes</span></td>
-            <td><span class="tag-no">No</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <footer class="site-footer">
-      FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District
-    </footer>
-
-  </main>
-
-  <script src="./js/admin.js?v=2"></script>
-</body>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./js/admin.js"></script>
+  </body>
 </html>

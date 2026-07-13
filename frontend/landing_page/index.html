@@ -3,11 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FreshLink | Tomato cold-chain coordination</title>
-    <meta
-      name="description"
-      content="FreshLink helps admins, cold hubs, and transport providers coordinate tomato harvest storage and pickups while farmers receive updates by SMS."
-    >
+    <title>FreshLink | Tomato post-harvest coordination for Kamonyi</title>
+    <meta name="description" content="FreshLink coordinates tomato harvest reporting, cold storage, and transport in Kamonyi District — farmers report by USSD, get SMS updates, payments settle through Flutterwave.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/landing.css">
     <script src="./js/landing.js" defer></script>
   </head>
@@ -15,21 +14,19 @@
     <header class="site-header">
       <nav class="nav container" aria-label="Main navigation">
         <a class="brand" href="#top" aria-label="FreshLink home">
-          <span class="brand-mark" aria-hidden="true">FL</span>
-          <span>FreshLink</span>
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="currentColor"/><path d="M21.5 22.5c-2.2 0-3.7-1.3-4.6-3.3-1 2-2.6 3.3-4.7 3.3-2.9 0-4.9-2.4-4.9-6 0-3.7 2.2-6.5 5.3-6.5 2 0 3.4 1.1 4.3 2.9l1.2-2.6h2.3l-2.6 5.3c.5 2.6 1.6 4.4 3.4 4.4.4 0 .7-.1 1-.2l-.4 2.3c-.2.1-.6.1-1 .1z" fill="#fff"/></svg>
+          </span>
+          <span class="brand-name">FreshLink</span>
         </a>
-
         <button class="menu-toggle" type="button" aria-controls="nav-links" aria-expanded="false">
-          <span class="sr-only">Open menu</span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
+          <span class="sr-only">Open menu</span><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
         </button>
-
         <div class="nav-links" id="nav-links">
-          <a href="#how-it-works">How It Works</a>
+          <a href="#problem">Problem</a>
+          <a href="#how-it-works">How it works</a>
           <a href="#features">Features</a>
-          <a href="#users">For Users</a>
+          <a href="#users">Users</a>
           <a href="#pilot">Pilot</a>
           <a href="login.html">Login</a>
           <a class="nav-cta" href="#get-started">Get Started</a>
@@ -40,227 +37,198 @@
     <main id="top">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-carousel" aria-label="FreshLink tomato coordination images">
-          <img
-            class="hero-image is-active"
-            src="./images/hero-farming.png"
-            alt="Fresh tomato harvest crates beside tomato plants"
-          >
-          <img
-            class="hero-image"
-            src="./images/hero-transport.png"
-            alt="Tomato crates being prepared for cold truck transport"
-          >
-          <img
-            class="hero-image"
-            src="./images/hero-spoilage.png"
-            alt="Spoiled tomatoes in crates showing post-harvest loss"
-          >
-
-          <div class="carousel-controls" aria-label="Hero image controls">
-            <div class="carousel-dots" aria-label="Choose hero image">
-              <button class="carousel-dot is-active" type="button" data-carousel-slide="0" aria-label="Show tomato farming image">
-                <span></span>
-              </button>
-              <button class="carousel-dot" type="button" data-carousel-slide="1" aria-label="Show tomato transport image">
-                <span></span>
-              </button>
-              <button class="carousel-dot" type="button" data-carousel-slide="2" aria-label="Show tomato spoilage image">
-                <span></span>
-              </button>
-            </div>
-          </div>
+          <img class="hero-image is-active zoom-in" src="./images/hero-farming.png" alt="Fresh tomato harvest crates beside tomato plants">
+          <img class="hero-image zoom-out" src="./images/hero-transport.png" alt="Tomato crates prepared for cold truck transport">
+          <img class="hero-image zoom-in" src="./images/women_at_farm.png" alt="Spoiled tomatoes showing post-harvest loss">
+          <div class="hero-overlay" aria-hidden="true"></div>
         </div>
-        <div class="hero-overlay" aria-hidden="true"></div>
-
         <div class="container hero-content">
-          <div class="hero-copy">
-            <p class="eyebrow">Tomato harvest planning for farmers, truck providers, and storage hubs</p>
-            <h1 id="hero-title">Keep tomatoes fresh from farm to market.</h1>
-            <p class="hero-lede">
-              FreshLink helps forecast harvest, match tomato farmers with cold hubs and transport providers, and send SMS updates to farmers.
-            </p>
-            <div class="hero-actions" aria-label="Primary actions">
-              <a class="button button-primary" href="#get-started">Get Started</a>
-              <a class="button button-secondary" href="#how-it-works">See How It Works</a>
+          <p class="eyebrow">Tomato Post-Harvest Coordination · Kamonyi District, Rwanda.</p>
+          <h1 id="hero-title">
+            <span class="hero-brand"><span class="brand-fresh">Fresh</span><span class="brand-link">Link</span></span>
+            <span class="hero-rotator" aria-live="polite">
+              <span class="hero-line is-active" data-slide="0">Report your harvest before it's picked.</span>
+              <span class="hero-line" data-slide="1">Match every crate to a truck and a cold hub.</span>
+              <span class="hero-line" data-slide="2">Beat the 34.7% post-harvest loss.</span>
+            </span>
+          </h1>
+        </div>
+        <div class="container hero-bottom">
+          <div class="hero-actions">
+            <a class="button button-primary" href="#get-started">Get Started</a>
+            <a class="button button-secondary" href="#how-it-works">See how it works</a>
+          </div>
+          <div class="carousel-controls">
+            <div class="carousel-dots" aria-label="Choose hero image">
+              <button class="carousel-dot is-active" type="button" data-carousel-slide="0" aria-label="Show farming image"><span></span></button>
+              <button class="carousel-dot" type="button" data-carousel-slide="1" aria-label="Show transport image"><span></span></button>
+              <button class="carousel-dot" type="button" data-carousel-slide="2" aria-label="Show spoilage image"><span></span></button>
             </div>
           </div>
+        </div>
+        <div class="hero-curve" aria-hidden="true"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,120 L0,64 Q720,120 1440,64 L1440,120 Z"></path></svg></div>
+      </section>
 
+      <!-- EVIDENCE STAT STRIP (below hero) -->
+      <section class="evidence-strip" aria-label="Post-harvest loss evidence">
+        <div class="container evidence-grid">
+          <div class="hstat stripe-1"><strong>34.7%</strong><span>tomato loss after harvest in Kamonyi</span></div>
+          <div class="hstat stripe-2"><strong>18.4%</strong><span>lost at the farm alone</span></div>
+          <div class="hstat stripe-3"><strong>1–3 days</strong><span>shelf life under poor handling</span></div>
+          <div class="hstat stripe-4"><strong>5 tonnes</strong><span>Munyax-Eco cold room in Kamonyi</span></div>
         </div>
       </section>
 
-      <section class="section" aria-labelledby="problem-title">
+      <!-- PROBLEM -->
+      <section class="section sec-mint" id="problem" aria-labelledby="problem-title">
         <div class="container">
           <div class="section-heading">
-            <p class="eyebrow">The problem</p>
-            <h2 id="problem-title">Farmers lose value when coordination happens too late.</h2>
-            <p>
-              Tomatoes lose quality quickly after harvest. When planning waits until harvest time,
-              and storage and transport are not confirmed in advance, farmers may be forced to sell
-              immediately or risk spoilage.
-            </p>
+            <p class="eyebrow eyebrow-blue">The Problem</p>
+            <h2 id="problem-title">Losses pile up when no one coordinates.</h2>
+            <p>Tomatoes spoil fast, but harvest, transport and storage are arranged separately — through scattered calls and guesswork.</p>
           </div>
-
-          <div class="card-grid three">
-            <article class="info-card">
-              <span class="icon clock" aria-hidden="true"></span>
-              <h3>No early tomato harvest planning</h3>
-              <p>Admins, hub operators, and truck providers need harvest details early enough to plan storage and pickups.</p>
+          <div class="chat-cards">
+            <article class="chat-card left card-green">
+              <span class="chat-ico" aria-hidden="true"></span>
+              <div><h3>Harvest before a plan</h3><p>Tomatoes are picked before transport or storage is confirmed, so they sit and over-ripen.</p></div>
             </article>
-            <article class="info-card">
-              <span class="icon truck" aria-hidden="true"></span>
-              <h3>Uncoordinated transport</h3>
-              <p>Separate phone calls and WhatsApp messages can lead to half-empty truck trips and missed pickup windows.</p>
+            <article class="chat-card right card-navy">
+              <span class="chat-ico" aria-hidden="true"></span>
+              <div><h3>Transport not grouped</h3><p>Separate calls mean half-empty trips, missed pickup windows, and damage from overloading.</p></div>
+            </article>
+            <article class="chat-card left card-warm">
+              <span class="chat-ico" aria-hidden="true"></span>
+              <div><h3>Storage no one can see</h3><p>Cold-room space fills up, and no one knows in time whether a hub can take the load.</p></div>
             </article>
           </div>
         </div>
       </section>
 
-      <section class="section section-tint" aria-labelledby="solution-title">
+      <!-- HOW IT WORKS -->
+      <section class="section sec-sage" id="how-it-works" aria-labelledby="works-title">
         <div class="container">
           <div class="section-heading">
-            <p class="eyebrow">Our solution</p>
-            <h2 id="solution-title">One platform for admins, cold hubs, and truck providers.</h2>
-            <p>
-              FreshLink replaces scattered calls and messages with admin-managed farmer records,
-              tomato harvest forecasts, visible cold-storage capacity, grouped pickup planning, and SMS updates for farmers.
-            </p>
-          </div>
-
-          <div class="card-grid three">
-            <article class="role-card">
-              <h3>Farmers by USSD & SMS</h3>
-              <p>Farmers use USSD to access functionalities of the dashboard. And receive pickup, storage, and confirmation updates through SMS.</p>
-            </article>
-            <article class="role-card">
-              <h3>Cold Hubs</h3>
-              <p>Update available storage capacity and prepare for incoming tomato harvests.</p>
-              <a href="register.html#hub-registration">Register a Hub</a>
-            </article>
-            <article class="role-card">
-              <h3>Truck Providers</h3>
-              <p>Share truck availability, view grouped tomato pickup requests, and follow suggested routes.</p>
-              <a href="register.html#truck-registration">Register a Truck</a>
-            </article>
+            <p class="eyebrow eyebrow-blue">How it works</p>
+            <h2 id="works-title">Four steps, every two hours.</h2>
+            <p>FreshLink runs on a schedule — like a bus timetable. Farmers report into it; the engine coordinates what's waiting.</p>
           </div>
         </div>
+        <ol class="story container" aria-label="How FreshLink works, step by step">
+          <li class="story-step">
+            <div class="story-marker"><span>01</span></div>
+            <div class="story-content tone-1">
+              <h3>Farmers report by USSD</h3>
+              <p>A farmer dials a short code and reports the tomato quantity, harvest date and location — in English or Kinyarwanda. No smartphone, no app, no data bundle needed.</p>
+              <ul class="pill-tags"><li>USSD menu</li><li>Update or cancel anytime</li><li>Saved as a pending harvest</li></ul>
+            </div>
+          </li>
+          <li class="story-step">
+            <div class="story-marker"><span>02</span></div>
+            <div class="story-content tone-2">
+              <h3>Hubs and trucks stay current</h3>
+              <p>Cold-hub operators post the storage they actually have free; transporters post available trucks and capacity. The system plans against real numbers, not assumptions.</p>
+              <ul class="pill-tags"><li>Live storage capacity</li><li>Truck availability</li><li>Operator-controlled</li></ul>
+            </div>
+          </li>
+          <li class="story-step">
+            <div class="story-marker"><span>03</span></div>
+            <div class="story-content tone-3">
+              <h3>The engine matches and groups</h3>
+              <p>Every two hours the coordination engine reads pending harvests oldest-first, groups nearby farmers, and matches each group to a truck with room and a hub with space — or logs why it couldn't.</p>
+              <ul class="pill-tags"><li>Oldest harvest first</li><li>Grouped pickups</li><li>Truck + hub reserved</li></ul>
+            </div>
+          </li>
+          <li class="story-step is-final">
+            <div class="story-marker"><span>04</span></div>
+            <div class="story-content tone-4">
+              <h3>Notify by SMS, settle by Flutterwave</h3>
+              <p>Farmers get an SMS confirming the pickup; operators see it on their dashboards. When a trip is created, the farmer's payment to the transporter and the hub is settled through Flutterwave.</p>
+              <ul class="pill-tags"><li>SMS confirmation</li><li>Flutterwave payment</li><li>Nothing lost, nothing manual</li></ul>
+            </div>
+          </li>
+        </ol>
       </section>
 
-      <section class="section" id="how-it-works" aria-labelledby="works-title">
+      <!-- FEATURES -->
+      <section class="section sec-cream" id="features" aria-labelledby="features-title">
         <div class="container">
           <div class="section-heading">
-            <p class="eyebrow">How it works</p>
-            <h2 id="works-title">How FreshLink works</h2>
+            <p class="eyebrow eyebrow-blue">Features</p>
+            <h2 id="features-title">Everything the tomato cold-chain needs.</h2>
+            <p>Built on the tech stack that runs the platform — scroll through each capability.</p>
           </div>
-
-          <ol class="timeline">
-            <li>
-              <span>1</span>
-              <h3>Register farmer and forecast</h3>
-              <p>An admin records the farmer profile, tomato quantity, harvest date, and location in the platform.</p>
-            </li>
-            <li>
-              <span>2</span>
-              <h3>Check hub capacity</h3>
-              <p>Cold-hub operators update available storage space so the system can see where tomatoes can go.</p>
-            </li>
-            <li>
-              <span>3</span>
-              <h3>Match and group pickups</h3>
-              <p>The coordination logic matches tomato harvests to nearby hubs and groups farmers into efficient truck trips.</p>
-            </li>
-            <li>
-              <span>4</span>
-              <h3>Notify the right people</h3>
-              <p>Hub operators, admins, and truck providers use their dashboards, while farmers receive confirmation through SMS alerts.</p>
-            </li>
-          </ol>
+        </div>
+        <div class="stack container" aria-label="FreshLink features">
+          <article class="feature-card feat-green">
+            <div class="feature-media"><img src="./images/ussd_phone.png" alt="USSD harvest reporting on a basic phone" onerror="this.closest('.feature-media').classList.add('media-empty')"></div>
+            <div class="feature-text"><span class="feature-tag">Africa's Talking · USSD</span><h3>USSD harvest reporting</h3><p>Farmers report, update, or cancel a harvest from any basic phone — the input that starts every coordination run.</p><ul class="pill-tags"><li>Any phone</li><li>2 languages</li><li>Starts the engine</li></ul></div>
+          </article>
+          <article class="feature-card feat-navy">
+            <div class="feature-media"><img src="./images/cold_hub.png" alt="Live cold storage capacity dashboard" onerror="this.closest('.feature-media').classList.add('media-empty')"></div>
+            <div class="feature-text"><span class="feature-tag">PostgreSQL · Live data</span><h3>Live capacity tracking</h3><p>Cold hubs publish the space they truly have free, so tomatoes are never sent where they can't be stored.</p><ul class="pill-tags"><li>Real capacity</li><li>Operator-updated</li><li>No overbooking</li></ul></div>
+          </article>
+          <article class="feature-card feat-teal">
+            <div class="feature-media"><img src="./images/group_farmers.png" alt="Coordination engine grouping farmers to trucks and hubs" onerror="this.closest('.feature-media').classList.add('media-empty')"></div>
+            <div class="feature-text"><span class="feature-tag">Coordination Engine · FastAPI</span><h3>Grouped transport matching</h3><p>Nearby farmers are clustered into full, efficient truck trips instead of scattered half-empty runs. Oldest harvests first.</p><ul class="pill-tags"><li>Clustering</li><li>FEFO</li><li>Reserved</li></ul></div>
+          </article>
+          <article class="feature-card feat-warm">
+            <div class="feature-media"><img src="./images/sms_notification.png" alt="SMS pickup confirmation on a phone" onerror="this.closest('.feature-media').classList.add('media-empty')"></div>
+            <div class="feature-text"><span class="feature-tag">Africa's Talking · SMS</span><h3>Farmer SMS alerts</h3><p>Pickup confirmations and storage updates reach farmers by SMS — no dashboard, no login required.</p><ul class="pill-tags"><li>Pickup confirmed</li><li>Storage allocated</li><li>No login</li></ul></div>
+          </article>
+          <article class="feature-card feat-plum">
+            <div class="feature-media"><img src="./images/payment.png" alt="Flutterwave payment settlement" onerror="this.closest('.feature-media').classList.add('media-empty')"></div>
+            <div class="feature-text"><span class="feature-tag">Flutterwave · Payments</span><h3>Flutterwave payments</h3><p>When a trip is created, farmers settle transport and storage fees through a secure Flutterwave flow.</p><ul class="pill-tags"><li>Pays transport</li><li>Pays storage</li><li>Traceable</li></ul></div>
+          </article>
+          <article class="feature-card feat-forest">
+            <div class="feature-media"><img src="./images/admin_dashboard.png" alt="Admin dashboard overview" onerror="this.closest('.feature-media').classList.add('media-empty')"></div>
+            <div class="feature-text"><span class="feature-tag">Web Dashboard · Admin</span><h3>Admin dashboard</h3><p>Monitor farmers, hub status, coordination plans, completed pickups and excluded harvests in one view.</p><ul class="pill-tags"><li>Plans &amp; trips</li><li>Exclusions</li><li>Metrics</li></ul></div>
+          </article>
         </div>
       </section>
 
-      <section class="section section-tint" id="features" aria-labelledby="features-title">
+      <!-- FOR USERS -->
+      <section class="section sec-mint" id="users" aria-labelledby="users-title">
         <div class="container">
           <div class="section-heading">
-            <p class="eyebrow">Features</p>
-            <h2 id="features-title">Built for tomato cold-chain coordination from harvest to pickup.</h2>
+            <p class="eyebrow eyebrow-blue">For each user</p>
+            <h2 id="users-title">Dashboards for operators, USSD &amp; SMS for farmers.</h2>
           </div>
-
-          <div class="card-grid features">
-            <article class="info-card"><h3>Admin-Managed Forecasting</h3><p>Admins register farmers and log expected tomato harvest dates, locations, and estimated quantities before tomatoes are ready.</p></article>
-            <article class="info-card"><h3>Capacity Tracking</h3><p>Cold hubs update available storage space so admins and truck providers can plan with real information.</p></article>
-            <article class="info-card"><h3>Transport Matching</h3><p>The system groups nearby tomato farmers and suggests pickup plans based on available trucks and hub space.</p></article>
-            <article class="info-card"><h3>Farmer SMS Alerts</h3><p>Farmers receive match confirmations and pickup updates by SMS, without needing to access a dashboard.</p></article>
-            <article class="info-card"><h3>Admin Dashboard</h3><p>Project admins can monitor farmers, hub status, matches, completed pickups, and excluded forecasts.</p></article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="users" aria-labelledby="users-title">
-        <div class="container">
-          <div class="section-heading">
-            <p class="eyebrow">Dashboards and SMS</p>
-            <h2 id="users-title">Dashboards for operators, USSD & SMS updates for farmers.</h2>
-          </div>
-
-          <div class="card-grid roles">
-            <article class="dashboard-card">
-              <h3>Farmer SMS Updates</h3>
-              <ul>
-                <li>No platform login required</li>
-                <li>use USSD inplace of a dashboard</li>
-                <li>Receive pickup confirmation</li>
-                <li>Receive storage allocation updates</li>
-                <li>Receive truck and pickup time details</li>
-              </ul>
+          <div class="role-grid">
+            <article class="role-card role-green">
+              <span class="role-ico" aria-hidden="true"></span><h3>Farmers</h3>
+              <ul><li>No login needed</li><li>Report by USSD</li><li>Update or cancel</li><li>SMS confirmations</li><li>Storage &amp; time details</li></ul>
             </article>
-            <article class="dashboard-card">
-              <h3>Hub Operator Dashboard</h3>
-              <ul>
-                <li>Update hub capacity</li>
-                <li>View incoming harvest allocations</li>
-                <li>Mark storage availability</li>
-                <li>Confirm received tomatoes</li>
-              </ul>
+            <article class="role-card role-navy">
+              <span class="role-ico" aria-hidden="true"></span><h3>Hub Operator</h3>
+              <ul><li>Update capacity</li><li>View allocations</li><li>Set operating status</li><li>Confirm arrivals</li></ul>
+              <a href="register.html#hub-registration">Register a hub →</a>
             </article>
-            <article class="dashboard-card">
-              <h3>Truck Provider Dashboard</h3>
-              <ul>
-                <li>Register truck availability</li>
-                <li>View route plan</li>
-                <li>See grouped farmer pickups</li>
-                <li>Update trip status</li>
-              </ul>
+            <article class="role-card role-warm">
+              <span class="role-ico" aria-hidden="true"></span><h3>Truck Provider</h3>
+              <ul><li>Post availability</li><li>View grouped pickups</li><li>Follow routes</li><li>Update trip status</li></ul>
+              <a href="register.html#truck-registration">Register a truck →</a>
             </article>
-            <article class="dashboard-card admin">
-              <h3>Admin Dashboard</h3>
-              <ul>
-                <li>Register tomato farmers</li>
-                <li>Enter and update harvest forecasts</li>
-                <li>Review coordination plans</li>
-                <li>Track successful and excluded matches</li>
-                <li>Monitor pilot metrics</li>
-              </ul>
+            <article class="role-card role-plum">
+              <span class="role-ico" aria-hidden="true"></span><h3>Admin</h3>
+              <ul><li>Register farmers</li><li>Capture forecasts</li><li>Review plans</li><li>Track matches</li><li>Monitor metrics</li></ul>
             </article>
           </div>
         </div>
       </section>
 
-      <section class="section section-tint" id="pilot" aria-labelledby="pilot-title">
+      <!-- PILOT -->
+      <section class="section sec-cream" id="pilot" aria-labelledby="pilot-title">
         <div class="container pilot-layout">
           <div>
-            <p class="eyebrow">Pilot context</p>
-            <h2 id="pilot-title">Designed for a pilot in Kamonyi District, Rwanda.</h2>
-            <p>
-              The prototype focuses on smallholder tomato farmers in Kamonyi District, Rwanda.
-              The goal is to support planning and coordination between tomato farmers, cold storage
-              operators, and cold truck providers to reduce post-harvest losses.
-            </p>
+            <p class="eyebrow eyebrow-blue">Pilot context</p>
+            <h2 id="pilot-title">Designed for Kamonyi District, Rwanda.</h2>
+            <p>The prototype focuses on smallholder tomato farmers in Kamonyi, coordinating farmers, cold-storage operators and transport providers — anchored by the Munyax-Eco solar cold room.</p>
           </div>
-
-          <div class="stats-grid" aria-label="Pilot scope">
-            <div><strong>10-15</strong><span>tomato farmers registered</span></div>
-            <div><strong>5-7</strong><span>cold hubs and transport providers</span></div>
-            <div><strong>6 weeks</strong><span>pilot evaluation window</span></div>
-            <div><strong>SMS, Dashboards, & USSD</strong><span>farmers by SMS/USSD, operators by web</span></div>
+          <div class="stats-grid">
+            <div class="pilot-stat"><strong>10–15</strong><span>tomato farmers registered</span></div>
+            <div class="pilot-stat"><strong>5–7</strong><span>hubs &amp; transport providers</span></div>
+            <div class="pilot-stat"><strong>6 weeks</strong><span>pilot evaluation window</span></div>
+            <div class="pilot-stat"><strong>USSD · SMS · Web</strong><span>phone for farmers, dashboards for operators</span></div>
           </div>
         </div>
       </section>
@@ -268,9 +236,10 @@
       <section class="final-cta" id="get-started" aria-labelledby="cta-title">
         <div class="container">
           <h2 id="cta-title">Ready to coordinate the next tomato harvest?</h2>
+          <p>Register a cold hub or a truck and join the Kamonyi pilot.</p>
           <div class="cta-actions">
-            <a class="button button-primary" href="register.html#hub-registration">Register as Hub Operator</a>
-            <a class="button button-primary" href="register.html#truck-registration">Register as Truck Provider</a>
+            <a class="button cta-hub" href="register.html#hub-registration"> Register as Hub Operator</a>
+            <a class="button cta-truck" href="register.html#truck-registration"> Register as Truck Provider</a>
           </div>
         </div>
       </section>
@@ -279,24 +248,11 @@
     <footer class="site-footer">
       <div class="container footer-layout">
         <div>
-          <a class="brand footer-brand" href="#top">
-            <span class="brand-mark" aria-hidden="true">FL</span>
-            <span>FreshLink</span>
-          </a>
-          <p>Helping farmers, cold hubs, and truck providers coordinate tomato harvests.</p>
+          <a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="currentColor"/><path d="M21.5 22.5c-2.2 0-3.7-1.3-4.6-3.3-1 2-2.6 3.3-4.7 3.3-2.9 0-4.9-2.4-4.9-6 0-3.7 2.2-6.5 5.3-6.5 2 0 3.4 1.1 4.3 2.9l1.2-2.6h2.3l-2.6 5.3c.5 2.6 1.6 4.4 3.4 4.4.4 0 .7-.1 1-.2l-.4 2.3c-.2.1-.6.1-1 .1z" fill="#fff"/></svg></span><span class="brand-name">FreshLink</span></a>
+          <p>Coordinating tomato harvests, cold storage and transport in Kamonyi District, Rwanda.</p>
         </div>
-        <div>
-          <h2>Links</h2>
-          <a href="#how-it-works">How It Works</a>
-          <a href="#features">Features</a>
-          <a href="#pilot">Pilot</a>
-          <a href="login.html">Login</a>
-        </div>
-        <div>
-          <h2>Contact</h2>
-          <p>info.lego@gmail.com</p>
-          <p>2026 FreshLink. Team lego.</p>
-        </div>
+        <div><h2>Links</h2><a href="#problem">Problem</a><a href="#how-it-works">How it works</a><a href="#features">Features</a><a href="#pilot">Pilot</a><a href="login.html">Login</a></div>
+        <div><h2>Contact</h2><p>info.lego@gmail.com</p><p>© 2026 FreshLink · Team Lego</p></div>
       </div>
     </footer>
   </body>

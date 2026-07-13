@@ -1,220 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reports &mdash; FreshLink</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./css/admin.css?v=2" />
-</head>
-<body>
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>try{var t=localStorage.getItem("freshlink-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+    <title>Reports | FreshLink Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/admin.css">
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
+        <div class="sidebar-top">
+          <a class="brand" href="admin-dashboard.html" aria-label="FreshLink home"><span class="brand-mark" aria-hidden="true">FL</span><span class="brand-name">FreshLink</span></a>
+          <button class="sidebar-collapse" id="sidebarCollapse" type="button" aria-label="Collapse sidebar">&#8676;</button>
+        </div>
+        <nav class="side-nav" aria-label="Main">
+          <p class="side-label">Console</p>
+          <a class="side-link " href="admin-dashboard.html"><span class="side-ico" aria-hidden="true">&#9638;</span><span class="side-text">Overview</span></a>
+          <p class="side-label">Farmers</p>
+          <a class="side-link " href="view-farmers.html"><span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">View Farmers</span></a>
+          <a class="side-link " href="register-farmer.html"><span class="side-ico" aria-hidden="true">&#43;</span><span class="side-text">Register Farmer</span></a>
+          <p class="side-label">Forecasts</p>
+          <a class="side-link " href="view-forecasts.html"><span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">View Forecasts</span></a>
+          <a class="side-link " href="forecast.html"><span class="side-ico" aria-hidden="true">&#43;</span><span class="side-text">New Forecast</span></a>
+          <p class="side-label">Insights</p>
+          <a class="side-link active" href="reports.html"><span class="side-ico" aria-hidden="true">&#9707;</span><span class="side-text">Reports</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
+          <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
+          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+        </div>
+      </aside>
+      <div class="main">
+        <header class="topbar">
+          <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">&#9776;</button>
+          <div class="topbar-title"><p class="eyebrow">Insights</p><h1>District Reports</h1></div>
+          
+        </header>
+        <div class="content">
+          <div class="page-header"><p>Coordination trends across the Kamonyi pilot. All figures come from the platform's own records — farmers, forecasts, trips and exclusions.</p></div>
 
-  <nav class="top-nav">
-    <div class="nav-inner">
-      <a class="nav-brand" href="admin-dashboard.html">
-        <span class="mark"></span>
-        FreshLink
-      </a>
-
-      <ul class="nav-links">
-        <li><a class="nav-link" href="admin-dashboard.html">Workspace</a></li>
-
-        <li class="has-dropdown">
-          <a class="nav-link" href="#">Farmers <span class="nav-caret">&#9662;</span></a>
-          <div class="dropdown">
-            <a href="register-farmer.html">Register Farmer</a>
-            <a href="view-farmers.html">View Farmers</a>
+          <div class="hero-stats" style="position:static;padding:0;margin-bottom:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
+            <article class="panel" style="border-left:5px solid #0f6b3d;"><p class="stat-label" style="color:var(--muted)">Total Harvest Logged</p><p class="stat-value" style="color:var(--green-dark)"><span class="count" data-target="12480" data-suffix=" kg">0</span></p></article>
+            <article class="panel" style="border-left:5px solid #6fe0a0;"><p class="stat-label" style="color:var(--muted)">Trips Coordinated</p><p class="stat-value" style="color:var(--green-dark)"><span class="count" data-target="38">0</span></p></article>
+            <article class="panel" style="border-left:5px solid #4d7bd6;"><p class="stat-label" style="color:var(--muted)">Successfully Matched</p><p class="stat-value" style="color:var(--green-dark)"><span class="count" data-target="82" data-suffix="%">0</span></p></article>
+            <article class="panel" style="border-left:5px solid #f5a24b;"><p class="stat-label" style="color:var(--muted)">Excluded (unmatched)</p><p class="stat-value" style="color:var(--green-dark)"><span class="count" data-target="7">0</span></p></article>
           </div>
-        </li>
 
-        <li class="has-dropdown">
-          <a class="nav-link" href="#">Harvest Forecast <span class="nav-caret">&#9662;</span></a>
-          <div class="dropdown">
-            <a href="forecast.html">New Forecast</a>
-            <a href="view-forecasts.html">View Forecasts</a>
+          <div class="panel-cols">
+            <div class="col-main">
+              <section class="panel">
+                <div class="panel-title"><div><h3>Harvest volume by sector</h3><p>Total kilograms forecast per sector this month.</p></div></div>
+                <div class="bar-row"><span class="bar-label">Nyarubaka</span><div class="bar-track"><span class="bar-fill" data-width="92%"></span></div><span class="bar-value">3,180</span></div>
+                <div class="bar-row"><span class="bar-label">Rukoma</span><div class="bar-track"><span class="bar-fill secondary" data-width="74%"></span></div><span class="bar-value">2,540</span></div>
+                <div class="bar-row"><span class="bar-label">Runda</span><div class="bar-track"><span class="bar-fill" data-width="68%"></span></div><span class="bar-value">2,320</span></div>
+                <div class="bar-row"><span class="bar-label">Musambira</span><div class="bar-track"><span class="bar-fill secondary" data-width="54%"></span></div><span class="bar-value">1,860</span></div>
+                <div class="bar-row"><span class="bar-label">Nyamiyaga</span><div class="bar-track"><span class="bar-fill accent" data-width="43%"></span></div><span class="bar-value">1,480</span></div>
+                <div class="bar-row"><span class="bar-label">Kayenzi</span><div class="bar-track"><span class="bar-fill muted" data-width="32%"></span></div><span class="bar-value">1,100</span></div>
+              </section>
+            </div>
+            <div class="col-side">
+              <section class="panel">
+                <div class="panel-title"><div><h3>Exclusion reasons</h3><p>Why some harvests weren't matched.</p></div></div>
+                <div class="bar-row" style="grid-template-columns:1fr 40px;"><span class="bar-label">No truck available</span><span class="bar-value">4</span></div>
+                <div class="bar-track" style="margin-bottom:14px;"><span class="bar-fill accent" data-width="57%"></span></div>
+                <div class="bar-row" style="grid-template-columns:1fr 40px;"><span class="bar-label">No hub capacity</span><span class="bar-value">2</span></div>
+                <div class="bar-track" style="margin-bottom:14px;"><span class="bar-fill accent" data-width="29%"></span></div>
+                <div class="bar-row" style="grid-template-columns:1fr 40px;"><span class="bar-label">Outside 3-day window</span><span class="bar-value">1</span></div>
+                <div class="bar-track"><span class="bar-fill muted" data-width="14%"></span></div>
+                <p class="hint">Exclusions are logged by the engine in <b>excluded_trips</b>.</p>
+              </section>
+            </div>
           </div>
-        </li>
-
-        <li><a class="nav-link active" href="reports.html">Reports</a></li>
-        <li><a class="nav-link nav-logout" href="login.html">Logout</a></li>
-      </ul>
-
-      <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
-    </div>
-  </nav>
-
-  <main class="shell">
-
-    <div class="page-header">
-      <span class="eyebrow">Reports</span>
-      <h1>Coordination Reports</h1>
-      <p>A quick read on how farmer registrations and harvest forecasts are trending across Kamonyi District.</p>
-    </div>
-
-    <!-- Overview cards, same treatment as the workspace page so reports feel like part of the same system -->
-    <div class="section-heading" style="margin-top: 28px;">
-      <h2>This Month at a Glance</h2>
-      <span class="section-sub">1 &ndash; 31 July 2026</span>
-    </div>
-    <div class="card-grid">
-      <div class="summary-card">
-        <p class="card-label">New Farmers Registered</p>
-        <p class="card-value">23</p>
-        <p class="card-note">Across 6 sectors</p>
-      </div>
-      <div class="summary-card">
-        <p class="card-label">Forecasts Submitted</p>
-        <p class="card-value">31</p>
-        <p class="card-note">2,610 kg expected</p>
-      </div>
-      <div class="summary-card">
-        <p class="card-label">Avg. Forecast Quantity</p>
-        <p class="card-value">342 kg</p>
-        <p class="card-note">Per submission</p>
-      </div>
-      <div class="summary-card">
-        <p class="card-label">Fully Coordinated</p>
-        <p class="card-value">64%</p>
-        <p class="card-note">Transport and storage arranged</p>
+          <footer class="dash-footer">FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District</footer>
+        </div>
       </div>
     </div>
-
-    <!-- Coordination needs, shown as simple bars instead of a heavy chart library -->
-    <div class="section-heading">
-      <h2>Forecast Coordination Needs</h2>
-      <span class="section-sub">Share of submitted forecasts</span>
-    </div>
-    <div class="panel">
-      <div class="bar-row">
-        <span class="bar-label">Needs Transport</span>
-        <div class="bar-track"><div class="bar-fill" style="width: 68%;"></div></div>
-        <span class="bar-value">68%</span>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Needs Storage</span>
-        <div class="bar-track"><div class="bar-fill secondary" style="width: 47%;"></div></div>
-        <span class="bar-value">47%</span>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Needs Both</span>
-        <div class="bar-track"><div class="bar-fill accent" style="width: 29%;"></div></div>
-        <span class="bar-value">29%</span>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Needs Neither</span>
-        <div class="bar-track"><div class="bar-fill" style="width: 14%; background: var(--color-muted);"></div></div>
-        <span class="bar-value">14%</span>
-      </div>
-    </div>
-
-    <!-- Farmers by sector -->
-    <div class="section-heading">
-      <h2>Registered Farmers by Sector</h2>
-      <span class="section-sub">All time</span>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Sector</th>
-            <th>Registered Farmers</th>
-            <th>Main Crop</th>
-            <th>Share of Network</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- I used this data so the report does not look empty before backend integration. -->
-          <tr>
-            <td>Nyarubaka</td>
-            <td>34</td>
-            <td>Tomato</td>
-            <td>27%</td>
-          </tr>
-          <tr>
-            <td>Rukoma</td>
-            <td>28</td>
-            <td>Tomato</td>
-            <td>22%</td>
-          </tr>
-          <tr>
-            <td>Runda</td>
-            <td>22</td>
-            <td>Tomato</td>
-            <td>17%</td>
-          </tr>
-          <tr>
-            <td>Musambira</td>
-            <td>19</td>
-            <td>Tomato</td>
-            <td>15%</td>
-          </tr>
-          <tr>
-            <td>Nyamiyaga</td>
-            <td>15</td>
-            <td>Maize</td>
-            <td>12%</td>
-          </tr>
-          <tr>
-            <td>Other sectors</td>
-            <td>10</td>
-            <td>Mixed</td>
-            <td>7%</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Monthly forecast volume -->
-    <div class="section-heading">
-      <h2>Forecast Volume by Month</h2>
-      <span class="section-sub">Last 4 months</span>
-    </div>
-    <div class="table-wrap" style="margin-bottom: 60px;">
-      <table>
-        <thead>
-          <tr>
-            <th>Month</th>
-            <th>Forecasts Submitted</th>
-            <th>Total Quantity</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>April 2026</td>
-            <td>18</td>
-            <td>5,940 kg</td>
-            <td><span class="status-pill status-confirmed">Closed</span></td>
-          </tr>
-          <tr>
-            <td>May 2026</td>
-            <td>26</td>
-            <td>8,410 kg</td>
-            <td><span class="status-pill status-confirmed">Closed</span></td>
-          </tr>
-          <tr>
-            <td>June 2026</td>
-            <td>29</td>
-            <td>9,120 kg</td>
-            <td><span class="status-pill status-confirmed">Closed</span></td>
-          </tr>
-          <tr>
-            <td>July 2026</td>
-            <td>31</td>
-            <td>10,602 kg</td>
-            <td><span class="status-pill status-pending">In Progress</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <footer class="site-footer">
-      FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District
-    </footer>
-
-  </main>
-
-  <script src="./js/admin.js?v=2"></script>
-</body>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./js/admin.js"></script>
+  </body>
 </html>

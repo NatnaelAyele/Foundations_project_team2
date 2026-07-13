@@ -1,153 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>View Farmers &mdash; FreshLink</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./css/admin.css?v=2" />
-</head>
-<body>
-
-  <nav class="top-nav">
-    <div class="nav-inner">
-      <a class="nav-brand" href="admin-dashboard.html">
-        <span class="mark"></span>
-        FreshLink
-      </a>
-
-      <ul class="nav-links">
-        <li><a class="nav-link" href="admin-dashboard.html">Workspace</a></li>
-
-        <li class="has-dropdown">
-          <a class="nav-link active" href="#">Farmers <span class="nav-caret">&#9662;</span></a>
-          <div class="dropdown">
-            <a href="register-farmer.html">Register Farmer</a>
-            <a href="view-farmers.html">View Farmers</a>
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>try{var t=localStorage.getItem("freshlink-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+    <title>View Farmers | FreshLink Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/admin.css">
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
+        <div class="sidebar-top">
+          <a class="brand" href="admin-dashboard.html" aria-label="FreshLink home"><span class="brand-mark" aria-hidden="true">FL</span><span class="brand-name">FreshLink</span></a>
+          <button class="sidebar-collapse" id="sidebarCollapse" type="button" aria-label="Collapse sidebar">&#8676;</button>
+        </div>
+        <nav class="side-nav" aria-label="Main">
+          <p class="side-label">Console</p>
+          <a class="side-link " href="admin-dashboard.html"><span class="side-ico" aria-hidden="true">&#9638;</span><span class="side-text">Overview</span></a>
+          <p class="side-label">Farmers</p>
+          <a class="side-link active" href="view-farmers.html"><span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">View Farmers</span></a>
+          <a class="side-link " href="register-farmer.html"><span class="side-ico" aria-hidden="true">&#43;</span><span class="side-text">Register Farmer</span></a>
+          <p class="side-label">Forecasts</p>
+          <a class="side-link " href="view-forecasts.html"><span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">View Forecasts</span></a>
+          <a class="side-link " href="forecast.html"><span class="side-ico" aria-hidden="true">&#43;</span><span class="side-text">New Forecast</span></a>
+          <p class="side-label">Insights</p>
+          <a class="side-link " href="reports.html"><span class="side-ico" aria-hidden="true">&#9707;</span><span class="side-text">Reports</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
+          <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
+          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+        </div>
+      </aside>
+      <div class="main">
+        <header class="topbar">
+          <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">&#9776;</button>
+          <div class="topbar-title"><p class="eyebrow">Farmers</p><h1>Registered Farmers</h1></div>
+          <a class="topbar-cta" href="register-farmer.html">Register Farmer</a>
+        </header>
+        <div class="content">
+          <div class="page-header"><p>All smallholder tomato farmers registered in the Kamonyi pilot. Search by name, sector, or village.</p></div>
+          <div class="filter-bar"><input type="search" id="farmer-search" placeholder="Search farmers by name, sector, phone…" aria-label="Search farmers"></div>
+          <div class="panel" style="padding:0;">
+            <div class="table-scroll" style="max-height:none;">
+              <table class="data-table">
+                <thead><tr><th>Farmer Name</th><th>Sector</th><th>Cell</th><th>Village</th><th>Phone</th><th>Status</th></tr></thead>
+                <tbody id="farmer-table-body">
+                  <tr><td>Jean Baptiste Nzeyimana</td><td>Nyarubaka</td><td>Kayenzi</td><td>Kavumu</td><td>+250 788 221 340</td><td><span class="status-pill status-active">Active</span></td></tr>
+                  <tr><td>Alice Uwamahoro</td><td>Rukoma</td><td>Gihara</td><td>Gahogo</td><td>+250 722 118 065</td><td><span class="status-pill status-new">New</span></td></tr>
+                  <tr><td>Emmanuel Habimana</td><td>Runda</td><td>Kagese</td><td>Nyagisozi</td><td>+250 788 904 512</td><td><span class="status-pill status-active">Active</span></td></tr>
+                  <tr><td>Claudine Mukamana</td><td>Nyamiyaga</td><td>Buhoro</td><td>Kabuye</td><td>+250 733 552 871</td><td><span class="status-pill status-pending">Pending Review</span></td></tr>
+                  <tr><td>Eric Nkurunziza</td><td>Musambira</td><td>Kabaziga</td><td>Nyamirembe</td><td>+250 788 340 219</td><td><span class="status-pill status-active">Active</span></td></tr>
+                  <tr><td>Diane Uwase</td><td>Kayenzi</td><td>48</td><td>Kabashumba</td><td>+250 722 665 108</td><td><span class="status-pill status-active">Active</span></td></tr>
+                  <tr><td>Sonia Ingabire</td><td>Nyarubaka</td><td>Kayenzi</td><td>Runyonza</td><td>+250 788 771 902</td><td><span class="status-pill status-new">New</span></td></tr>
+                  <tr><td>Patrick Bizimana</td><td>Rugalika</td><td>Kabuga</td><td>Ntenyo</td><td>+250 733 210 447</td><td><span class="status-pill status-active">Active</span></td></tr>
+                </tbody>
+              </table>
+              <div class="no-results" id="farmer-no-results">No farmers match your search.</div>
+            </div>
           </div>
-        </li>
-
-        <li class="has-dropdown">
-          <a class="nav-link" href="#">Harvest Forecast <span class="nav-caret">&#9662;</span></a>
-          <div class="dropdown">
-            <a href="forecast.html">New Forecast</a>
-            <a href="view-forecasts.html">View Forecasts</a>
-          </div>
-        </li>
-
-        <li><a class="nav-link" href="reports.html">Reports</a></li>
-        <li><a class="nav-link nav-logout" href="login.html">Logout</a></li>
-      </ul>
-
-      <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
-    </div>
-  </nav>
-
-  <main class="shell">
-
-    <div class="page-header">
-      <span class="eyebrow">Farmers</span>
-      <h1>Farmer Records</h1>
-      <p>Browse every farmer registered in the FreshLink network across Kamonyi District.</p>
-    </div>
-
-    <div style="margin: 24px 0 60px;">
-
-      <div class="filter-bar">
-        <input type="text" id="farmer-search" placeholder="Search by name, village, phone number, or crop..." />
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Farmer Name</th>
-              <th>Phone Number</th>
-              <th>District</th>
-              <th>Sector</th>
-              <th>Village</th>
-              <th>Crop</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="farmer-table-body">
-            <!-- I used this data so the table does not look empty before backend integration. -->
-            <tr>
-              <td>Jean Baptiste Nzeyimana</td>
-              <td>+250 788 221 340</td>
-              <td>Kamonyi</td>
-              <td>Nyarubaka</td>
-              <td>Kavumu</td>
-              <td>Tomato</td>
-              <td><span class="status-pill status-active">Active</span></td>
-            </tr>
-            <tr>
-              <td>Alice Uwamahoro</td>
-              <td>+250 722 118 065</td>
-              <td>Kamonyi</td>
-              <td>Rukoma</td>
-              <td>Gahogo</td>
-              <td>Tomato</td>
-              <td><span class="status-pill status-new">New</span></td>
-            </tr>
-            <tr>
-              <td>Emmanuel Habimana</td>
-              <td>+250 788 904 512</td>
-              <td>Kamonyi</td>
-              <td>Runda</td>
-              <td>Nyagisozi</td>
-              <td>Tomato</td>
-              <td><span class="status-pill status-active">Active</span></td>
-            </tr>
-            <tr>
-              <td>Claudine Mukamana</td>
-              <td>+250 733 552 871</td>
-              <td>Kamonyi</td>
-              <td>Nyamiyaga</td>
-              <td>Kabuye</td>
-              <td>Maize</td>
-              <td><span class="status-pill status-pending">Pending Review</span></td>
-            </tr>
-            <tr>
-              <td>Vincent Ndayisenga</td>
-              <td>+250 785 660 224</td>
-              <td>Kamonyi</td>
-              <td>Musambira</td>
-              <td>Rugarama</td>
-              <td>Tomato</td>
-              <td><span class="status-pill status-active">Active</span></td>
-            </tr>
-            <tr>
-              <td>Beatrice Mukandayisenga</td>
-              <td>+250 733 129 480</td>
-              <td>Kamonyi</td>
-              <td>Nyarubaka</td>
-              <td>Karambo</td>
-              <td>Beans</td>
-              <td><span class="status-pill status-active">Active</span></td>
-            </tr>
-            <tr>
-              <td>Patrick Nsengimana</td>
-              <td>+250 788 337 902</td>
-              <td>Kamonyi</td>
-              <td>Rukoma</td>
-              <td>Muyanza</td>
-              <td>Tomato</td>
-              <td><span class="status-pill status-new">New</span></td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="no-results" id="farmer-no-results">No farmers match your search.</p>
+          <footer class="dash-footer">FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District</footer>
+        </div>
       </div>
     </div>
-
-    <footer class="site-footer">
-      FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District
-    </footer>
-
-  </main>
-
-  <script src="./js/admin.js?v=2"></script>
-</body>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./js/admin.js"></script>
+  </body>
 </html>
