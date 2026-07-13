@@ -1,28 +1,8 @@
-"""
-Group 1 — Prepare the data.
+# Group 1 - Prepare the data (steps 2 to 6 of the coordination engine).
+# Read pending forecasts -> validate -> pick eligible ones -> cluster by sector -> sum demand.
+# coordinator.py should just call run_group1(db) at the bottom of this file.
 
-Implements steps 2 to 6 of the coordination engine's 12-step cycle:
-    2. Read pending forecasts
-    3. Validate a forecast
-    4. Select eligible forecasts
-    5. Cluster forecasts (by sector)
-    6. Calculate demand (per cluster)
-
-Every function here is pure and synchronous where possible: given the same
-inputs, they return the same outputs. That makes them trivial to unit test
-without a real database, and safe for Group 3's coordinator.py to call in
-sequence.
-
-Wiring into coordinator.py (Group 3):
-
-    from group1_engine.pipeline import run_group1
-
-    result = run_group1(db_session)
-    # result.clusters -> feed into Group 2's truck_matcher / hub_matcher
-    # result.excluded -> feed into Group 3's excluded_trips logger
-"""
-
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from typing import Iterable
 
@@ -38,51 +18,38 @@ from .schemas import (
     ValidationResult,
 )
 
-# ---------------------------------------------------------------------------
-# Configuration — the "coordination window"
-# ---------------------------------------------------------------------------
-# A harvest forecast is only worth planning if its harvest_date falls inside
-# a window around "now": not in the past (already spoiled / missed), and not
-# so far in the future that planning it now is meaningless. Tunable in one
-# place so Group 3 (or the PM) can adjust without touching validation logic.
+# I set the coordination window to "today up to 3 days ahead" - easy to change from one place.
 COORDINATION_WINDOW_DAYS_AHEAD = 3
 
 
-def _within_coordination_window(harvest_date: date, today: date) -> bool:
-    if harvest_date < today:
+def _within_coordination_window(harvest_date: datetime, today: date) -> bool:
+    # harvest_date is a full timestamp, but the window is day-based, so I only compare the date part.
+    hd = harvest_date.date() if isinstance(harvest_date, datetime) else harvest_date
+    if hd < today:
         return False
-    return harvest_date <= today + timedelta(days=COORDINATION_WINDOW_DAYS_AHEAD)
+    return hd <= today + timedelta(days=COORDINATION_WINDOW_DAYS_AHEAD)
 
 
-# ---------------------------------------------------------------------------
-# Step 2 — Read pending forecasts
-# ---------------------------------------------------------------------------
+# Step 2 - I collect every pending harvest so I know what needs coordinating.
 def read_pending_forecasts(db: Session) -> list[HarvestForecast]:
-    """Query harvest_forecasts where status = 'pending', return a clean list.
-
-    This is the only place that talks to the database in Group 1 — every
-    later step works on plain Python objects, not queries.
-    """
+    # Status is uppercase 'PENDING' - matches what's actually in the seed data.
     return (
         db.query(HarvestForecast)
-        .filter(HarvestForecast.status == "pending")
+        .filter(HarvestForecast.status == "PENDING")
         .order_by(HarvestForecast.harvest_date.asc())
         .all()
     )
 
 
-# ---------------------------------------------------------------------------
-# Step 3 — Validate a forecast
-# ---------------------------------------------------------------------------
+# Step 3 - I check each harvest is sane before I trust it.
 def validate_forecast(
     forecast: HarvestForecast, today: date | None = None
 ) -> ValidationResult:
-    """Check one forecast is sane. Never raises — always returns a result,
-    valid or not, with every reason it failed (not just the first)."""
+    # I never raise here - I collect every problem and return them all, not just the first one.
     today = today or date.today()
     errors: list[ValidationError_] = []
 
-    # quantity_kg must be a positive number
+    # quantity_kg must be a real, positive number.
     try:
         qty = Decimal(str(forecast.quantity_kg))
         if qty <= 0:
@@ -101,8 +68,8 @@ def validate_forecast(
             )
         )
 
-    # harvest_date must be a real date
-    if not isinstance(forecast.harvest_date, date):
+    # harvest_date must be an actual date/timestamp.
+    if not isinstance(forecast.harvest_date, (date, datetime)):
         errors.append(
             ValidationError_(
                 field="harvest_date",
@@ -110,7 +77,7 @@ def validate_forecast(
             )
         )
     else:
-        # harvest_date must fall inside the coordination window
+        # And it must fall inside the coordination window.
         if not _within_coordination_window(forecast.harvest_date, today):
             errors.append(
                 ValidationError_(
@@ -123,12 +90,19 @@ def validate_forecast(
                 )
             )
 
-    # farmer_id must exist and be linked to a real farmer
+    # farmer_id must point to a real farmer, and that farmer needs a sector for clustering later.
     if not forecast.farmer_id or forecast.farmer is None:
         errors.append(
             ValidationError_(
                 field="farmer_id",
                 reason=f"no farmer linked to farmer_id={forecast.farmer_id!r}",
+            )
+        )
+    elif forecast.farmer.sector is None:
+        errors.append(
+            ValidationError_(
+                field="farmer_id",
+                reason=f"farmer_id={forecast.farmer_id} has no linked sector",
             )
         )
 
@@ -139,19 +113,10 @@ def validate_forecast(
     )
 
 
-# ---------------------------------------------------------------------------
-# Step 4 — Select eligible forecasts
-# ---------------------------------------------------------------------------
+# Step 4 - I keep only the harvests worth planning and drop the rest.
 def select_eligible(
     forecasts: Iterable[HarvestForecast], today: date | None = None
 ) -> tuple[list[ForecastOut], list[ExcludedForecast]]:
-    """Split forecasts into (eligible, excluded).
-
-    Eligible forecasts pass forward as clean ForecastOut objects. Excluded
-    ones come back tagged with the reason code Group 3's excluded_trips
-    logger expects: INVALID_FORECAST for anything except a bad date,
-    OUTSIDE_WINDOW when the date itself is the only problem.
-    """
     eligible: list[ForecastOut] = []
     excluded: list[ExcludedForecast] = []
 
@@ -163,22 +128,20 @@ def select_eligible(
                 ForecastOut(
                     forecast_id=forecast.forecast_id,
                     farmer_id=forecast.farmer_id,
-                    farmer_name=(
-                        forecast.farmer.full_name if forecast.farmer else None
-                    ),
+                    farmer_name=forecast.farmer.name if forecast.farmer else None,
                     quantity_kg=float(forecast.quantity_kg),
                     harvest_date=forecast.harvest_date,
-                    sector=forecast.sector,
+                    sector=forecast.farmer.sector.name,
                 )
             )
             continue
 
-        # Decide the reason code: if the *only* failing field is the date
-        # (and the date really is a real date, just outside the window),
-        # it's OUTSIDE_WINDOW; anything else in the mix is INVALID_FORECAST.
-        only_window_issue = len(result.errors) == 1 and result.errors[
-            0
-        ].field == "harvest_date" and isinstance(forecast.harvest_date, date)
+        # If date is the ONLY problem, I tag it OUTSIDE_WINDOW; anything else is INVALID_FORECAST.
+        only_window_issue = (
+            len(result.errors) == 1
+            and result.errors[0].field == "harvest_date"
+            and isinstance(forecast.harvest_date, (date, datetime))
+        )
 
         reason_code = "OUTSIDE_WINDOW" if only_window_issue else "INVALID_FORECAST"
         reason_detail = "; ".join(f"{e.field}: {e.reason}" for e in result.errors)
@@ -194,45 +157,30 @@ def select_eligible(
     return eligible, excluded
 
 
-# ---------------------------------------------------------------------------
-# Step 5 — Cluster forecasts (by sector)
-# ---------------------------------------------------------------------------
+# Step 5 - I group nearby farmers so one truck can serve several at once.
 def cluster_by_sector(eligible: list[ForecastOut]) -> dict[str, list[ForecastOut]]:
-    """Group eligible forecasts by sector — same sector = same cluster.
-
-    Returns a dict for easy lookup; use `calculate_demand` (step 6) to turn
-    this into the final list-of-Cluster shape the rest of the pipeline uses.
-    """
+    # Same sector means same cluster, that's the whole rule.
     clusters: dict[str, list[ForecastOut]] = {}
     for forecast in eligible:
         clusters.setdefault(forecast.sector, []).append(forecast)
     return clusters
 
 
-# ---------------------------------------------------------------------------
-# Step 6 — Calculate demand
-# ---------------------------------------------------------------------------
+# Step 6 - I know exactly how many kilograms each cluster needs moved.
 def calculate_demand(clusters: dict[str, list[ForecastOut]]) -> list[Cluster]:
-    """Sum quantity_kg per cluster, return the final Cluster objects that
-    Group 2's truck_matcher / hub_matcher will consume directly."""
     result: list[Cluster] = []
     for sector, forecasts in clusters.items():
         total = sum(f.quantity_kg for f in forecasts)
         result.append(
             Cluster(sector=sector, forecasts=forecasts, total_demand_kg=total)
         )
-    # Largest demand first — the matchers see the hardest-to-place clusters first.
+    # Biggest demand first - matchers deal with the hardest clusters to place before the easy ones.
     result.sort(key=lambda c: c.total_demand_kg, reverse=True)
     return result
 
 
-# ---------------------------------------------------------------------------
-# Orchestration — run all of steps 2-6 in sequence
-# ---------------------------------------------------------------------------
+# This is the one function coordinator.py should call - it runs steps 2 to 6 in order.
 def run_group1(db: Session, today: date | None = None) -> Group1Result:
-    """Run the full Group 1 stage: read -> validate -> eligibility -> cluster
-    -> demand. This is the one function Group 3's coordinator.py should call.
-    """
     pending = read_pending_forecasts(db)
     eligible, excluded = select_eligible(pending, today=today)
     clusters_by_sector = cluster_by_sector(eligible)

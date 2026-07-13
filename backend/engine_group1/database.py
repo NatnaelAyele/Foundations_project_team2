@@ -1,10 +1,6 @@
-"""
-Minimal DB session wiring so this package runs standalone.
-
-If the DB person / API person already has a shared `database.py` with
-`engine`, `SessionLocal`, and `get_db`, delete this file and import theirs
-instead — don't run two separate connections to the same Postgres instance.
-"""
+# Minimal DB connection so my code can run and be tested on its own.
+# If there's already a shared database.py in the repo, delete this and import theirs instead -
+# don't want two separate connections hitting the same Postgres database.
 
 import os
 

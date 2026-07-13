@@ -1,22 +1,6 @@
-"""
-FastAPI router for Group 1's pipeline.
-
-This is not part of the required checklist, but it gives you two things
-for free:
-1. A live endpoint the API person can mount as-is in their FastAPI app
-   (they just need to `include_router`), rather than reading your code
-   and re-wiring it themselves.
-2. Something the demo dashboard (dashboard.html) can call to show real
-   pipeline output instead of only mock data.
-
-Mount it in the main app with, e.g.:
-
-    from fastapi import FastAPI
-    from group1_engine.api import router as group1_router
-
-    app = FastAPI()
-    app.include_router(group1_router)
-"""
+# I built this so my pipeline can be called over the network, not just imported directly.
+# The API person can mount this straight into their FastAPI app with include_router.
+# The demo dashboard also calls this to show real data instead of mock data.
 
 from datetime import date
 
@@ -34,10 +18,5 @@ router = APIRouter(prefix="/api/engine/group1", tags=["engine-group1"])
 def run_pipeline(
     as_of: date | None = None, db: Session = Depends(get_db)
 ) -> Group1Result:
-    """Run steps 2-6 (read, validate, eligibility, cluster, demand) against
-    the live database and return the result.
-
-    `as_of` lets you override "today" for demoing/testing the coordination
-    window without waiting for real dates to line up.
-    """
+    # as_of lets me override "today" for testing without waiting for real dates to line up.
     return run_group1(db, today=as_of)
