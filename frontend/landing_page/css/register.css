@@ -9,7 +9,7 @@
 }
 
 .auth-heading h1 {
-  color: var(--color-primary-dark);
+  color: #145C38;
   font-size: clamp(2.2rem, 4vw, 4rem);
 }
 
@@ -59,7 +59,7 @@
   padding: 28px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: #eef7f0;
   box-shadow: var(--shadow);
 }
 
