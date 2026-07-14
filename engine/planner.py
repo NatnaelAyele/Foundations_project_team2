@@ -20,9 +20,21 @@ class PlannerError(ValueError):
 
 
 class Planner:
-    """Creates trip allocations and forecast allocations."""
+    """
+    Creates planned trip and forecast allocation dictionaries.
+
+    The planner receives successful matches from Group 2 and returns plain
+    dictionaries. It does not save to the database; it only prepares records
+    that a future service layer can insert in the right order.
+    """
 
     def __init__(self, logger=None):
+        """
+        Create a planner instance.
+
+        Receives an optional logger. Returns a Planner that can turn matched
+        trucks, hubs, and forecast clusters into planned trip records.
+        """
         if logger:
             self.logger = logger
         elif EngineLogger:
@@ -31,7 +43,13 @@ class Planner:
             self.logger = logging.getLogger(__name__)
 
     def plan_trips(self, plan_id: int, successful_matches: list) -> dict:
-        """Create trip and forecast allocations from successful matches."""
+        """
+        Create trip and forecast allocations from successful matches.
+
+        Receives a database plan_id when available and a list of successful
+        Group 2 matches. Returns trip_allocations first, because trips must be
+        inserted before forecast_allocations can receive allocation_id.
+        """
         self.logger.info("Planning started.")
         self.logger.info(f"Number of successful matches: {len(successful_matches)}.")
 
@@ -39,14 +57,22 @@ class Planner:
             trip_allocations = []
             forecast_allocations = []
 
-            for match in successful_matches:
+            for index, match in enumerate(successful_matches, start=1):
                 # Create one trip allocation.
-                trip = self.create_trip_allocation(plan_id, match)
+                temporary_trip_key = self.create_temporary_trip_key(index)
+                trip = self.create_trip_allocation(
+                    plan_id,
+                    match,
+                    temporary_trip_key
+                )
                 trip_allocations.append(trip)
                 self.logger.info("Trip allocation created.")
 
-                # Allocate all forecasts in this match to the trip.
-                allocations = self.create_forecast_allocations(match)
+                # Forecast allocations wait for the database allocation_id.
+                allocations = self.create_forecast_allocations(
+                    match,
+                    temporary_trip_key
+                )
                 forecast_allocations.extend(allocations)
                 self.logger.info(
                     f"Forecast allocations created: {len(allocations)}."
@@ -63,32 +89,64 @@ class Planner:
             return {
                 "trip_allocations": trip_allocations,
                 "forecast_allocations": forecast_allocations,
+                "persistence_order": [
+                    "insert trip_allocations",
+                    "copy generated allocation_id to forecast_allocations",
+                    "insert forecast_allocations",
+                ],
             }
 
         except Exception as error:
             self.logger.error(f"Planning error: {error}")
             raise
 
-    def create_trip_allocation(self, plan_id: int, match: dict) -> dict:
-        """Create one trip allocation that matches the database schema."""
+    def create_trip_allocation(
+        self,
+        plan_id: int,
+        match: dict,
+        temporary_trip_key=None
+    ) -> dict:
+        """
+        Create one planned trip allocation dictionary.
+
+        Receives a plan_id, one successful match, and an optional temporary
+        trip key. Returns a trip record shaped for the trip_allocations table.
+        allocation_id is None because PostgreSQL will generate it.
+        """
         self.validate_allocation(match)
 
         pickup_time = self.estimate_pickup_time()
         arrival_time = self.estimate_arrival_time(pickup_time)
 
         return {
+            "allocation_id": match.get("allocation_id"),
             "plan_id": plan_id,
+            "temporary_plan_pending": plan_id is None,
+            "temporary_trip_key": temporary_trip_key,
             "truck_id": match["truck_id"],
             "hub_id": match["hub_id"],
             "sector_id": match["sector_id"],
             "total_load_kg": self.get_total_load(match),
+            "truck_capacity_kg": self.get_truck_capacity(match),
+            "available_capacity_kg": self.get_hub_capacity(match),
             "pickup_start": pickup_time,
             "estimated_hub_arrival": arrival_time,
             "status": "SCHEDULED",
+            "persistence_status": "PENDING_DATABASE_INSERT",
         }
 
-    def create_forecast_allocations(self, match: dict) -> list:
-        """Create one forecast allocation for each forecast in the cluster."""
+    def create_forecast_allocations(
+        self,
+        match: dict,
+        temporary_trip_key=None
+    ) -> list:
+        """
+        Create one forecast allocation for each forecast in the cluster.
+
+        Receives a successful match and optional temporary trip key. Returns
+        records that can later receive the generated trip allocation_id after
+        the trip row is inserted.
+        """
         forecasts = self.get_forecasts(match)
         allocations = []
 
@@ -109,6 +167,9 @@ class Planner:
 
             allocations.append(
                 {
+                    "allocation_id": match.get("allocation_id"),
+                    "temporary_trip_key": temporary_trip_key,
+                    "persistence_status": "WAITING_FOR_TRIP_ALLOCATION_ID",
                     "forecast_id": forecast["forecast_id"],
                     "allocated_quantity_kg": quantity,
                 }
@@ -117,15 +178,28 @@ class Planner:
         return allocations
 
     def estimate_pickup_time(self) -> datetime:
-        """Estimate when the truck should start pickup."""
+        """
+        Estimate when the truck should start pickup.
+
+        Receives no input. Returns a datetime used for pickup_start.
+        """
         return datetime.now()
 
     def estimate_arrival_time(self, pickup_time: datetime) -> datetime:
-        """Estimate when the truck should arrive at the hub."""
+        """
+        Estimate when the truck should arrive at the hub.
+
+        Receives a pickup datetime. Returns the estimated hub arrival datetime.
+        """
         return pickup_time + timedelta(hours=2)
 
     def validate_allocation(self, match: dict) -> None:
-        """Check that the match has enough data to create a trip."""
+        """
+        Check that the match has enough data to create a trip.
+
+        Receives one match dictionary. Returns None or raises PlannerError with
+        a clear reason if required fields are missing or invalid.
+        """
         truck_id = match.get("truck_id")
         hub_id = match.get("hub_id")
         sector_id = match.get("sector_id")
@@ -150,7 +224,12 @@ class Planner:
             raise PlannerError("Hub capacity is not enough for this trip.")
 
     def get_forecasts(self, match: dict) -> list:
-        """Get forecasts from the match or from its cluster."""
+        """
+        Get forecasts from the match or from its cluster.
+
+        Receives one match dictionary. Returns the list of forecasts that will
+        be connected to the planned trip.
+        """
         if "forecasts" in match:
             forecasts = match["forecasts"]
         elif "cluster" in match and "forecasts" in match["cluster"]:
@@ -164,7 +243,11 @@ class Planner:
         return forecasts
 
     def get_total_load(self, match: dict) -> float:
-        """Get the total load for the trip."""
+        """
+        Get the total load for the trip.
+
+        Receives one match dictionary. Returns the total load as a float.
+        """
         if "total_load_kg" in match:
             return self.to_number(match["total_load_kg"], "Total load")
 
@@ -189,7 +272,11 @@ class Planner:
         return total_load
 
     def get_truck_capacity(self, match: dict) -> float:
-        """Get the truck capacity from the match."""
+        """
+        Get the truck capacity from the match.
+
+        Receives one match dictionary. Returns truck capacity in kilograms.
+        """
         if "truck_capacity_kg" in match:
             return self.to_number(match["truck_capacity_kg"], "Truck capacity")
         if "capacity_kg" in match:
@@ -200,7 +287,11 @@ class Planner:
         raise PlannerError("Truck capacity is missing.")
 
     def get_hub_capacity(self, match: dict) -> float:
-        """Get the hub available capacity from the match."""
+        """
+        Get the hub available capacity from the match.
+
+        Receives one match dictionary. Returns available hub capacity in kg.
+        """
         if "hub_available_capacity_kg" in match:
             return self.to_number(
                 match["hub_available_capacity_kg"],
@@ -217,8 +308,22 @@ class Planner:
         raise PlannerError("Hub capacity is missing.")
 
     def to_number(self, value, field_name: str) -> float:
-        """Convert a value to a number and raise a clear planner error."""
+        """
+        Convert a value to a number.
+
+        Receives any value and a field name for error messages. Returns a float
+        or raises PlannerError if conversion fails.
+        """
         try:
             return float(value)
         except (TypeError, ValueError) as error:
             raise PlannerError(f"{field_name} must be a number.") from error
+
+    def create_temporary_trip_key(self, index: int) -> str:
+        """
+        Create a temporary trip key for linking unsaved records.
+
+        Receives the trip number inside one planning run. Returns a readable key
+        that the service layer can replace with the real allocation_id.
+        """
+        return f"TEMP-TRIP-{index}"
