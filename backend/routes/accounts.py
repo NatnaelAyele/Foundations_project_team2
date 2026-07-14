@@ -300,6 +300,15 @@ def admin_dashboard(user: User = Depends(require_role("admin"))):
     return FileResponse(FRONTEND_DIR / "admin" / "admin-dashboard.html")
 
 
+@dashboard_router.get("/admin/register-farmer.html", include_in_schema=False)
+@dashboard_router.get("/admin/view-farmers.html", include_in_schema=False)
+@dashboard_router.get("/admin/forecast.html", include_in_schema=False)
+@dashboard_router.get("/admin/view-forecasts.html", include_in_schema=False)
+@dashboard_router.get("/admin/reports.html", include_in_schema=False)
+def admin_page(request: Request, user: User = Depends(require_role("admin"))):
+    return FileResponse(FRONTEND_DIR / "admin" / Path(request.url.path).name)
+
+
 @dashboard_router.get(
     "/transporter_dashboard/transporter_dashboard.html", include_in_schema=False
 )
