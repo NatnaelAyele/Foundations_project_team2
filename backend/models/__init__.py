@@ -6,6 +6,7 @@ from backend.models.operations import (
     HubAllocationReceipt,
     Notification,
     TripAllocation,
+    TripStatusEvent,
 )
 from backend.models.provider import (
     ColdHub,
@@ -16,6 +17,7 @@ from backend.models.provider import (
     Sector,
     Transporter,
     Truck,
+    TruckOperationalDetail,
     User,
 )
 
@@ -34,6 +36,8 @@ __all__ = [
     "Sector",
     "Transporter",
     "TripAllocation",
+    "TripStatusEvent",
     "Truck",
+    "TruckOperationalDetail",
     "User",
 ]

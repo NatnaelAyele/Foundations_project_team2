@@ -310,6 +310,15 @@ def transporter_dashboard(user: User = Depends(require_role("truck_provider"))):
 
 
 @dashboard_router.get(
+    "/transporter_dashboard/truck_status_update_form.html", include_in_schema=False
+)
+def transporter_status_page(user: User = Depends(require_role("truck_provider"))):
+    return FileResponse(
+        FRONTEND_DIR / "transporter_dashboard" / "truck_status_update_form.html"
+    )
+
+
+@dashboard_router.get(
     "/storagehub_dashboard/hub_dashboard.html", include_in_schema=False
 )
 def storage_hub_dashboard(user: User = Depends(require_role("hub_operator"))):

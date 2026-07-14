@@ -119,6 +119,25 @@ class Truck(Base):
     status: Mapped[str] = mapped_column(String(10), default="IDLE", server_default="IDLE")
 
 
+class TruckOperationalDetail(Base):
+    __tablename__ = "truck_operational_details"
+    __table_args__ = (Index("idx_truck_details_updated_at", "updated_at"),)
+
+    truck_id: Mapped[int] = mapped_column(
+        ForeignKey("trucks.truck_id", ondelete="CASCADE"), primary_key=True
+    )
+    vehicle_model: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    driver_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    current_location: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    notes: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    updated_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.user_id", ondelete="SET NULL"), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), onupdate=func.now()
+    )
+
+
 class ColdHub(Base):
     __tablename__ = "cold_hubs"
     __table_args__ = (

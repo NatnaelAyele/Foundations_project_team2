@@ -130,6 +130,24 @@ class HubAllocationReceipt(Base):
     received_quantity_kg: Mapped[float] = mapped_column(Float)
 
 
+class TripStatusEvent(Base):
+    __tablename__ = "trip_status_events"
+    __table_args__ = (
+        Index("idx_trip_status_events_allocation", "allocation_id"),
+        Index("idx_trip_status_events_status_time", "status", "created_at"),
+    )
+
+    event_id: Mapped[int] = mapped_column(primary_key=True)
+    allocation_id: Mapped[int] = mapped_column(
+        ForeignKey("trip_allocations.allocation_id", ondelete="CASCADE")
+    )
+    status: Mapped[str] = mapped_column(String(10))
+    changed_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.user_id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
 class ExcludedTrip(Base):
     __tablename__ = "excluded_trips"
     __table_args__ = (
