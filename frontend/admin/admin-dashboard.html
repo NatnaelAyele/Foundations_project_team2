@@ -32,7 +32,7 @@
         <div class="sidebar-bottom">
           <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
           <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
-          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true"&#9211;</span><span class="side-text">Logout</span></a>
         </div>
       </aside>
 
@@ -44,7 +44,7 @@
         </header>
         <div class="content">
 
-          <section class="hero" id="hero" style="--hero-img: url('../images/harvest-tomatoes.jpg');">
+          <section class="hero" id="hero" style="--hero-img: url('../images/admin-hero.png');">
             <div class="hero-scrim" aria-hidden="true"></div>
             <div class="glass greeting-card">
               <span class="role-chip">Kamonyi District &middot; Coordination</span>
@@ -74,30 +74,34 @@
           <div class="section-heading"><h2>Recent Farmer Registrations</h2><a class="section-sub" href="view-farmers.html">View all farmers &rarr;</a></div>
           <div class="panel" style="padding:0;">
             <div class="table-scroll" style="max-height:none;">
-              <table class="data-table">
-                <thead><tr><th>Farmer Name</th><th>Sector</th><th>Village</th><th>Phone Number</th><th>Status</th></tr></thead>
-                <tbody>
-                  <tr><td>Jean Baptiste Nzeyimana</td><td>Nyarubaka</td><td>Kavumu</td><td>+250 788 221 340</td><td><span class="status-pill status-active">Active</span></td></tr>
-                  <tr><td>Alice Uwamahoro</td><td>Rukoma</td><td>Gahogo</td><td>+250 722 118 065</td><td><span class="status-pill status-new">New</span></td></tr>
-                  <tr><td>Emmanuel Habimana</td><td>Runda</td><td>Nyagisozi</td><td>+250 788 904 512</td><td><span class="status-pill status-active">Active</span></td></tr>
-                  <tr><td>Claudine Mukamana</td><td>Nyamiyaga</td><td>Kabuye</td><td>+250 733 552 871</td><td><span class="status-pill status-pending">Pending Review</span></td></tr>
-                </tbody>
-              </table>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead><tr><th>Farmer Name</th><th>Sector</th><th>Village</th><th>Phone Number</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td>Jean Baptiste Nzeyimana</td><td>Nyarubaka</td><td>Kavumu</td><td>+250 788 221 340</td><td><span class="status-pill status-active">Active</span></td></tr>
+                    <tr><td>Alice Uwamahoro</td><td>Rukoma</td><td>Gahogo</td><td>+250 722 118 065</td><td><span class="status-pill status-new">New</span></td></tr>
+                    <tr><td>Emmanuel Habimana</td><td>Runda</td><td>Nyagisozi</td><td>+250 788 904 512</td><td><span class="status-pill status-active">Active</span></td></tr>
+                    <tr><td>Claudine Mukamana</td><td>Nyamiyaga</td><td>Kabuye</td><td>+250 733 552 871</td><td><span class="status-pill status-pending">Pending Review</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
           <div class="section-heading"><h2>Recent Harvest Forecasts</h2><a class="section-sub" href="view-forecasts.html">View all forecasts &rarr;</a></div>
           <div class="panel" style="padding:0;">
             <div class="table-scroll" style="max-height:none;">
-              <table class="data-table">
-                <thead><tr><th>Farmer Name</th><th>Harvest Date</th><th>Quantity</th><th>Transport</th><th>Storage</th></tr></thead>
-                <tbody>
-                  <tr><td>Jean Baptiste Nzeyimana</td><td>10 Jul 2026</td><td>420 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-no">No</span></td></tr>
-                  <tr><td>Alice Uwamahoro</td><td>12 Jul 2026</td><td>310 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-yes">Yes</span></td></tr>
-                  <tr><td>Emmanuel Habimana</td><td>14 Jul 2026</td><td>580 kg</td><td><span class="tag-no">No</span></td><td><span class="tag-yes">Yes</span></td></tr>
-                  <tr><td>Claudine Mukamana</td><td>16 Jul 2026</td><td>245 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-no">No</span></td></tr>
-                </tbody>
-              </table>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead><tr><th>Farmer Name</th><th>Harvest Date</th><th>Quantity</th><th>Transport</th><th>Storage</th></tr></thead>
+                  <tbody>
+                    <tr><td>Jean Baptiste Nzeyimana</td><td>10 Jul 2026</td><td>420 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-no">No</span></td></tr>
+                    <tr><td>Alice Uwamahoro</td><td>12 Jul 2026</td><td>310 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-yes">Yes</span></td></tr>
+                    <tr><td>Emmanuel Habimana</td><td>14 Jul 2026</td><td>580 kg</td><td><span class="tag-no">No</span></td><td><span class="tag-yes">Yes</span></td></tr>
+                    <tr><td>Claudine Mukamana</td><td>16 Jul 2026</td><td>245 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-no">No</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 

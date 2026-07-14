@@ -19,16 +19,57 @@ function initTheme() {
   });
 }
 
+/* ---------- sidebar ---------- */
 function initSidebar() {
-  const sidebar = $("#sidebar"), collapse = $("#sidebarCollapse"), menuToggle = $("#menuToggle");
-  if (collapse) collapse.addEventListener("click", () => sidebar.classList.toggle("collapsed"));
-  const backdrop = document.createElement("div");
-  backdrop.className = "backdrop"; document.body.appendChild(backdrop);
-  const open = () => { sidebar.classList.add("open"); backdrop.classList.add("show"); };
-  const close = () => { sidebar.classList.remove("open"); backdrop.classList.remove("show"); };
-  if (menuToggle) menuToggle.addEventListener("click", open);
-  backdrop.addEventListener("click", close);
-  $$(".side-link").forEach((l) => l.addEventListener("click", () => { if (window.innerWidth <= 820) close(); }));
+  const sidebar = $("#sidebar");
+  const collapse = $("#sidebarCollapse");
+  const menuToggle = $("#menuToggle");
+
+  // desktop collapse
+  if (collapse) {
+    collapse.addEventListener("click", () => sidebar.classList.toggle("collapsed"));
+  }
+
+  // restore saved width
+  try {
+    const savedW = localStorage.getItem("freshlink-sidebar-w");
+    if (savedW) document.documentElement.style.setProperty("--sb-w", savedW + "px");
+  } catch (e) {}
+
+  // drag-to-resize
+  const handle = $("#resizeHandle");
+  if (handle) {
+    let dragging = false;
+    const MIN = 200, MAX = 420;
+    const onMove = (e) => {
+      if (!dragging) return;
+      const w = Math.max(MIN, Math.min(MAX, e.clientX));
+      document.documentElement.style.setProperty("--sb-w", w + "px");
+    };
+    const stop = () => {
+      if (!dragging) return;
+      dragging = false;
+      handle.classList.remove("dragging");
+      document.body.classList.remove("resizing");
+      const w = getComputedStyle(document.documentElement).getPropertyValue("--sb-w").trim().replace("px", "");
+      try { localStorage.setItem("freshlink-sidebar-w", w); } catch (e) {}
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", stop);
+    };
+    handle.addEventListener("mousedown", (e) => {
+      if (sidebar.classList.contains("collapsed")) return;
+      dragging = true;
+      handle.classList.add("dragging");
+      document.body.classList.add("resizing");
+      e.preventDefault();
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", stop);
+    });
+    handle.addEventListener("dblclick", () => {
+      document.documentElement.style.setProperty("--sb-w", "256px");
+      try { localStorage.setItem("freshlink-sidebar-w", "256"); } catch (e) {}
+    });
+  }
 }
 
 function initGreetingAndDate() {
