@@ -1,18 +1,35 @@
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, EmailStr, Field, model_validator
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from backend.auth.security import create_access_token, hash_password, verify_password
+from backend.auth.security import (
+    create_access_token,
+    decode_access_token,
+    hash_password,
+    verify_password,
+)
+from backend.config import Config
 from backend.database.connection import get_db
-from backend.models.provider import ColdHub, Sector, Transporter, Truck, User
+from backend.models.provider import (
+    ColdHub,
+    ColdHubAccount,
+    Sector,
+    Transporter,
+    Truck,
+    User,
+)
 
 
 router = APIRouter(prefix="/api", tags=["Accounts"])
+dashboard_router = APIRouter(tags=["Dashboards"])
+FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 
 DASHBOARD_URLS = {
     "admin": "/admin/admin-dashboard.html",
@@ -93,13 +110,11 @@ def register_provider(registration: ProviderRegistration, db: Session = Depends(
     if duplicate_user:
         raise HTTPException(status_code=409, detail="Username or email is already registered")
 
-    duplicate_phone = db.scalar(
-        select(User)
-        .outerjoin(Transporter, Transporter.user_id == User.user_id)
-        .outerjoin(ColdHub, ColdHub.user_id == User.user_id)
-        .where(or_(Transporter.phone == phone, ColdHub.phone == phone))
+    transporter_phone = db.scalar(
+        select(Transporter).where(Transporter.phone == phone)
     )
-    if duplicate_phone:
+    hub_phone = db.scalar(select(ColdHub).where(ColdHub.phone == phone))
+    if transporter_phone or hub_phone:
         raise HTTPException(status_code=409, detail="Phone number is already registered")
 
     plate_number = None
@@ -121,7 +136,6 @@ def register_provider(registration: ProviderRegistration, db: Session = Depends(
 
         if registration.role == "hub_operator":
             provider = ColdHub(
-                user_id=user.user_id,
                 sector_id=sector.sector_id,
                 name=registration.name.strip(),
                 phone=phone,
@@ -130,6 +144,7 @@ def register_provider(registration: ProviderRegistration, db: Session = Depends(
             )
             db.add(provider)
             db.flush()
+            db.add(ColdHubAccount(hub_id=provider.hub_id, user_id=user.user_id))
             provider_id = provider.hub_id
             truck_id = None
         else:
@@ -168,7 +183,11 @@ def register_provider(registration: ProviderRegistration, db: Session = Depends(
 
 
 @router.post("/auth/login", response_model=LoginResponse)
-def login(credentials: LoginRequest, db: Session = Depends(get_db)):
+def login(
+    credentials: LoginRequest,
+    response: Response,
+    db: Session = Depends(get_db),
+):
     login_id = credentials.login_id.strip()
     normalized_login_id = login_id.lower()
     normalized_phone = normalize_phone(login_id)
@@ -176,7 +195,8 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     user = db.scalar(
         select(User)
         .outerjoin(Transporter, Transporter.user_id == User.user_id)
-        .outerjoin(ColdHub, ColdHub.user_id == User.user_id)
+        .outerjoin(ColdHubAccount, ColdHubAccount.user_id == User.user_id)
+        .outerjoin(ColdHub, ColdHub.hub_id == ColdHubAccount.hub_id)
         .where(
             or_(
                 func.lower(User.username) == normalized_login_id,
@@ -203,14 +223,87 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     user.last_login = datetime.now(UTC).replace(tzinfo=None)
     db.commit()
 
+    access_token = create_access_token(user.user_id, role)
+    response.set_cookie(
+        key=Config.AUTH_COOKIE_NAME,
+        value=access_token,
+        max_age=Config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+        secure=Config.COOKIE_SECURE,
+        samesite="lax",
+        path="/",
+    )
+
     return {
-        "access_token": create_access_token(user.user_id, role),
+        "access_token": access_token,
         "token_type": "bearer",
         "user_id": user.user_id,
         "username": user.username,
         "role": role,
         "dashboard_url": DASHBOARD_URLS[role],
     }
+
+
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    token = request.cookies.get(Config.AUTH_COOKIE_NAME)
+    authorization = request.headers.get("Authorization", "")
+    if authorization.lower().startswith("bearer "):
+        token = authorization.split(" ", 1)[1]
+
+    payload = decode_access_token(token) if token else None
+    if payload is None or not payload.get("sub"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    try:
+        user_id = int(payload["sub"])
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=401, detail="Invalid access token")
+
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid access token")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="This account is inactive")
+    return user
+
+
+def require_role(required_role):
+    def check_role(user: User = Depends(get_current_user)):
+        if normalize_role(user.role) != required_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"This dashboard requires the {required_role} role",
+            )
+        return user
+
+    return check_role
+
+
+@dashboard_router.get("/admin/admin-dashboard.html", include_in_schema=False)
+def admin_dashboard(user: User = Depends(require_role("admin"))):
+    return FileResponse(FRONTEND_DIR / "admin" / "admin-dashboard.html")
+
+
+@dashboard_router.get(
+    "/transporter_dashboard/transporter_dashboard.html", include_in_schema=False
+)
+def transporter_dashboard(user: User = Depends(require_role("truck_provider"))):
+    return FileResponse(
+        FRONTEND_DIR / "transporter_dashboard" / "transporter_dashboard.html"
+    )
+
+
+@dashboard_router.get(
+    "/storagehub_dashboard/hub_dashboard.html", include_in_schema=False
+)
+def storage_hub_dashboard(user: User = Depends(require_role("hub_operator"))):
+    return FileResponse(
+        FRONTEND_DIR / "storagehub_dashboard" / "hub_dashboard.html"
+    )
 
 
 def find_or_create_sector(db: Session, registration: ProviderRegistration):

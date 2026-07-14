@@ -28,3 +28,10 @@ def create_access_token(user_id, role):
         "exp": expires_at,
     }
     return jwt.encode(payload, Config.SECRET_KEY, algorithm="HS256")
+
+
+def decode_access_token(token):
+    try:
+        return jwt.decode(token, Config.SECRET_KEY, algorithms=["HS256"])
+    except jwt.PyJWTError:
+        return None
