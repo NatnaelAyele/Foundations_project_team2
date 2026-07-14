@@ -60,6 +60,27 @@ class Farmer(Base):
     village: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
 
+class FarmerAdminProfile(Base):
+    __tablename__ = "farmer_admin_profiles"
+    __table_args__ = (
+        Index("idx_farmer_profiles_status", "registration_status"),
+        Index("idx_farmer_profiles_registered_at", "registered_at"),
+    )
+
+    farmer_id: Mapped[int] = mapped_column(
+        ForeignKey("farmers.farmer_id", ondelete="CASCADE"), primary_key=True
+    )
+    national_id: Mapped[str | None] = mapped_column(
+        String(20), unique=True, nullable=True
+    )
+    registration_status: Mapped[str] = mapped_column(
+        String(20), default="ACTIVE", server_default="ACTIVE"
+    )
+    registered_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now()
+    )
+
+
 class Transporter(Base):
     __tablename__ = "transporters"
     __table_args__ = (
@@ -69,13 +90,13 @@ class Transporter(Base):
 
     transporter_id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.user_id", ondelete="CASCADE"), unique=True
+        ForeignKey("users.user_id", ondelete="CASCADE")
     )
     sector_id: Mapped[int] = mapped_column(
         ForeignKey("sectors.sector_id", ondelete="RESTRICT")
     )
     name: Mapped[str] = mapped_column(String(50))
-    phone: Mapped[str] = mapped_column(String(50), unique=True)
+    phone: Mapped[str] = mapped_column(String(50))
 
 
 class Truck(Base):
@@ -110,16 +131,52 @@ class ColdHub(Base):
     )
 
     hub_id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.user_id", ondelete="CASCADE"), unique=True
-    )
     sector_id: Mapped[int] = mapped_column(
         ForeignKey("sectors.sector_id", ondelete="RESTRICT")
     )
     name: Mapped[str] = mapped_column(String(50))
-    phone: Mapped[str | None] = mapped_column(String(15), unique=True, nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(15), nullable=True)
     total_capacity_kg: Mapped[float] = mapped_column(Float)
     available_capacity_kg: Mapped[float] = mapped_column(Float)
     operating_status: Mapped[str] = mapped_column(
         String(10), default="OPEN", server_default="OPEN"
     )
+
+
+class ColdHubAccount(Base):
+    __tablename__ = "cold_hub_accounts"
+    __table_args__ = (Index("idx_hub_accounts_user_id", "user_id"),)
+
+    hub_id: Mapped[int] = mapped_column(
+        ForeignKey("cold_hubs.hub_id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.user_id", ondelete="CASCADE"), unique=True
+    )
+
+
+class ColdHubCapacityUpdate(Base):
+    __tablename__ = "cold_hub_capacity_updates"
+    __table_args__ = (
+        CheckConstraint(
+            "available_capacity_kg >= 0 AND available_capacity_kg <= total_capacity_kg",
+            name="chk_hub_capacity_update",
+        ),
+        Index("idx_hub_capacity_updates_hub_id", "hub_id"),
+        Index("idx_hub_capacity_updates_created_at", "created_at"),
+    )
+
+    update_id: Mapped[int] = mapped_column(primary_key=True)
+    hub_id: Mapped[int] = mapped_column(
+        ForeignKey("cold_hubs.hub_id", ondelete="CASCADE")
+    )
+    updated_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.user_id", ondelete="SET NULL"), nullable=True
+    )
+    total_capacity_kg: Mapped[float] = mapped_column(Float)
+    available_capacity_kg: Mapped[float] = mapped_column(Float)
+    produce_type: Mapped[str] = mapped_column(
+        String(30), default="tomatoes", server_default="tomatoes"
+    )
+    notes: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

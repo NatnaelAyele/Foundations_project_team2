@@ -244,6 +244,18 @@ def login(
     }
 
 
+@router.post("/auth/logout")
+def logout(response: Response):
+    response.delete_cookie(
+        key=Config.AUTH_COOKIE_NAME,
+        path="/",
+        secure=Config.COOKIE_SECURE,
+        httponly=True,
+        samesite="lax",
+    )
+    return {"message": "Logged out successfully"}
+
+
 def get_current_user(request: Request, db: Session = Depends(get_db)):
     token = request.cookies.get(Config.AUTH_COOKIE_NAME)
     authorization = request.headers.get("Authorization", "")
@@ -303,6 +315,15 @@ def transporter_dashboard(user: User = Depends(require_role("truck_provider"))):
 def storage_hub_dashboard(user: User = Depends(require_role("hub_operator"))):
     return FileResponse(
         FRONTEND_DIR / "storagehub_dashboard" / "hub_dashboard.html"
+    )
+
+
+@dashboard_router.get(
+    "/storagehub_dashboard/capacity_update_form.html", include_in_schema=False
+)
+def storage_hub_capacity_page(user: User = Depends(require_role("hub_operator"))):
+    return FileResponse(
+        FRONTEND_DIR / "storagehub_dashboard" / "capacity_update_form.html"
     )
 
 

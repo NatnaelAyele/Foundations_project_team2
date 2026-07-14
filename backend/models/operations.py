@@ -1,6 +1,16 @@
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, Float, ForeignKey, Index, String, func, text
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    String,
+    func,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.database.connection import Base
@@ -25,6 +35,30 @@ class HarvestForecast(Base):
         String(10), default="PENDING", server_default="PENDING"
     )
     submitted_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class ForecastRequirement(Base):
+    __tablename__ = "forecast_requirements"
+    __table_args__ = (
+        Index("idx_forecast_requirements_transport", "needs_transport"),
+        Index("idx_forecast_requirements_storage", "needs_storage"),
+        Index("idx_forecast_requirements_source", "source"),
+    )
+
+    forecast_id: Mapped[int] = mapped_column(
+        ForeignKey("harvest_forecasts.forecast_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    needs_transport: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default=text("TRUE")
+    )
+    needs_storage: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default=text("TRUE")
+    )
+    notes: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    source: Mapped[str] = mapped_column(
+        String(10), default="USSD", server_default="USSD"
+    )
 
 
 class CoordinationPlan(Base):
@@ -75,6 +109,25 @@ class TripAllocation(Base):
     status: Mapped[str] = mapped_column(
         String(10), default="SCHEDULED", server_default="SCHEDULED"
     )
+
+
+class HubAllocationReceipt(Base):
+    __tablename__ = "hub_allocation_receipts"
+    __table_args__ = (
+        CheckConstraint("received_quantity_kg > 0", name="chk_hub_receipt_quantity"),
+        Index("idx_hub_receipts_confirmed_at", "confirmed_at"),
+        Index("idx_hub_receipts_confirmed_by", "confirmed_by_user_id"),
+    )
+
+    allocation_id: Mapped[int] = mapped_column(
+        ForeignKey("trip_allocations.allocation_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    confirmed_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    confirmed_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.user_id", ondelete="SET NULL"), nullable=True
+    )
+    received_quantity_kg: Mapped[float] = mapped_column(Float)
 
 
 class ExcludedTrip(Base):
