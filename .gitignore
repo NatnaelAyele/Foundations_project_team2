@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.example
+freshlink.db
+
+apis.md
+schema_changes.md
+migrations/
+tests/
+requirements.txt
+indexes.sql
+schema.sql
+seed_data.sql
