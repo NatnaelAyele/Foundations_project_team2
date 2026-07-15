@@ -137,10 +137,28 @@
 }
 
 .register-form.is-valid::after {
-  content: "Registration details look valid for this prototype.";
+  content: "";
   color: var(--color-primary-dark);
   font-weight: 800;
   text-align: center;
+}
+
+.api-form-notice {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.api-form-notice[data-type="error"] {
+  color: #b42318;
+  background: #fff1ef;
+}
+
+.api-form-notice[data-type="success"] {
+  color: var(--color-primary-dark);
+  background: #e8f7ed;
 }
 
 .register-form button {

@@ -31,7 +31,7 @@
         <div class="sidebar-bottom">
           <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
           <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
-          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+          <a class="side-logout" href="/landing_page/login.html" data-logout><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
         </div>
       </aside>
       <div class="main">
@@ -47,16 +47,7 @@
             <div class="table-scroll" style="max-height:none;">
               <table class="data-table">
                 <thead><tr><th>Farmer Name</th><th>Sector</th><th>Cell</th><th>Village</th><th>Phone</th><th>Status</th></tr></thead>
-                <tbody id="farmer-table-body">
-                  <tr><td>Jean Baptiste Nzeyimana</td><td>Nyarubaka</td><td>Kayenzi</td><td>Kavumu</td><td>+250 788 221 340</td><td><span class="status-pill status-active">Active</span></td></tr>
-                  <tr><td>Alice Uwamahoro</td><td>Rukoma</td><td>Gihara</td><td>Gahogo</td><td>+250 722 118 065</td><td><span class="status-pill status-new">New</span></td></tr>
-                  <tr><td>Emmanuel Habimana</td><td>Runda</td><td>Kagese</td><td>Nyagisozi</td><td>+250 788 904 512</td><td><span class="status-pill status-active">Active</span></td></tr>
-                  <tr><td>Claudine Mukamana</td><td>Nyamiyaga</td><td>Buhoro</td><td>Kabuye</td><td>+250 733 552 871</td><td><span class="status-pill status-pending">Pending Review</span></td></tr>
-                  <tr><td>Eric Nkurunziza</td><td>Musambira</td><td>Kabaziga</td><td>Nyamirembe</td><td>+250 788 340 219</td><td><span class="status-pill status-active">Active</span></td></tr>
-                  <tr><td>Diane Uwase</td><td>Kayenzi</td><td>48</td><td>Kabashumba</td><td>+250 722 665 108</td><td><span class="status-pill status-active">Active</span></td></tr>
-                  <tr><td>Sonia Ingabire</td><td>Nyarubaka</td><td>Kayenzi</td><td>Runyonza</td><td>+250 788 771 902</td><td><span class="status-pill status-new">New</span></td></tr>
-                  <tr><td>Patrick Bizimana</td><td>Rugalika</td><td>Kabuga</td><td>Ntenyo</td><td>+250 733 210 447</td><td><span class="status-pill status-active">Active</span></td></tr>
-                </tbody>
+                <tbody id="farmer-table-body"><tr><td colspan="6" class="table-message">Loading farmers&hellip;</td></tr></tbody>
               </table>
               <div class="no-results" id="farmer-no-results">No farmers match your search.</div>
             </div>
@@ -66,6 +57,7 @@
       </div>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
     <script src="./js/admin.js"></script>
   </body>
 </html>

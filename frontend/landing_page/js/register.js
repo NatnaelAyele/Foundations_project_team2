@@ -187,7 +187,7 @@ registerForms.forEach((form) => {
     }
   });
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (!validateForm(form)) {
@@ -195,6 +195,39 @@ registerForms.forEach((form) => {
       return;
     }
 
-    form.classList.add("is-valid");
+    const button = form.querySelector("button[type='submit']");
+    const formData = new FormData(form);
+    const payload = Object.fromEntries(formData.entries());
+    payload.email = payload.email || null;
+
+    if (payload.total_capacity_kg) {
+      payload.total_capacity_kg = Number(payload.total_capacity_kg);
+    }
+    if (payload.capacity_kg) {
+      payload.capacity_kg = Number(payload.capacity_kg);
+    }
+
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = "Submitting...";
+
+    try {
+      await FreshLinkAPI.request("/api/registrations/providers", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      form.classList.add("is-valid");
+      FreshLinkAPI.setFormNotice(
+        form,
+        "Registration successful. You can now log in.",
+        "success"
+      );
+      form.reset();
+    } catch (error) {
+      FreshLinkAPI.setFormNotice(form, error.message, "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
   });
 });

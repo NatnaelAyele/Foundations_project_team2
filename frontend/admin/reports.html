@@ -31,7 +31,7 @@
         <div class="sidebar-bottom">
           <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
           <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
-          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+          <a class="side-logout" href="/landing_page/login.html" data-logout><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
         </div>
       </aside>
       <div class="main">
@@ -44,34 +44,24 @@
           <div class="page-header"><p>Coordination trends across the Kamonyi pilot. All figures come from the platform's own records — farmers, forecasts, trips and exclusions.</p></div>
 
           <div class="hero-stats" style="position:static;padding:0;margin-bottom:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
-            <article class="panel" style="border-left:5px solid #0f6b3d;"><p class="stat-label" style="color:var(--muted)">Total Harvest Logged</p><p class="stat-value" style="color:var(--green-dark)"><span class="count" data-target="12480" data-suffix=" kg">0</span></p></article>
-            <article class="panel" style="border-left:5px solid #6fe0a0;"><p class="stat-label" style="color:var(--muted)">Trips Coordinated</p><p class="stat-value" style="color:var(--green-dark)"><span class="count" data-target="38">0</span></p></article>
-            <article class="panel" style="border-left:5px solid #4d7bd6;"><p class="stat-label" style="color:var(--muted)">Successfully Matched</p><p class="stat-value" style="color:var(--green-dark)"><span class="count" data-target="82" data-suffix="%">0</span></p></article>
-            <article class="panel" style="border-left:5px solid #f5a24b;"><p class="stat-label" style="color:var(--muted)">Excluded (unmatched)</p><p class="stat-value" style="color:var(--green-dark)"><span class="count" data-target="7">0</span></p></article>
+            <article class="panel" style="border-left:5px solid #0f6b3d;"><p class="stat-label" style="color:var(--muted)">Total Harvest Logged</p><p class="stat-value" style="color:var(--green-dark)"><span id="report-total-harvest">Loading&hellip;</span></p></article>
+            <article class="panel" style="border-left:5px solid #6fe0a0;"><p class="stat-label" style="color:var(--muted)">Trips Coordinated</p><p class="stat-value" style="color:var(--green-dark)"><span id="report-trips-coordinated">Loading&hellip;</span></p></article>
+            <article class="panel" style="border-left:5px solid #4d7bd6;"><p class="stat-label" style="color:var(--muted)">Successfully Matched</p><p class="stat-value" style="color:var(--green-dark)"><span id="report-matched">Loading&hellip;</span></p></article>
+            <article class="panel" style="border-left:5px solid #f5a24b;"><p class="stat-label" style="color:var(--muted)">Excluded (unmatched)</p><p class="stat-value" style="color:var(--green-dark)"><span id="report-excluded">Loading&hellip;</span></p></article>
           </div>
 
           <div class="panel-cols">
             <div class="col-main">
               <section class="panel">
                 <div class="panel-title"><div><h3>Harvest volume by sector</h3><p>Total kilograms forecast per sector this month.</p></div></div>
-                <div class="bar-row"><span class="bar-label">Nyarubaka</span><div class="bar-track"><span class="bar-fill" data-width="92%"></span></div><span class="bar-value">3,180</span></div>
-                <div class="bar-row"><span class="bar-label">Rukoma</span><div class="bar-track"><span class="bar-fill secondary" data-width="74%"></span></div><span class="bar-value">2,540</span></div>
-                <div class="bar-row"><span class="bar-label">Runda</span><div class="bar-track"><span class="bar-fill" data-width="68%"></span></div><span class="bar-value">2,320</span></div>
-                <div class="bar-row"><span class="bar-label">Musambira</span><div class="bar-track"><span class="bar-fill secondary" data-width="54%"></span></div><span class="bar-value">1,860</span></div>
-                <div class="bar-row"><span class="bar-label">Nyamiyaga</span><div class="bar-track"><span class="bar-fill accent" data-width="43%"></span></div><span class="bar-value">1,480</span></div>
-                <div class="bar-row"><span class="bar-label">Kayenzi</span><div class="bar-track"><span class="bar-fill muted" data-width="32%"></span></div><span class="bar-value">1,100</span></div>
+                <div id="report-sector-bars"><p class="hint">Loading harvest data&hellip;</p></div>
               </section>
             </div>
             <div class="col-side">
               <section class="panel">
                 <div class="panel-title"><div><h3>Exclusion reasons</h3><p>Why some harvests weren't matched.</p></div></div>
-                <div class="bar-row" style="grid-template-columns:1fr 40px;"><span class="bar-label">No truck available</span><span class="bar-value">4</span></div>
-                <div class="bar-track" style="margin-bottom:14px;"><span class="bar-fill accent" data-width="57%"></span></div>
-                <div class="bar-row" style="grid-template-columns:1fr 40px;"><span class="bar-label">No hub capacity</span><span class="bar-value">2</span></div>
-                <div class="bar-track" style="margin-bottom:14px;"><span class="bar-fill accent" data-width="29%"></span></div>
-                <div class="bar-row" style="grid-template-columns:1fr 40px;"><span class="bar-label">Outside 3-day window</span><span class="bar-value">1</span></div>
-                <div class="bar-track"><span class="bar-fill muted" data-width="14%"></span></div>
-                <p class="hint">Exclusions are logged by the engine in <b>excluded_trips</b>.</p>
+                <div id="report-exclusion-bars"><p class="hint">Loading coordination data&hellip;</p></div>
+                <p class="hint" id="report-matching-note"></p>
               </section>
             </div>
           </div>
@@ -80,6 +70,7 @@
       </div>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
     <script src="./js/admin.js"></script>
   </body>
 </html>

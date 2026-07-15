@@ -10,6 +10,8 @@
     >
     <link rel="stylesheet" href="./css/landing.css">
     <link rel="stylesheet" href="./css/register.css">
+    <script src="/shared/api.js" defer></script>
+    <script src="./js/login.js" defer></script>
   </head>
   <body>
     <header class="site-header">
@@ -29,11 +31,11 @@
     <main>
       <section class="auth-hero">
         <div class="container auth-heading">
-          <p class="eyebrow">Hub and truck login</p>
+          <p class="eyebrow">Dashboard login</p>
           <h1>Login to FreshLink.</h1>
           <p>
-            This login is for cold hub operators and truck providers. Farmers receive updates by SMS,
-            and admin access is handled separately.
+            Administrators, cold hub operators, and truck providers can access their own dashboards here.
+            Farmers receive updates by SMS.
           </p>
         </div>
       </section>
@@ -46,16 +48,9 @@
               <h2>Access your dashboard</h2>
             </div>
 
-            <form class="register-form" action="#" method="post">
-              <label for="role">Account type</label>
-              <select id="role" name="role" required>
-                <option value="">Choose account type</option>
-                <option value="hub_operator">Cold Hub Operator</option>
-                <option value="truck_provider">Truck Provider</option>
-              </select>
-
-              <label for="login-id">Email or phone number</label>
-              <input id="login-id" name="login_id" type="text" placeholder="Email or phone number" required>
+            <form class="register-form" id="login-form" action="#" method="post">
+              <label for="login-id">Username, email, or phone number</label>
+              <input id="login-id" name="login_id" type="text" placeholder="Username, email, or phone number" required>
 
               <label for="password">Password</label>
               <input id="password" name="password" type="password" placeholder="Enter your password" required>

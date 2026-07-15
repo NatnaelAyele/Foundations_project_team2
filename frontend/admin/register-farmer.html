@@ -31,7 +31,7 @@
         <div class="sidebar-bottom">
           <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
           <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
-          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+          <a class="side-logout" href="/landing_page/login.html" data-logout><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
         </div>
       </aside>
       <div class="main">
@@ -55,9 +55,9 @@
               </div>
               <div class="form-section">
                 <h3>Location</h3>
-                <p class="form-section-note">Maps to the <b>sectors</b> table — used by the engine to cluster nearby farmers.</p>
+                <!--<p class="form-section-note">Maps to the <b>sectors</b> table — used by the engine to cluster nearby farmers.</p>-->
                 <div class="form-grid">
-                  <div class="field"><label for="rf-sector">Sector</label><select id="rf-sector" name="sector" required><option value="" disabled selected>Select sector</option><option>Nyarubaka</option><option>Rukoma</option><option>Runda</option><option>Nyamiyaga</option><option>Musambira</option><option>Kayenzi</option><option>Rugalika</option></select><span class="field-error-text">Please select a sector.</span></div>
+                  <div class="field"><label for="rf-sector">Sector</label><select id="rf-sector" name="sector" required><option value="" disabled selected>Loading sectors&hellip;</option></select><span class="field-error-text">Please select a sector.</span></div>
                   <div class="field"><label for="rf-cell">Cell</label><input type="text" id="rf-cell" name="cell" required placeholder="e.g. Kayenzi"><span class="field-error-text">Please enter the cell.</span></div>
                   <div class="field full"><label for="rf-village">Village</label><input type="text" id="rf-village" name="village" required placeholder="e.g. Kavumu"><span class="field-error-text">Please enter the village.</span></div>
                 </div>
@@ -71,6 +71,7 @@
       </div>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
     <script src="./js/admin.js"></script>
   </body>
 </html>

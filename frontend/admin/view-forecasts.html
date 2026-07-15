@@ -31,7 +31,7 @@
         <div class="sidebar-bottom">
           <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
           <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
-          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+          <a class="side-logout" href="/landing_page/login.html" data-logout><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
         </div>
       </aside>
       <div class="main">
@@ -47,15 +47,7 @@
             <div class="table-scroll" style="max-height:none;">
               <table class="data-table">
                 <thead><tr><th>Farmer</th><th>Sector</th><th>Harvest Date</th><th>Quantity</th><th>Status</th></tr></thead>
-                <tbody id="forecast-table-body">
-                  <tr><td>Jean Baptiste Nzeyimana</td><td>Nyarubaka</td><td>10 Jul 2026</td><td>420 kg</td><td><span class="status-pill status-planned">Planned</span></td></tr>
-                  <tr><td>Alice Uwamahoro</td><td>Rukoma</td><td>12 Jul 2026</td><td>310 kg</td><td><span class="status-pill status-confirmed">Confirmed</span></td></tr>
-                  <tr><td>Emmanuel Habimana</td><td>Runda</td><td>14 Jul 2026</td><td>580 kg</td><td><span class="status-pill status-pending">Pending</span></td></tr>
-                  <tr><td>Claudine Mukamana</td><td>Nyamiyaga</td><td>16 Jul 2026</td><td>245 kg</td><td><span class="status-pill status-pending">Pending</span></td></tr>
-                  <tr><td>Eric Nkurunziza</td><td>Musambira</td><td>11 Jul 2026</td><td>150 kg</td><td><span class="status-pill status-confirmed">Confirmed</span></td></tr>
-                  <tr><td>Diane Uwase</td><td>Kayenzi</td><td>13 Jul 2026</td><td>220 kg</td><td><span class="status-pill status-planned">Planned</span></td></tr>
-                  <tr><td>Sonia Ingabire</td><td>Nyarubaka</td><td>15 Jul 2026</td><td>175 kg</td><td><span class="status-pill status-pending">Pending</span></td></tr>
-                </tbody>
+                <tbody id="forecast-table-body"><tr><td colspan="5" class="table-message">Loading forecasts&hellip;</td></tr></tbody>
               </table>
               <div class="no-results" id="forecast-no-results">No forecasts match your search.</div>
             </div>
@@ -65,6 +57,7 @@
       </div>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
     <script src="./js/admin.js"></script>
   </body>
 </html>

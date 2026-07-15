@@ -294,6 +294,7 @@ h1, h2, h3, p { margin: 0; }
 .data-table tbody tr:last-child td { border-bottom: 0; }
 .data-table tbody tr { transition: background 0.12s; }
 .data-table tbody tr:hover { background: var(--surface-2); }
+.table-message { text-align: center; color: var(--muted) !important; padding: 26px 14px !important; }
 .row-confirmed { animation: flashGreen 1s ease; }
 @keyframes flashGreen { 0% { background: rgba(51,160,106,0.18); } 100% { background: transparent; } }
 .status-pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.76rem; font-weight: 700; }
@@ -466,6 +467,10 @@ a.section-sub { color: var(--green); font-weight: 700; }
   background: rgba(51,160,106,0.14); color: var(--green); font-weight: 700; font-size: 0.92rem;
 }
 .form-success.show { display: block; }
+.api-form-notice { margin: 0 0 18px; padding: 12px 14px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; }
+.api-form-notice[data-type="loading"] { background: var(--surface-2); color: var(--muted); }
+.api-form-notice[data-type="success"] { background: rgba(51,160,106,0.14); color: var(--green); }
+.api-form-notice[data-type="error"] { background: rgba(214,69,69,0.12); color: #b93232; }
 
 /* ===================== REPORTS ===================== */
 .bar-row { display: grid; grid-template-columns: 160px 1fr 54px; align-items: center; gap: 16px; padding: 12px 0; }

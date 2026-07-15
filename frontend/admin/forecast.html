@@ -31,7 +31,7 @@
         <div class="sidebar-bottom">
           <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
           <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
-          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+          <a class="side-logout" href="/landing_page/login.html" data-logout><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
         </div>
       </aside>
       <div class="main">
@@ -48,7 +48,7 @@
                 <h3>Harvest details</h3>
                 <p class="form-section-note">The engine reads pending forecasts oldest-first, so the harvest date matters.</p>
                 <div class="form-grid">
-                  <div class="field full"><label for="fc-farmer">Farmer</label><select id="fc-farmer" name="farmer" required><option value="" disabled selected>Select a registered farmer</option><option>Jean Baptiste Nzeyimana</option><option>Alice Uwamahoro</option><option>Emmanuel Habimana</option><option>Claudine Mukamana</option><option>Eric Nkurunziza</option><option>Diane Uwase</option></select><span class="field-error-text">Please select a farmer.</span></div>
+                  <div class="field full"><label for="fc-farmer">Farmer</label><select id="fc-farmer" name="farmer_id" required><option value="" disabled selected>Loading registered farmers&hellip;</option></select><span class="field-error-text">Please select a farmer.</span></div>
                   <div class="field"><label for="fc-qty">Quantity (kg)</label><input type="number" id="fc-qty" name="quantity_kg" required min="1" step="1" placeholder="e.g. 250"><span class="field-error-text">Enter the expected quantity in kilograms.</span></div>
                   <div class="field"><label for="fc-date">Harvest date</label><input type="date" id="fc-date" name="harvest_date" required><span class="field-error-text">Select the expected harvest date.</span></div>
                 </div>
@@ -71,6 +71,7 @@
       </div>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
     <script src="./js/admin.js"></script>
   </body>
 </html>
