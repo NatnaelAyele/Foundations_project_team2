@@ -142,18 +142,34 @@
                   <span class="panel-count" id="truckCount">Loading&hellip;</span>
                 </div>
 
-                <!-- Register a new truck -->
-                <div class="truck-row" style="flex-wrap: wrap;">
-                  <span class="truck-plate" aria-hidden="true">NEW</span>
-                  <span class="truck-meta" style="display:flex; gap:10px; flex-wrap:wrap; flex:1;">
-                    <input id="newPlate" type="text" placeholder="Plate e.g. RAD 500 D" aria-label="Truck plate number"
-                           style="flex:1 1 140px; min-width:0; padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:0.9rem;">
-                    <input id="newModel" type="text" placeholder="Model e.g. Isuzu ELF" aria-label="Truck model"
-                           style="flex:1 1 140px; min-width:0; padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:0.9rem;">
-                    <input id="newCapacity" type="number" min="1" step="10" placeholder="Capacity kg" aria-label="Truck capacity in kilograms"
-                           style="flex:0 1 120px; min-width:0; padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:0.9rem;">
-                  </span>
-                  <button class="btn btn-start" type="button" id="addTruckBtn">Register truck</button>
+                <div class="add-truck-card" aria-labelledby="add-truck-title">
+                  <div class="add-truck-heading">
+                    <span class="add-truck-icon" aria-hidden="true">+</span>
+                    <div>
+                      <h4 id="add-truck-title">Add a truck to your fleet</h4>
+                      <p>New trucks are marked available and can be considered in the next coordination run.</p>
+                    </div>
+                  </div>
+                  <div class="add-truck-fields">
+                    <label class="truck-field" for="newPlate">
+                      <span>Plate number <b>Required</b></span>
+                      <input id="newPlate" type="text" placeholder="e.g. RAD 500 D" autocomplete="off">
+                    </label>
+                    <label class="truck-field" for="newModel">
+                      <span>Truck model <em>Optional</em></span>
+                      <input id="newModel" type="text" placeholder="e.g. Isuzu ELF" autocomplete="off">
+                    </label>
+                    <label class="truck-field capacity-field" for="newCapacity">
+                      <span>Capacity <b>Required</b></span>
+                      <div class="capacity-input">
+                        <input id="newCapacity" type="number" min="1" step="10" placeholder="e.g. 1500">
+                        <span>kg</span>
+                      </div>
+                    </label>
+                  </div>
+                  <div class="add-truck-footer">
+                    <button class="btn btn-start" type="button" id="addTruckBtn">Add truck</button>
+                  </div>
                 </div>
 
                 <!-- Trucks render here -->

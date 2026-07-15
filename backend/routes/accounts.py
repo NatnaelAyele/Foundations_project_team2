@@ -300,6 +300,12 @@ def admin_dashboard(user: User = Depends(require_role("admin"))):
     return FileResponse(FRONTEND_DIR / "admin" / "admin-dashboard.html")
 
 
+@dashboard_router.get("/admin/", include_in_schema=False)
+@dashboard_router.get("/admin/login.html", include_in_schema=False)
+def admin_login_page():
+    return FileResponse(FRONTEND_DIR / "admin" / "index" / "index.html")
+
+
 @dashboard_router.get("/admin/register-farmer.html", include_in_schema=False)
 @dashboard_router.get("/admin/view-farmers.html", include_in_schema=False)
 @dashboard_router.get("/admin/forecast.html", include_in_schema=False)
@@ -315,15 +321,6 @@ def admin_page(request: Request, user: User = Depends(require_role("admin"))):
 def transporter_dashboard(user: User = Depends(require_role("truck_provider"))):
     return FileResponse(
         FRONTEND_DIR / "transporter_dashboard" / "transporter_dashboard.html"
-    )
-
-
-@dashboard_router.get(
-    "/transporter_dashboard/truck_status_update_form.html", include_in_schema=False
-)
-def transporter_status_page(user: User = Depends(require_role("truck_provider"))):
-    return FileResponse(
-        FRONTEND_DIR / "transporter_dashboard" / "truck_status_update_form.html"
     )
 
 

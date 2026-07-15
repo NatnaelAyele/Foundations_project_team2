@@ -1,1 +1,1 @@
-"""FreshLink backend package."""
+"""backend package."""

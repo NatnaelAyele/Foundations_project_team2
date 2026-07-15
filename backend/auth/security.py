@@ -14,7 +14,6 @@ def verify_password(password, password_hash):
     try:
         return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
     except ValueError:
-        # Invalid hashes should behave like incorrect passwords.
         return False
 
 
