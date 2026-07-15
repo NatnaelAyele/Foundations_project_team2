@@ -127,29 +127,9 @@
                     <thead>
                       <tr><th>Pickup</th><th>Load</th><th>Destination hub</th><th>Truck</th><th>Status</th><th></th></tr>
                     </thead>
-                    <tbody>
-                      <tr data-row-id="1">
-                        <td>Kavumu &middot; Today 2:00 PM</td><td>220 kg</td><td>Kamonyi Central</td><td>RAD 221 A</td>
-                        <td><span class="status-pill assigned">Assigned</span></td>
-                        <td><div class="trip-actions"><button class="btn btn-start" data-action="start" data-row-id="1">Start pickup</button></div></td>
-                      </tr>
-                      <tr data-row-id="2">
-                        <td>Gahogo &middot; Today 4:30 PM</td><td>150 kg</td><td>Kamonyi Central</td><td>RAD 118 B</td>
-                        <td><span class="status-pill assigned">Assigned</span></td>
-                        <td><div class="trip-actions"><button class="btn btn-start" data-action="start" data-row-id="2">Start pickup</button></div></td>
-                      </tr>
-                      <tr data-row-id="3">
-                        <td>Nyagisozi &middot; Today 11:00 AM</td><td>310 kg</td><td>Rukoma Cold Storage</td><td>RAD 221 A</td>
-                        <td><span class="status-pill active2">In transit</span></td>
-                        <td><div class="trip-actions"><button class="btn btn-start" data-action="deliver" data-row-id="3">Mark delivered</button></div></td>
-                      </tr>
-                      <tr data-row-id="4">
-                        <td>Kabuye &middot; Yesterday 3:15 PM</td><td>180 kg</td><td>Kamonyi Central</td><td>RAD 118 B</td>
-                        <td><span class="status-pill delivered">Delivered</span></td>
-                        <td>&mdash;</td>
-                      </tr>
-                    </tbody>
+                    <tbody id="tripsBody"></tbody>
                   </table>
+                  <p class="hint" id="tripsEmpty" style="display:none;">No trips assigned yet. Keep a truck marked available and the engine will assign you pickups at the next run.</p>
                 </div>
               </section>
 
@@ -157,29 +137,28 @@
                 <div class="panel-title">
                   <div>
                     <h3>My trucks</h3>
-                    <p>Toggle availability so the engine knows what it can assign.</p>
+                    <p>Register a truck, set it available or not available, or remove one you no longer run.</p>
                   </div>
+                  <span class="panel-count" id="truckCount">3 trucks</span>
                 </div>
-                <div class="truck-list" id="truckList">
-                  <div class="truck-row" data-truck="RAD 221 A">
-                    <span class="truck-plate">RAD 221 A</span>
-                    <span class="truck-meta"><b>Isuzu ELF</b><span>Capacity 500 kg</span></span>
-                    <span class="avail-state on">Available</span>
-                    <button class="avail-switch" role="switch" aria-checked="true" aria-label="Toggle availability for RAD 221 A"><span class="knob"></span></button>
-                  </div>
-                  <div class="truck-row" data-truck="RAD 118 B">
-                    <span class="truck-plate">RAD 118 B</span>
-                    <span class="truck-meta"><b>Toyota Dyna</b><span>Capacity 400 kg</span></span>
-                    <span class="avail-state on">Available</span>
-                    <button class="avail-switch" role="switch" aria-checked="true" aria-label="Toggle availability for RAD 118 B"><span class="knob"></span></button>
-                  </div>
-                  <div class="truck-row" data-truck="RAD 904 C">
-                    <span class="truck-plate">RAD 904 C</span>
-                    <span class="truck-meta"><b>Mitsubishi Canter</b><span>Capacity 350 kg</span></span>
-                    <span class="avail-state off">Offline</span>
-                    <button class="avail-switch" role="switch" aria-checked="false" aria-label="Toggle availability for RAD 904 C"><span class="knob"></span></button>
-                  </div>
+
+                <!-- Register a new truck -->
+                <div class="truck-row" style="flex-wrap: wrap;">
+                  <span class="truck-plate" aria-hidden="true">NEW</span>
+                  <span class="truck-meta" style="display:flex; gap:10px; flex-wrap:wrap; flex:1;">
+                    <input id="newPlate" type="text" placeholder="Plate e.g. RAD 500 D" aria-label="Truck plate number"
+                           style="flex:1 1 140px; min-width:0; padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:0.9rem;">
+                    <input id="newModel" type="text" placeholder="Model e.g. Isuzu ELF" aria-label="Truck model"
+                           style="flex:1 1 140px; min-width:0; padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:0.9rem;">
+                    <input id="newCapacity" type="number" min="1" step="10" placeholder="Capacity kg" aria-label="Truck capacity in kilograms"
+                           style="flex:0 1 120px; min-width:0; padding:9px 12px; border-radius:9px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:inherit; font-size:0.9rem;">
+                  </span>
+                  <button class="btn btn-start" type="button" id="addTruckBtn">Register truck</button>
                 </div>
+
+                <!-- Trucks render here -->
+                <div class="truck-list" id="truckList"></div>
+                <p class="hint" id="truckEmpty" style="display:none;">No trucks registered yet. Add one above so the engine can assign you trips.</p>
               </section>
             </div>
 
