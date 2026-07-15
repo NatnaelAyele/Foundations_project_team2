@@ -8,8 +8,8 @@ It can be run manually during development and later replaced by
 a real scheduler such as APScheduler or Celery.
 """
 
-from coordinator import CoordinationEngine
-from logger import EngineLogger
+from backend.engine.coordinator import CoordinationEngine
+from backend.engine.logger import EngineLogger
 
 
 class Scheduler:

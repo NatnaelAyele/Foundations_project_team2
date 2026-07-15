@@ -12,10 +12,10 @@ import logging
 from datetime import datetime
 
 try:
-    from engine.logger import EngineLogger
+    from backend.engine.logger import EngineLogger
 except ImportError:
     try:
-        from logger import EngineLogger
+        from backend.engine.logger import EngineLogger
     except ImportError:
         EngineLogger = None
 

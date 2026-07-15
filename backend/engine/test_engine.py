@@ -16,9 +16,9 @@ Run with:
 import time
 import traceback
 
-from notifier import Notifier
-from planner import Planner
-from reservation import ReservationManager
+from backend.engine.notifier import Notifier
+from backend.engine.planner import Planner
+from backend.engine.reservation import ReservationManager
 
 
 def loading(message):

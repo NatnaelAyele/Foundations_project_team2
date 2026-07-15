@@ -10,7 +10,7 @@ from datetime import datetime
 
 try:
 
-    from backend.engine_group1.pipeline import (
+    from backend.engine.pipeline import (
         ClusteringEngine,
         DemandAnalyzer,
         EligibilityChecker,
@@ -26,18 +26,18 @@ except ImportError as error:
 
 try:
 
-    from engine.logger import EngineLogger
-    from engine.notifier import Notifier
-    from engine.payment import PaymentManager
-    from engine.planner import Planner
-    from engine.reservation import ReservationManager
+    from backend.engine.logger import EngineLogger
+    from backend.engine.notifier import Notifier
+    from backend.Flutterwave.payment import PaymentManager
+    from backend.engine.planner import Planner
+    from backend.engine.reservation import ReservationManager
 except ImportError:
 
-    from logger import EngineLogger
-    from notifier import Notifier
-    from payment import PaymentManager
-    from planner import Planner
-    from reservation import ReservationManager
+    from backend.engine.logger import EngineLogger
+    from backend.engine.notifier import Notifier
+    from backend.Flutterwave.payment import PaymentManager
+    from backend.engine.planner import Planner
+    from backend.engine.reservation import ReservationManager
 
 
 class CoordinationEngine:
@@ -292,8 +292,8 @@ class CoordinationEngine:
         """
         try:
 
-            from backend.engine2.hub_matcher import HubMatcher
-            from backend.engine2.truck_matcher import TruckMatcher
+            from backend.engine.hub_matcher import HubMatcher
+            from backend.engine.truck_matcher import TruckMatcher
         except ImportError as error:
             raise ImportError(
                 "Could not import Group 2 matchers from backend.engine2. "

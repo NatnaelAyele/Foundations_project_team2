@@ -11,11 +11,11 @@ import uuid
 from datetime import datetime
 
 try:
-    from gateways.flutterwave import FlutterwaveGateway
-    from logger import EngineLogger
+    from backend.Flutterwave.gateways.flutterwave import FlutterwaveGateway
+    from backend.engine.logger import EngineLogger
 except ImportError:
-    from engine.gateways.flutterwave import FlutterwaveGateway
-    from engine.logger import EngineLogger
+    from backend.Flutterwave.gateways.flutterwave import FlutterwaveGateway
+    from backend.engine.logger import EngineLogger
 
 
 class PaymentError(ValueError):

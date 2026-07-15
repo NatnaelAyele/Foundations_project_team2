@@ -10,7 +10,7 @@ import logging
 from datetime import datetime, timedelta
 
 try:
-    from logger import EngineLogger
+    from backend.engine.logger import EngineLogger
 except ImportError:
     EngineLogger = None
 

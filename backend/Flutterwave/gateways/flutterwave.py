@@ -6,9 +6,9 @@ returns mock responses and does not make HTTP requests or use any SDK.
 """
 
 try:
-    from payment_gateway import PaymentGateway
+    from backend.Flutterwave.payment_gateway import PaymentGateway
 except ImportError:
-    from engine.payment_gateway import PaymentGateway
+    from backend.Flutterwave.payment_gateway import PaymentGateway
 
 
 class FlutterwaveGateway(PaymentGateway):
