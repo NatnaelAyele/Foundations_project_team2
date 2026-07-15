@@ -426,6 +426,7 @@ body.resizing * { user-select: none !important; }
 .avail-switch[aria-checked="true"] { background: var(--green); }
 .avail-switch[aria-checked="true"] .knob { transform: translateX(24px); }
 .avail-switch:disabled { cursor: not-allowed; opacity: 0.55; }
+.avail-switch:disabled { cursor: not-allowed; opacity: 0.55; }
 .avail-state { font-size: 0.78rem; font-weight: 700; min-width: 62px; text-align: right; flex: 0 0 auto; }
 .avail-state.on { color: var(--green); }
 .avail-state.off { color: var(--muted); }

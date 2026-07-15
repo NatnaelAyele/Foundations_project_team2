@@ -31,7 +31,7 @@
           </a>
           <a class="side-link" href="#trips" data-view="trips">
             <span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">Assigned Trips</span>
-            <span class="side-badge" id="navTripBadge">2</span>
+            <span class="side-badge" id="navTripBadge">0</span>
           </a>
           <a class="side-link" href="#trucks" data-view="trucks">
             <span class="side-ico" aria-hidden="true"></span><span class="side-text">My Trucks</span>
@@ -51,10 +51,10 @@
             <span class="who-avatar" aria-hidden="true">RT</span>
             <span class="who-meta">
               <span class="who-role">Transporter</span>
-              <span class="who-name">Rukoma Transport</span>
+              <span class="who-name" id="sidebar-transporter-name">Loading&hellip;</span>
             </span>
           </div>
-          <a class="side-logout" href="login.html">
+          <a class="side-logout" href="/landing_page/login.html" data-logout>
             <span class="side-ico" aria-hidden="true"></span><span class="side-text">Logout</span>
           </a>
         </div>
@@ -65,14 +65,14 @@
           <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">&#9776;</button>
           <div class="topbar-title">
             <p class="eyebrow">Transporter Dashboard</p>
-            <h1>Rukoma Transport</h1>
+            <h1 id="transporter-heading">Loading&hellip;</h1>
           </div>
           <a class="topbar-cta" href="#trucks">Update Availability</a>
         </header>
 
         <div class="content">
 
-          <section class="hero" id="hero" style="--hero-img: url('../images/hero_truck.png');">
+          <section class="hero" id="hero" style="--hero-img: url('/transporter_dashboard/images/hero_truck.png');">
             <div class="hero-scrim" aria-hidden="true"></div>
 
             <div class="glass greeting-card">
@@ -85,28 +85,28 @@
 
             <div class="glass hub-tag">
               <span class="hub-tag-label">Fleet status</span>
-              <span class="hub-tag-value"><span class="dot ok"></span> 2 trucks available</span>
+              <span class="hub-tag-value" id="fleet-status"><span class="dot"></span> Loading fleet status</span>
             </div>
 
             <div class="hero-stats" aria-label="Transporter statistics">
               <article class="glass stat-card stripe-darkgreen">
                 <p class="stat-label">Assigned Trips</p>
-                <p class="stat-value"><span class="count" data-target="2">0</span></p>
+                <p class="stat-value"><span class="count" id="assigned-trips-count">0</span></p>
                 <p class="stat-note" id="assignedNote">awaiting pickup</p>
               </article>
               <article class="glass stat-card stripe-lightgreen">
                 <p class="stat-label">Available Trucks</p>
-                <p class="stat-value"><span class="count" data-target="2">0</span><span class="stat-unit">/ 3</span></p>
+                <p class="stat-value"><span class="count" id="available-trucks-count">0</span><span class="stat-unit" id="total-trucks-count">/ 0</span></p>
                 <p class="stat-note">marked available</p>
               </article>
               <article class="glass stat-card stripe-navy">
                 <p class="stat-label">Total Capacity</p>
-                <p class="stat-value"><span class="count" data-target="900">0</span><span class="stat-unit">kg</span></p>
+                <p class="stat-value"><span class="count" id="available-capacity-count">0</span><span class="stat-unit">kg</span></p>
                 <p class="stat-note">across available trucks</p>
               </article>
               <article class="glass stat-card stripe-orange">
                 <p class="stat-label">Delivered Today</p>
-                <p class="stat-value"><span class="count" data-target="1">0</span></p>
+                <p class="stat-value"><span class="count" id="delivered-today-count">0</span></p>
                 <p class="stat-note">trips completed</p>
               </article>
             </div>
@@ -120,7 +120,7 @@
                     <h3>Assigned trips</h3>
                     <p>Pickups the coordination engine matched to your trucks.</p>
                   </div>
-                  <span class="panel-count" id="tripCount">2 to pick up</span>
+                  <span class="panel-count" id="tripCount">Loading&hellip;</span>
                 </div>
                 <div class="table-scroll">
                   <table class="data-table" id="tripsTable">
@@ -137,9 +137,9 @@
                 <div class="panel-title">
                   <div>
                     <h3>My trucks</h3>
-                    <p>Register a truck, set it available or not available, or remove one you no longer run.</p>
+                    <p>Register a truck and update its availability for future assignments.</p>
                   </div>
-                  <span class="panel-count" id="truckCount">3 trucks</span>
+                  <span class="panel-count" id="truckCount">Loading&hellip;</span>
                 </div>
 
                 <!-- Register a new truck -->
@@ -165,7 +165,7 @@
             <div class="col-side">
               <section class="panel">
                 <div class="panel-title"><div><h3>Fleet utilisation</h3></div></div>
-                <div class="gauge" id="fleetGauge" data-available="2" data-total="3">
+                <div class="gauge" id="fleetGauge" data-available="0" data-total="0">
                   <svg viewBox="0 0 120 120" class="gauge-svg" aria-hidden="true">
                     <circle class="gauge-bg" cx="60" cy="60" r="52"></circle>
                     <circle class="gauge-fill" cx="60" cy="60" r="52"></circle>
@@ -176,8 +176,8 @@
                   </div>
                 </div>
                 <div class="gauge-legend">
-                  <span><b id="gaugeAvail">2</b> available</span>
-                  <span><b id="gaugeTotal">3</b> trucks total</span>
+                  <span><b id="gaugeAvail">0</b> available</span>
+                  <span><b id="gaugeTotal">0</b> trucks total</span>
                 </div>
                 <p class="hint">Mark more trucks available to receive more trips.</p>
               </section>
@@ -191,16 +191,16 @@
             </div>
             <div class="hub-details-grid">
               <div class="hd-item">
-                <div><span class="hd-label">Operator</span><b class="hd-value">Rukoma Transport</b></div>
+                <div><span class="hd-label">Operator</span><b class="hd-value" id="profile-name">Loading&hellip;</b></div>
               </div>
               <div class="hd-item">
-                <div><span class="hd-label">Base sector</span><b class="hd-value">Rukoma, Kamonyi</b></div>
+                <div><span class="hd-label">Base sector</span><b class="hd-value" id="profile-sector">Loading&hellip;</b></div>
               </div>
               <div class="hd-item">
-                <div><span class="hd-label">Fleet size</span><b class="hd-value">3 trucks (1,250 kg)</b></div>
+                <div><span class="hd-label">Fleet size</span><b class="hd-value" id="profile-fleet">Loading&hellip;</b></div>
               </div>
               <div class="hd-item">
-                <div><span class="hd-label">Status</span><b class="hd-value ok">Accepting trips</b></div>
+                <div><span class="hd-label">Status</span><b class="hd-value ok" id="profile-status">Loading&hellip;</b></div>
               </div>
             </div>
           </section>
@@ -213,6 +213,7 @@
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
     <script src="./js/transporter_dashboard.js"></script>
   </body>
 </html>

@@ -32,7 +32,7 @@
         <div class="sidebar-bottom">
           <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
           <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
-          <a class="side-logout" href="login.html"><span class="side-ico" aria-hidden="true"&#9211;</span><span class="side-text">Logout</span></a>
+          <a class="side-logout" href="/landing_page/login.html" data-logout><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
         </div>
       </aside>
 
@@ -44,7 +44,7 @@
         </header>
         <div class="content">
 
-          <section class="hero" id="hero" style="--hero-img: url('../images/admin-hero.png');">
+          <section class="hero" id="hero" style="--hero-img: url('/admin/images/admin-hero.png');">
             <div class="hero-scrim" aria-hidden="true"></div>
             <div class="glass greeting-card">
               <span class="role-chip">Kamonyi District &middot; Coordination</span>
@@ -55,13 +55,13 @@
             </div>
             <div class="glass hub-tag">
               <span class="hub-tag-label">Network status</span>
-              <span class="hub-tag-value"><span class="dot ok"></span> Coordinating live</span>
+              <span class="hub-tag-value" id="engine-status"><span class="dot"></span> Checking engine status</span>
             </div>
             <div class="hero-stats" aria-label="Network statistics">
-              <article class="glass stat-card stripe-darkgreen"><p class="stat-label">Registered Farmers</p><p class="stat-value"><span class="count" data-target="128">0</span></p><p class="stat-note">+6 this week</p></article>
-              <article class="glass stat-card stripe-lightgreen"><p class="stat-label">Forecasts Submitted</p><p class="stat-value"><span class="count" data-target="42">0</span></p><p class="stat-note">+9 this week</p></article>
-              <article class="glass stat-card stripe-navy"><p class="stat-label">Needing Transport</p><p class="stat-value"><span class="count" data-target="17">0</span></p><p class="stat-note">match with trucks</p></article>
-              <article class="glass stat-card stripe-orange"><p class="stat-label">Needing Storage</p><p class="stat-value"><span class="count" data-target="11">0</span></p><p class="stat-note">match with hubs</p></article>
+              <article class="glass stat-card stripe-darkgreen"><p class="stat-label">Registered Farmers</p><p class="stat-value"><span class="count" id="farmer-total">0</span></p><p class="stat-note" id="farmers-week-note">Loading&hellip;</p></article>
+              <article class="glass stat-card stripe-lightgreen"><p class="stat-label">Forecasts Submitted</p><p class="stat-value"><span class="count" id="forecast-total">0</span></p><p class="stat-note" id="forecasts-week-note">Loading&hellip;</p></article>
+              <article class="glass stat-card stripe-navy"><p class="stat-label">Needing Transport</p><p class="stat-value"><span class="count" id="transport-needed">0</span></p><p class="stat-note">pending coordination</p></article>
+              <article class="glass stat-card stripe-orange"><p class="stat-label">Needing Storage</p><p class="stat-value"><span class="count" id="storage-needed">0</span></p><p class="stat-note">pending coordination</p></article>
             </div>
           </section>
 
@@ -77,12 +77,7 @@
               <div class="table-container">
                 <table class="data-table">
                   <thead><tr><th>Farmer Name</th><th>Sector</th><th>Village</th><th>Phone Number</th><th>Status</th></tr></thead>
-                  <tbody>
-                    <tr><td>Jean Baptiste Nzeyimana</td><td>Nyarubaka</td><td>Kavumu</td><td>+250 788 221 340</td><td><span class="status-pill status-active">Active</span></td></tr>
-                    <tr><td>Alice Uwamahoro</td><td>Rukoma</td><td>Gahogo</td><td>+250 722 118 065</td><td><span class="status-pill status-new">New</span></td></tr>
-                    <tr><td>Emmanuel Habimana</td><td>Runda</td><td>Nyagisozi</td><td>+250 788 904 512</td><td><span class="status-pill status-active">Active</span></td></tr>
-                    <tr><td>Claudine Mukamana</td><td>Nyamiyaga</td><td>Kabuye</td><td>+250 733 552 871</td><td><span class="status-pill status-pending">Pending Review</span></td></tr>
-                  </tbody>
+                  <tbody id="recent-farmers-body"><tr><td colspan="5" class="table-message">Loading farmers&hellip;</td></tr></tbody>
                 </table>
               </div>
             </div>
@@ -94,12 +89,7 @@
               <div class="table-container">
                 <table class="data-table">
                   <thead><tr><th>Farmer Name</th><th>Harvest Date</th><th>Quantity</th><th>Transport</th><th>Storage</th></tr></thead>
-                  <tbody>
-                    <tr><td>Jean Baptiste Nzeyimana</td><td>10 Jul 2026</td><td>420 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-no">No</span></td></tr>
-                    <tr><td>Alice Uwamahoro</td><td>12 Jul 2026</td><td>310 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-yes">Yes</span></td></tr>
-                    <tr><td>Emmanuel Habimana</td><td>14 Jul 2026</td><td>580 kg</td><td><span class="tag-no">No</span></td><td><span class="tag-yes">Yes</span></td></tr>
-                    <tr><td>Claudine Mukamana</td><td>16 Jul 2026</td><td>245 kg</td><td><span class="tag-yes">Yes</span></td><td><span class="tag-no">No</span></td></tr>
-                  </tbody>
+                  <tbody id="recent-forecasts-body"><tr><td colspan="5" class="table-message">Loading forecasts&hellip;</td></tr></tbody>
                 </table>
               </div>
             </div>
@@ -110,6 +100,7 @@
       </div>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
     <script src="./js/admin.js"></script>
   </body>
 </html>

@@ -5,20 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Login | FreshLink</title>
     <meta name="description" content="FreshLink admin login for project coordination staff.">
-    <link rel="stylesheet" href="../static/css/landing.css">
-    <link rel="stylesheet" href="../static/css/register.css">
+    <link rel="stylesheet" href="/landing_page/css/landing.css">
+    <link rel="stylesheet" href="/landing_page/css/register.css">
+    <script src="/shared/api.js" defer></script>
+    <script src="/admin/js/admin-login.js" defer></script>
   </head>
   <body>
     <header class="site-header">
       <nav class="nav container" aria-label="Admin login navigation">
-        <a class="brand" href="../index.html" aria-label="FreshLink home">
+        <a class="brand" href="/landing_page/index.html" aria-label="FreshLink home">
           <span class="brand-mark" aria-hidden="true">FL</span>
           <span>FreshLink</span>
         </a>
 
         <div class="nav-links">
-          <a href="../index.html">Home</a>
-          <a href="../login.html">Login</a>
+          <a href="/landing_page/index.html">Home</a>
         </div>
       </nav>
     </header>
@@ -43,9 +44,9 @@
               <h2>Access admin dashboard</h2>
             </div>
 
-            <form class="register-form" action="#" method="post">
-              <label for="admin-login-id">Email or phone number</label>
-              <input id="admin-login-id" name="login_id" type="text" placeholder="Admin email or phone number" required>
+            <form class="register-form" id="admin-login-form" action="#" method="post">
+              <label for="admin-login-id">Username or email</label>
+              <input id="admin-login-id" name="login_id" type="text" placeholder="Admin username or email" required>
 
               <label for="admin-password">Password</label>
               <input id="admin-password" name="password" type="password" placeholder="Enter your password" required>
