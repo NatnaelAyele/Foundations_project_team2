@@ -46,7 +46,7 @@
                 <div class="field-row">
                   <div class="field">
                     <label for="truckId">Truck plate number</label>
-                    <input type="text" id="truckId" name="truckId" placeholder="e.g. RAD 812 K" required>
+                    <input type="text" id="truckId" name="truckId" list="existingTrucks" placeholder="e.g. RAD 812 K" required>
                   </div>
                   <div class="field">
                     <label for="capacity">Carrying capacity (kg)</label>
@@ -78,6 +78,7 @@
               </div>
               <button class="button button-primary" type="submit">Save truck status</button>
             </form>
+            <datalist id="existingTrucks"></datalist>
             <div style="margin-top: 14px; display: flex; align-items: center; gap: 12px;">
               <hr style="flex: 1; border: none; border-top: 1px solid var(--color-border);">
               <span style="color: var(--color-muted); font-size: 0.82rem; white-space: nowrap;">or</span>
@@ -128,6 +129,7 @@
         </div>
       </div>
     </footer>
+    <script src="/shared/api.js"></script>
     <script src="./js/truck_status_update_form.js"></script>
   </body>
 </html>
