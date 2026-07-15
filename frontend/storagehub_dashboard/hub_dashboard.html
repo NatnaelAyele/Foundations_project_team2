@@ -32,7 +32,7 @@
           </a>
           <a class="side-link" href="#allocations" data-view="allocations">
             <span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">Allocations</span>
-            <span class="side-badge" id="navPendingBadge">2</span>
+            <span class="side-badge" id="navPendingBadge">0</span>
           </a>
           <a class="side-link" href="capacity_update_form.html" data-view="capacity">
             <span class="side-ico" aria-hidden="true">&#9680;</span><span class="side-text">Update Capacity</span>
@@ -52,10 +52,10 @@
             <span class="who-avatar" aria-hidden="true">KC</span>
             <span class="who-meta">
               <span class="who-role">Hub Operator</span>
-              <span class="who-name">Kamonyi Central</span>
+              <span class="who-name" id="sidebar-hub-name">Loading&hellip;</span>
             </span>
           </div>
-          <a class="side-logout" href="login.html">
+          <a class="side-logout" href="/landing_page/login.html" data-logout>
             <span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span>
           </a>
         </div>
@@ -66,7 +66,7 @@
           <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">&#9776;</button>
           <div class="topbar-title">
             <p class="eyebrow">Hub Dashboard</p>
-            <h1>Kamonyi Central Storage Hub</h1>
+            <h1 id="hub-heading">Loading&hellip;</h1>
           </div>
           <a class="topbar-cta" href="capacity_update_form.html">Update Capacity</a>
         </header>
@@ -86,28 +86,28 @@
 
             <div class="glass hub-tag">
               <span class="hub-tag-label">Hub status</span>
-              <span class="hub-tag-value"><span class="dot ok"></span> Accepting deliveries</span>
+              <span class="hub-tag-value" id="hub-status"><span class="dot"></span> Checking status</span>
             </div>
 
             <div class="hero-stats" aria-label="Hub statistics">
               <article class="glass stat-card stripe-darkgreen">
                 <p class="stat-label">Available Now</p>
-                <p class="stat-value"><span class="count" data-target="850">0</span><span class="stat-unit">kg</span></p>
+                <p class="stat-value"><span class="count" id="available-capacity">0</span><span class="stat-unit">kg</span></p>
                 <p class="stat-note" id="availPct">&mdash; free</p>
               </article>
               <article class="glass stat-card stripe-lightgreen">
                 <p class="stat-label">Total Capacity</p>
-                <p class="stat-value"><span class="count" data-target="2000">0</span><span class="stat-unit">kg</span></p>
+                <p class="stat-value"><span class="count" id="total-capacity">0</span><span class="stat-unit">kg</span></p>
                 <p class="stat-note">registered capacity</p>
               </article>
               <article class="glass stat-card stripe-navy">
                 <p class="stat-label">Pending Allocations</p>
-                <p class="stat-value"><span class="count" data-target="2">0</span></p>
+                <p class="stat-value"><span class="count" id="pending-allocations">0</span></p>
                 <p class="stat-note">awaiting confirmation</p>
               </article>
               <article class="glass stat-card stripe-orange">
                 <p class="stat-label">Confirmed Today</p>
-                <p class="stat-value"><span class="count" data-target="1">0</span></p>
+                <p class="stat-value"><span class="count" id="confirmed-today">0</span></p>
                 <p class="stat-note">deliveries received</p>
               </article>
             </div>
@@ -121,40 +121,14 @@
                     <h3>Incoming harvest allocations</h3>
                     <p>Tomato deliveries the coordination engine matched to your hub.</p>
                   </div>
-                  <span class="panel-count" id="pendingCount">2 pending</span>
+                  <span class="panel-count" id="pendingCount">Loading&hellip;</span>
                 </div>
                 <div class="table-scroll">
                   <table class="data-table" id="allocationsTable">
                     <thead>
                       <tr><th>Farmer</th><th>Quantity</th><th>Expected pickup</th><th>Status</th><th></th></tr>
                     </thead>
-                    <tbody>
-                      <tr data-row-id="1">
-                        <td>Uwase Diane</td><td>220 kg</td><td>Today, 2:00 PM</td>
-                        <td><span class="status-pill pending">Pending</span></td>
-                        <td><button class="btn btn-confirm" type="button" data-row-id="1">Confirm received</button></td>
-                      </tr>
-                      <tr data-row-id="2">
-                        <td>Nkurunziza Eric</td><td>150 kg</td><td>Today, 4:30 PM</td>
-                        <td><span class="status-pill pending">Pending</span></td>
-                        <td><button class="btn btn-confirm" type="button" data-row-id="2">Confirm received</button></td>
-                      </tr>
-                      <tr data-row-id="3">
-                        <td>Mukamana Alice</td><td>90 kg</td><td>Yesterday, 5:15 PM</td>
-                        <td><span class="status-pill confirmed">Confirmed</span></td>
-                        <td>&mdash;</td>
-                      </tr>
-                      <tr data-row-id="4">
-                        <td>Habimana Jean</td><td>310 kg</td><td>Yesterday, 1:20 PM</td>
-                        <td><span class="status-pill confirmed">Confirmed</span></td>
-                        <td>&mdash;</td>
-                      </tr>
-                      <tr data-row-id="5">
-                        <td>Ingabire Sonia</td><td>175 kg</td><td>2 days ago, 3:40 PM</td>
-                        <td><span class="status-pill confirmed">Confirmed</span></td>
-                        <td>&mdash;</td>
-                      </tr>
-                    </tbody>
+                    <tbody id="allocations-body"><tr><td colspan="5" class="table-message">Loading allocations&hellip;</td></tr></tbody>
                   </table>
                 </div>
               </section>
@@ -163,7 +137,7 @@
             <div class="col-side">
               <section class="panel">
                 <div class="panel-title"><div><h3>Storage availability</h3></div></div>
-                <div class="gauge" id="capacityGauge" data-available="850" data-total="2000">
+                <div class="gauge" id="capacityGauge" data-available="0" data-total="0">
                   <svg viewBox="0 0 120 120" class="gauge-svg" aria-hidden="true">
                     <circle class="gauge-bg" cx="60" cy="60" r="52"></circle>
                     <circle class="gauge-fill" cx="60" cy="60" r="52"></circle>
@@ -174,8 +148,8 @@
                   </div>
                 </div>
                 <div class="gauge-legend">
-                  <span><b id="gaugeAvail">850</b> kg available</span>
-                  <span><b id="gaugeTotal">2,000</b> kg total</span>
+                  <span><b id="gaugeAvail">0</b> kg available</span>
+                  <span><b id="gaugeTotal">0</b> kg total</span>
                 </div>
                 <p class="hint">Updates live whenever capacity is changed &mdash; <a href="capacity_update_form.html">update now</a>.</p>
               </section>
@@ -190,7 +164,7 @@
             <div class="hub-details-grid">
               <div class="hd-item">
                 <span class="hd-ico">&#10052;</span>
-                <div><span class="hd-label">Hub</span><b class="hd-value">Kamonyi Central Storage Hub</b></div>
+                <div><span class="hd-label">Hub</span><b class="hd-value" id="profile-hub-name">Loading&hellip;</b></div>
               </div>
               <div class="hd-item">
                 <span class="hd-ico">&#127813;</span>
@@ -198,11 +172,11 @@
               </div>
               <div class="hd-item">
                 <span class="hd-ico">&#9680;</span>
-                <div><span class="hd-label">Available capacity</span><b class="hd-value">850 / 2,000 kg</b></div>
+                <div><span class="hd-label">Available capacity</span><b class="hd-value" id="profile-capacity">Loading&hellip;</b></div>
               </div>
               <div class="hd-item">
                 <span class="hd-ico">&#10003;</span>
-                <div><span class="hd-label">Status</span><b class="hd-value ok">Accepting deliveries</b></div>
+                <div><span class="hd-label">Status</span><b class="hd-value ok" id="profile-status">Loading&hellip;</b></div>
               </div>
             </div>
           </section>
@@ -215,6 +189,7 @@
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
     <script src="./js/hub_dashboard.js"></script>
   </body>
 </html>

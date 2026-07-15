@@ -927,6 +927,11 @@ button[type="submit"],
 .confirm-banner.visible {
   display: block;
 }
+.confirm-banner[data-type="error"] {
+  color: #b42318;
+  background: #fbe6e4;
+  border-color: #b42318;
+}
 /* Status pills */
 .status-pill {
   display: inline-flex;

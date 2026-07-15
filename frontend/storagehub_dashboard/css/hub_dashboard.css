@@ -294,6 +294,7 @@ h1, h2, h3, p { margin: 0; }
 .data-table tbody tr:last-child td { border-bottom: 0; }
 .data-table tbody tr { transition: background 0.12s; }
 .data-table tbody tr:hover { background: var(--surface-2); }
+.table-message { padding: 26px 14px !important; color: var(--muted) !important; text-align: center; }
 .row-confirmed { animation: flashGreen 1s ease; }
 @keyframes flashGreen { 0% { background: rgba(51,160,106,0.18); } 100% { background: transparent; } }
 .status-pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.76rem; font-weight: 700; }
