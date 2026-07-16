@@ -49,3 +49,36 @@ CREATE INDEX IF NOT EXISTS idx_notif_phone   ON notifications (recipient_phone);
 CREATE INDEX IF NOT EXISTS idx_notif_queued
     ON notifications (notification_id)
     WHERE status = 'QUEUED';
+-- API extensions
+CREATE INDEX IF NOT EXISTS idx_farmer_profiles_status
+    ON farmer_admin_profiles (registration_status);
+CREATE INDEX IF NOT EXISTS idx_farmer_profiles_registered_at
+    ON farmer_admin_profiles (registered_at);
+
+CREATE INDEX IF NOT EXISTS idx_hub_accounts_user_id
+    ON cold_hub_accounts (user_id);
+
+CREATE INDEX IF NOT EXISTS idx_hub_capacity_updates_hub_id
+    ON cold_hub_capacity_updates (hub_id);
+CREATE INDEX IF NOT EXISTS idx_hub_capacity_updates_created_at
+    ON cold_hub_capacity_updates (created_at);
+
+CREATE INDEX IF NOT EXISTS idx_truck_details_updated_at
+    ON truck_operational_details (updated_at);
+
+CREATE INDEX IF NOT EXISTS idx_forecast_requirements_transport
+    ON forecast_requirements (needs_transport);
+CREATE INDEX IF NOT EXISTS idx_forecast_requirements_storage
+    ON forecast_requirements (needs_storage);
+CREATE INDEX IF NOT EXISTS idx_forecast_requirements_source
+    ON forecast_requirements (source);
+
+CREATE INDEX IF NOT EXISTS idx_hub_receipts_confirmed_at
+    ON hub_allocation_receipts (confirmed_at);
+CREATE INDEX IF NOT EXISTS idx_hub_receipts_confirmed_by
+    ON hub_allocation_receipts (confirmed_by_user_id);
+
+CREATE INDEX IF NOT EXISTS idx_trip_status_events_allocation
+    ON trip_status_events (allocation_id);
+CREATE INDEX IF NOT EXISTS idx_trip_status_events_status_time
+    ON trip_status_events (status, created_at);

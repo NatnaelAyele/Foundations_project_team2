@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register | FreshLink</title>
+    <meta
+      name="description"
+      content="Register as a cold hub operator or truck provider for FreshLink tomato cold-chain coordination."
+    >
+    <link rel="stylesheet" href="./css/landing.css">
+    <link rel="stylesheet" href="./css/register.css">
+    <script src="/shared/api.js" defer></script>
+    <script src="./js/register.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav container" aria-label="Registration navigation">
+        <a class="brand" href="index.html" aria-label="FreshLink home">
+          <span class="brand-mark" aria-hidden="true">FL</span>
+          <span>FreshLink</span>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="login.html">Login</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="auth-hero">
+        <div class="container auth-heading">
+          <p class="eyebrow">Account registration</p>
+          <h1>Create your FreshLink account.</h1>
+
+          <div class="role-jump-links" aria-label="Choose registration type">
+            <a href="#hub-registration">Cold Hub Operator</a>
+            <a href="#truck-registration">Truck Provider</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="register-section">
+        <div class="container register-grid">
+          <article class="register-card" id="hub-registration">
+            <div class="register-card-header">
+              <p class="eyebrow">Cold storage</p>
+              <h2>Register as a Hub Operator</h2>
+            </div>
+
+            <form class="register-form" action="#" method="post">
+              <input type="hidden" name="role" value="hub_operator">
+
+              <fieldset>
+                <legend>Account details</legend>
+
+                <label for="hub-username">Username</label>
+                <input id="hub-username" name="username" type="text" placeholder="Choose a username" required>
+
+                <label for="hub-email">Email address</label>
+                <input id="hub-email" name="email" type="email" placeholder="name@example.com">
+
+                <label for="hub-password">Password</label>
+                <input id="hub-password" name="password" type="password" placeholder="Create a password" required>
+
+                <label for="hub-confirm-password">Confirm password</label>
+                <input id="hub-confirm-password" name="confirm_password" type="password" placeholder="Repeat password" required>
+              </fieldset>
+
+              <fieldset>
+                <legend>Cold hub details</legend>
+
+                <label for="facility-name">Cold hub name</label>
+                <input id="facility-name" name="name" type="text" placeholder="Facility or hub name" required>
+
+                <label for="hub-phone">Phone number</label>
+                <input id="hub-phone" name="phone" type="tel" placeholder="+250..." required>
+
+                <label for="hub-district">District</label>
+                <input id="hub-district" name="district" type="text" placeholder="Example: Kamonyi" required>
+
+                <label for="hub-sector">Sector</label>
+                <input id="hub-sector" name="sector" type="text" placeholder="Example: Runda" required>
+
+                <label for="hub-cell">Cell</label>
+                <input id="hub-cell" name="cell" type="text" placeholder="Cell name" required>
+
+                <label for="hub-village">Village</label>
+                <input id="hub-village" name="village" type="text" placeholder="Village name" required>
+
+                <label for="hub-total-capacity">Total storage capacity (kg)</label>
+                <input id="hub-total-capacity" name="total_capacity_kg" type="number" min="1" placeholder="Example: 1200" required>
+
+              </fieldset>
+
+              <button class="button button-primary" type="submit">Submit Hub Registration</button>
+            </form>
+          </article>
+
+          <article class="register-card" id="truck-registration">
+            <div class="register-card-header">
+              <p class="eyebrow">Transport</p>
+              <h2>Register as a Truck Provider</h2>
+            </div>
+
+            <form class="register-form" action="#" method="post">
+              <input type="hidden" name="role" value="truck_provider">
+
+              <fieldset>
+                <legend>Account details</legend>
+
+                <label for="truck-username">Username</label>
+                <input id="truck-username" name="username" type="text" placeholder="Choose a username" required>
+
+                <label for="truck-email">Email address optional</label>
+                <input id="truck-email" name="email" type="email" placeholder="name@example.com">
+
+                <label for="truck-password">Password</label>
+                <input id="truck-password" name="password" type="password" placeholder="Create a password" required>
+
+                <label for="truck-confirm-password">Confirm password</label>
+                <input id="truck-confirm-password" name="confirm_password" type="password" placeholder="Repeat password" required>
+              </fieldset>
+
+              <fieldset>
+                <legend>Transport provider details</legend>
+
+                <label for="truck-name">Transporter or company name</label>
+                <input id="truck-name" name="name" type="text" placeholder="Driver or company name" required>
+
+                <label for="truck-phone">Phone number</label>
+                <input id="truck-phone" name="phone" type="tel" placeholder="+250..." required>
+
+                <label for="truck-district">District</label>
+                <input id="truck-district" name="district" type="text" placeholder="Example: Kamonyi" required>
+
+                <label for="truck-sector">Sector</label>
+                <input id="truck-sector" name="sector" type="text" placeholder="Example: Runda" required>
+
+                <label for="truck-cell">Cell</label>
+                <input id="truck-cell" name="cell" type="text" placeholder="Cell name" required>
+
+                <label for="truck-village">Village</label>
+                <input id="truck-village" name="village" type="text" placeholder="Village name" required>
+              </fieldset>
+
+              <fieldset>
+                <legend>Truck details</legend>
+
+                <label for="plate-number">Truck plate number</label>
+                <input id="plate-number" name="plate_number" type="text" placeholder="Example: RAB 245K" required>
+
+                <label for="truck-capacity">Truck capacity (kg)</label>
+                <input id="truck-capacity" name="capacity_kg" type="number" min="1" placeholder="Example: 1000" required>
+              </fieldset>
+
+              <button class="button button-primary" type="submit">Submit Truck Registration</button>
+            </form>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

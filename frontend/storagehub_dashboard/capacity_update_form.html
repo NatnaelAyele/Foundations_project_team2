@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Update Storage Capacity | FreshLink</title>
     <meta name="description" content="Let admins and transporters know how much cold storage space your hub has for incoming tomato deliveries.">
-    <link rel="stylesheet" href="../static/css/capacity_update_form.css">
+    <link rel="stylesheet" href="./css/capacity_update_form.css">
   </head>
   <body>
     <header class="site-header">
@@ -21,7 +21,7 @@
           <span aria-hidden="true"></span>
         </button>
         <div class="nav-links" id="nav-links">
-          <a href="#top">Home</a>
+          <a href="hub_dashboard.html">Home</a>
           <a class="nav-cta" href="capacity_update_form.html" aria-current="page">Update Capacity</a>
         </div>
       </nav>
@@ -45,11 +45,8 @@
                 </div>
                 <div class="field">
                   <label for="hubName">Hub name</label>
-                  <select id="hubName" name="hubName" required>
-                    <option value="" disabled selected>Select your hub</option>
-                    <option value="kamonyi-central">Kamonyi Central Storage Hub</option>
-                    <option value="nyamiyaga">Nyamiyaga Collection Point</option>
-                    <option value="rukoma">Rukoma Cold Storage</option>
+                  <select id="hubName" name="hubName" disabled>
+                    <option value="">Loading your hub&hellip;</option>
                   </select>
                 </div>
                 <div class="field-row">
@@ -120,6 +117,7 @@
         </div>
       </div>
     </footer>
-    <script src="../static/js/capacity_update_form.js"></script>
+    <script src="/shared/api.js"></script>
+    <script src="./js/capacity_update_form.js"></script>
   </body>
 </html>
