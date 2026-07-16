@@ -9,7 +9,6 @@ freshlink.db
 apis.md
 schema_changes.md
 migrations/
-tests/
 requirements.txt
 indexes.sql
 schema.sql
