@@ -8,11 +8,17 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
-from backend.models.operations import HubAllocationReceipt, TripAllocation
+from backend.models.operations import (
+    ForecastAllocation,
+    HarvestForecast,
+    HubAllocationReceipt,
+    TripAllocation,
+)
 from backend.models.provider import (
     ColdHub,
     ColdHubAccount,
     ColdHubCapacityUpdate,
+    Farmer,
     Sector,
     User,
 )
@@ -219,13 +225,42 @@ def list_allocations(
         .limit(page_size)
     ).all()
 
+    allocation_ids = [allocation.allocation_id for allocation, _ in rows]
+    allocation_farmers = {}
+    if allocation_ids:
+        forecast_rows = db.execute(
+            select(ForecastAllocation, HarvestForecast, Farmer)
+            .join(
+                HarvestForecast,
+                HarvestForecast.forecast_id == ForecastAllocation.forecast_id,
+            )
+            .join(Farmer, Farmer.farmer_id == HarvestForecast.farmer_id)
+            .where(ForecastAllocation.allocation_id.in_(allocation_ids))
+            .order_by(ForecastAllocation.allocation_id, Farmer.name)
+        ).all()
+        for forecast_allocation, forecast, farmer in forecast_rows:
+            allocation_farmers.setdefault(
+                forecast_allocation.allocation_id, []
+            ).append(
+                {
+                    "forecast_id": forecast.forecast_id,
+                    "farmer_id": farmer.farmer_id,
+                    "name": farmer.name,
+                    "allocated_quantity_kg": forecast_allocation.allocated_quantity_kg,
+                }
+            )
+
     items = []
     for allocation, receipt in rows:
+        farmers = allocation_farmers.get(allocation.allocation_id, [])
         items.append(
             {
                 "allocation_id": allocation.allocation_id,
-                "farmer": None,
-                "quantity_kg": None,
+                "farmer": ", ".join(farmer["name"] for farmer in farmers) or None,
+                "farmers": farmers,
+                "quantity_kg": sum(
+                    farmer["allocated_quantity_kg"] for farmer in farmers
+                ) if farmers else None,
                 "total_load_kg": allocation.total_load_kg,
                 "pickup_start": allocation.pickup_start,
                 "estimated_hub_arrival": allocation.estimated_hub_arrival,
@@ -235,7 +270,7 @@ def list_allocations(
                 "received_quantity_kg": (
                     receipt.received_quantity_kg if receipt else None
                 ),
-                "farmer_data_available": False,
+                "farmer_data_available": bool(farmers),
             }
         )
 
@@ -245,7 +280,7 @@ def list_allocations(
         "page_size": page_size,
         "total": total,
         "coordination_data_available": total > 0,
-        "farmer_data_available": False,
+        "farmer_data_available": bool(allocation_farmers),
     }
 
 

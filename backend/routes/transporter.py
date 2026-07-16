@@ -8,13 +8,18 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
-from backend.models.operations import TripAllocation, TripStatusEvent
+from backend.models.operations import (
+    ACTIVE_TRIP_STATUSES,
+    TripAllocation,
+    TripStatusEvent,
+)
 from backend.models.provider import (
     ColdHub,
     Sector,
     Transporter,
     Truck,
     TruckOperationalDetail,
+    TRUCK_STATUSES,
     User,
 )
 from backend.routes.accounts import require_role
@@ -22,31 +27,19 @@ from backend.routes.accounts import require_role
 
 router = APIRouter(prefix="/api/transporter", tags=["Transporter"])
 
-TRUCK_STATUS_TO_DATABASE = {
-    "AVAILABLE": "IDLE",
-    "EN_ROUTE": "IN_TRANSIT",
-    "FULL": "FULL",
-    "MAINTENANCE": "OFFLINE",
-}
-DATABASE_STATUS_TO_API = {
-    database_status: api_status
-    for api_status, database_status in TRUCK_STATUS_TO_DATABASE.items()
-}
-
-
 def normalize_truck_status(value):
     if not isinstance(value, str):
         return value
     normalized = value.strip().upper().replace("-", "_")
-    if normalized not in TRUCK_STATUS_TO_DATABASE:
-        raise ValueError("Status must be AVAILABLE, EN_ROUTE, FULL, or MAINTENANCE")
+    if normalized not in TRUCK_STATUSES:
+        raise ValueError("Status must be AVAILABLE, BUSY, or MAINTENANCE")
     return normalized
 
 
 class TruckCreateRequest(BaseModel):
     plate_number: str = Field(min_length=3, max_length=15)
     capacity_kg: float = Field(gt=0)
-    status: Literal["AVAILABLE", "EN_ROUTE", "FULL", "MAINTENANCE"] = "AVAILABLE"
+    status: Literal["AVAILABLE", "MAINTENANCE"] = "AVAILABLE"
     vehicle_model: str | None = Field(default=None, max_length=100)
     driver_name: str | None = Field(default=None, max_length=100)
     current_location: str | None = Field(default=None, max_length=150)
@@ -61,7 +54,7 @@ class TruckCreateRequest(BaseModel):
 class TruckUpdateRequest(BaseModel):
     plate_number: str | None = Field(default=None, min_length=3, max_length=15)
     capacity_kg: float | None = Field(default=None, gt=0)
-    status: Literal["AVAILABLE", "EN_ROUTE", "FULL", "MAINTENANCE"] | None = None
+    status: Literal["AVAILABLE", "BUSY", "MAINTENANCE"] | None = None
     vehicle_model: str | None = Field(default=None, max_length=100)
     driver_name: str | None = Field(default=None, max_length=100)
     current_location: str | None = Field(default=None, max_length=150)
@@ -103,7 +96,7 @@ def truck_to_dict(truck: Truck, details: TruckOperationalDetail | None):
         "truck_id": truck.truck_id,
         "plate_number": truck.plate_number,
         "capacity_kg": truck.capacity_kg,
-        "status": DATABASE_STATUS_TO_API.get(truck.status, truck.status),
+        "status": truck.status,
         "database_status": truck.status,
         "vehicle_model": details.vehicle_model if details else None,
         "driver_name": details.driver_name if details else None,
@@ -117,7 +110,7 @@ def fleet_summary(db: Session, transporter_id: int):
     trucks = db.scalars(
         select(Truck).where(Truck.transporter_id == transporter_id)
     ).all()
-    available = [truck for truck in trucks if truck.status == "IDLE"]
+    available = [truck for truck in trucks if truck.status == "AVAILABLE"]
     return {
         "total_trucks": len(trucks),
         "available_trucks": len(available),
@@ -170,7 +163,7 @@ def get_dashboard_summary(
         .join(Truck, Truck.truck_id == TripAllocation.truck_id)
         .where(
             Truck.transporter_id == transporter.transporter_id,
-            TripAllocation.status.in_(["SCHEDULED", "ASSIGNED"]),
+            TripAllocation.status == "SCHEDULED",
         )
     ) or 0
 
@@ -186,7 +179,7 @@ def get_dashboard_summary(
         .join(Truck, Truck.truck_id == TripAllocation.truck_id)
         .where(
             Truck.transporter_id == transporter.transporter_id,
-            TripStatusEvent.status == "DELIVERED",
+            TripStatusEvent.status == "COMPLETED",
             TripStatusEvent.created_at >= day_start,
             TripStatusEvent.created_at < day_end,
         )
@@ -237,7 +230,7 @@ def create_truck(
         plate_number=plate_number,
         capacity_kg=payload.capacity_kg,
         sector_id=transporter.sector_id,
-        status=TRUCK_STATUS_TO_DATABASE[payload.status],
+        status=payload.status,
     )
     db.add(truck)
     db.flush()
@@ -269,15 +262,20 @@ def update_truck(
         active_trip = db.scalar(
             select(func.count(TripAllocation.allocation_id)).where(
                 TripAllocation.truck_id == truck.truck_id,
-                TripAllocation.status == "IN_TRANSIT",
+                TripAllocation.status.in_(ACTIVE_TRIP_STATUSES),
             )
         ) or 0
-        if active_trip and payload.status != "EN_ROUTE":
+        if payload.status == "BUSY":
             raise HTTPException(
                 status_code=409,
-                detail="An in-transit truck cannot be marked available or offline",
+                detail="Truck busy status is managed by trip reservations",
             )
-        truck.status = TRUCK_STATUS_TO_DATABASE[payload.status]
+        if active_trip:
+            raise HTTPException(
+                status_code=409,
+                detail="A truck with an active trip cannot be changed",
+            )
+        truck.status = payload.status
 
     if payload.plate_number is not None:
         truck.plate_number = normalize_plate(payload.plate_number)
@@ -337,11 +335,7 @@ def list_trips(
     )
     if trip_status:
         normalized_status = trip_status.strip().upper().replace("-", "_")
-        if normalized_status == "ASSIGNED":
-            statement = statement.where(
-                TripAllocation.status.in_(["SCHEDULED", "ASSIGNED"])
-            )
-        elif normalized_status in {"IN_TRANSIT", "DELIVERED"}:
+        if normalized_status in {"SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED"}:
             statement = statement.where(TripAllocation.status == normalized_status)
         else:
             raise HTTPException(status_code=422, detail="Invalid trip status filter")
@@ -370,16 +364,15 @@ def start_trip(
 ):
     transporter, _ = current_transporter(db, user)
     allocation, truck = owned_trip(db, transporter.transporter_id, allocation_id)
-    if allocation.status not in {"SCHEDULED", "ASSIGNED"}:
+    if allocation.status != "SCHEDULED":
         raise HTTPException(status_code=409, detail="This trip cannot be started")
-    if truck.status != "IDLE":
-        raise HTTPException(status_code=409, detail="The assigned truck is not available")
+    if truck.status != "BUSY":
+        raise HTTPException(status_code=409, detail="The assigned truck is not reserved")
 
-    allocation.status = "IN_TRANSIT"
-    truck.status = "IN_TRANSIT"
+    allocation.status = "IN_PROGRESS"
     event = TripStatusEvent(
         allocation_id=allocation.allocation_id,
-        status="IN_TRANSIT",
+        status="IN_PROGRESS",
         changed_by_user_id=user.user_id,
     )
     db.add(event)
@@ -396,23 +389,23 @@ def deliver_trip(
 ):
     transporter, _ = current_transporter(db, user)
     allocation, truck = owned_trip(db, transporter.transporter_id, allocation_id)
-    if allocation.status != "IN_TRANSIT":
+    if allocation.status != "IN_PROGRESS":
         raise HTTPException(status_code=409, detail="Only an in-transit trip can be delivered")
 
-    allocation.status = "DELIVERED"
+    allocation.status = "COMPLETED"
     other_active_trips = db.scalar(
         select(func.count(TripAllocation.allocation_id)).where(
             TripAllocation.truck_id == truck.truck_id,
             TripAllocation.allocation_id != allocation.allocation_id,
-            TripAllocation.status == "IN_TRANSIT",
+            TripAllocation.status.in_(ACTIVE_TRIP_STATUSES),
         )
     ) or 0
     if not other_active_trips:
-        truck.status = "IDLE"
+        truck.status = "AVAILABLE"
 
     event = TripStatusEvent(
         allocation_id=allocation.allocation_id,
-        status="DELIVERED",
+        status="COMPLETED",
         changed_by_user_id=user.user_id,
     )
     db.add(event)
@@ -440,11 +433,6 @@ def owned_trip(db: Session, transporter_id: int, allocation_id: int):
 def trip_to_dict(
     allocation: TripAllocation, truck: Truck, hub: ColdHub, sector: Sector
 ):
-    display_status = (
-        "ASSIGNED"
-        if allocation.status in {"SCHEDULED", "ASSIGNED"}
-        else allocation.status
-    )
     return {
         "allocation_id": allocation.allocation_id,
         "pickup_location": {
@@ -457,7 +445,7 @@ def trip_to_dict(
         "total_load_kg": allocation.total_load_kg,
         "destination_hub": {"hub_id": hub.hub_id, "name": hub.name},
         "truck": {"truck_id": truck.truck_id, "plate_number": truck.plate_number},
-        "status": display_status,
+        "status": allocation.status,
         "database_status": allocation.status,
     }
 
@@ -469,7 +457,7 @@ def trip_action_result(
         "ok": True,
         "allocation_id": allocation.allocation_id,
         "trip_status": allocation.status,
-        "truck_status": DATABASE_STATUS_TO_API.get(truck.status, truck.status),
+        "truck_status": truck.status,
         "changed_at": event.created_at,
     }
 

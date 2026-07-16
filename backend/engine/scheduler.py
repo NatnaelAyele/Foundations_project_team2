@@ -1,53 +1,89 @@
-"""
-scheduler.py
+import threading
 
-Simple scheduler for the Tomato Logistics Platform.
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+from sqlalchemy import or_, select
 
-This module is responsible for starting the coordination engine.
-It can be run manually during development and later replaced by
-a real scheduler such as APScheduler or Celery.
-"""
-
-from backend.engine.coordinator import CoordinationEngine
+from backend.config import Config
+from backend.database.connection import SessionLocal
 from backend.engine.logger import EngineLogger
+from backend.models.operations import ForecastRequirement, HarvestForecast
+from backend.models.provider import Farmer
+from backend.services.coordination_service import (
+    CoordinationPersistenceError,
+    CoordinationService,
+)
 
 
-class Scheduler:
-    """Runs the coordination engine."""
+class CoordinationScheduler:
+    """Runs pending sector coordination every configured interval."""
 
-    def __init__(self):
-        self.engine = CoordinationEngine()
+    def __init__(self, session_factory=SessionLocal):
+        self.session_factory = session_factory
         self.logger = EngineLogger()
+        self.run_lock = threading.Lock()
+        self.scheduler = BackgroundScheduler(daemon=True)
+        self.scheduler.add_job(
+            self.run_pending_sectors,
+            trigger=IntervalTrigger(hours=Config.ENGINE_RUN_INTERVAL_HOURS),
+            id="freshlink_coordination",
+            max_instances=1,
+            coalesce=True,
+            replace_existing=True,
+        )
 
-    def run(self):
-        """
-        Start the coordination engine.
-        """
+    def start(self):
+        self.scheduler.start()
+        self.logger.info(
+            f"Coordination scheduler started with a "
+            f"{Config.ENGINE_RUN_INTERVAL_HOURS}-hour interval."
+        )
 
-        self.logger.info("Scheduler started.")
+    def shutdown(self):
+        if self.scheduler.running:
+            self.scheduler.shutdown(wait=False)
 
+    def run_pending_sectors(self):
+        if not self.run_lock.acquire(blocking=False):
+            self.logger.warning("Coordination scheduler skipped an overlapping run.")
+            return []
+
+        db = self.session_factory()
         try:
-            result = self.engine.run()
+            sector_ids = db.scalars(
+                select(Farmer.sector_id)
+                .join(
+                    HarvestForecast,
+                    HarvestForecast.farmer_id == Farmer.farmer_id,
+                )
+                .outerjoin(
+                    ForecastRequirement,
+                    ForecastRequirement.forecast_id == HarvestForecast.forecast_id,
+                )
+                .where(
+                    HarvestForecast.status == "PENDING",
+                    or_(
+                        ForecastRequirement.forecast_id.is_(None),
+                        ForecastRequirement.needs_transport.is_(True),
+                    ),
+                    or_(
+                        ForecastRequirement.forecast_id.is_(None),
+                        ForecastRequirement.needs_storage.is_(True),
+                    ),
+                )
+                .distinct()
+                .order_by(Farmer.sector_id)
+            ).all()
 
-            self.logger.info("Scheduler completed successfully.")
-
-            return result
-
-        except Exception as error:
-
-            self.logger.error(f"Scheduler failed: {error}")
-
-            raise
-
-
-def main():
-    """
-    Entry point for running the scheduler manually.
-    """
-
-    scheduler = Scheduler()
-    scheduler.run()
-
-
-if __name__ == "__main__":
-    main()
+            results = []
+            for sector_id in sector_ids:
+                try:
+                    results.append(CoordinationService(db).run_sector(sector_id))
+                except CoordinationPersistenceError as error:
+                    self.logger.error(
+                        f"Coordination failed for sector {sector_id}: {error}"
+                    )
+            return results
+        finally:
+            db.close()
+            self.run_lock.release()

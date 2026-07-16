@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.config import Config
 from backend.database.connection import Base, engine
+from backend.engine.scheduler import CoordinationScheduler
 from backend import models
 from backend.routes.accounts import dashboard_router, router as accounts_router
 from backend.routes.admin import router as admin_router
@@ -18,12 +19,20 @@ from backend.routes.transporter import router as transporter_router
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 
-def create_app(create_database=True):
+def create_app(create_database=True, start_scheduler=True):
     @asynccontextmanager
     async def lifespan(app):
         if create_database:
             Base.metadata.create_all(bind=engine)
-        yield
+        scheduler = None
+        if start_scheduler and Config.ENGINE_SCHEDULER_ENABLED:
+            scheduler = CoordinationScheduler()
+            scheduler.start()
+        try:
+            yield
+        finally:
+            if scheduler:
+                scheduler.shutdown()
 
     api = FastAPI(title="FreshLink API", version="1.0.0", lifespan=lifespan)
     api.add_middleware(

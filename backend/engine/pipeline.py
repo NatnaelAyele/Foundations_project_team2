@@ -2,9 +2,11 @@
 from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from ..engine_group1.models import HarvestForecast
+from backend.models.operations import ForecastRequirement, HarvestForecast
+from backend.models.provider import Farmer
 from .exclusion_logger import ExclusionLogger
 
 # Coordination window - how far ahead a harvest date can be and still get planned.
@@ -13,31 +15,42 @@ COORDINATION_WINDOW_DAYS_AHEAD = 3
 
 # Step 2 - not a class in Group 3's guide, just the read that feeds everything else.
 # Converts ORM rows into the plain dict shape the classes below (and Group 2/3) expect.
-def read_pending_forecasts(db: Session) -> list[dict]:
+def read_pending_forecasts(db: Session, sector_id: int | None = None) -> list[dict]:
     """
     Read pending harvest forecasts from the database.
 
     Receives a SQLAlchemy session. Returns dictionaries containing the fields
     needed by validation, matching, planning, payment, and notifications.
     """
-    rows = (
-        db.query(HarvestForecast)
+    query = (
+        db.query(HarvestForecast, Farmer)
+        .join(Farmer, Farmer.farmer_id == HarvestForecast.farmer_id)
+        .outerjoin(
+            ForecastRequirement,
+            ForecastRequirement.forecast_id == HarvestForecast.forecast_id,
+        )
         .filter(HarvestForecast.status == "PENDING")
-        .order_by(HarvestForecast.harvest_date.asc())
-        .all()
     )
+    query = query.filter(
+        or_(ForecastRequirement.forecast_id.is_(None), ForecastRequirement.needs_transport.is_(True)),
+        or_(ForecastRequirement.forecast_id.is_(None), ForecastRequirement.needs_storage.is_(True)),
+    )
+    if sector_id is not None:
+        query = query.filter(Farmer.sector_id == sector_id)
+
+    rows = query.order_by(HarvestForecast.harvest_date.asc()).all()
     forecasts = []
-    for r in rows:
+    for forecast, farmer in rows:
         forecasts.append({
-            "forecast_id": r.forecast_id,
-            "farmer_id": r.farmer_id,
-            "farmer_phone": r.farmer.phone if r.farmer else None,
-            "quantity_kg": float(r.quantity_kg) if r.quantity_kg is not None else r.quantity_kg,
-            "quantity": float(r.quantity_kg) if r.quantity_kg is not None else r.quantity_kg,
-            "harvest_date": r.harvest_date,
-            "sector_id": r.farmer.sector_id if r.farmer else None,
+            "forecast_id": forecast.forecast_id,
+            "farmer_id": forecast.farmer_id,
+            "farmer_phone": farmer.phone,
+            "quantity_kg": float(forecast.quantity_kg),
+            "quantity": float(forecast.quantity_kg),
+            "harvest_date": forecast.harvest_date,
+            "sector_id": farmer.sector_id,
             "crop_type": "TOMATO",
-            "status": r.status,
+            "status": forecast.status,
         })
     return forecasts
 
