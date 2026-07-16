@@ -9,12 +9,9 @@ from backend.models.operations import ForecastRequirement, HarvestForecast
 from backend.models.provider import Farmer
 from .exclusion_logger import ExclusionLogger
 
-# Coordination window - how far ahead a harvest date can be and still get planned.
 COORDINATION_WINDOW_DAYS_AHEAD = 3
 
 
-# Step 2 - not a class in Group 3's guide, just the read that feeds everything else.
-# Converts ORM rows into the plain dict shape the classes below (and Group 2/3) expect.
 def read_pending_forecasts(db: Session, sector_id: int | None = None) -> list[dict]:
     """
     Read pending harvest forecasts from the database.
@@ -329,8 +326,6 @@ class DemandAnalyzer:
         return demand_results
 
 
-# Convenience wrapper chaining my 4 classes together - not part of Group 3's required interface,
-# just makes it easy to run all of Group 1's steps in one call for my own testing/demo.
 def run_group1_pipeline(db: Session, today: date | None = None) -> list[dict]:
     """
     Run all Group 1 pipeline steps.
