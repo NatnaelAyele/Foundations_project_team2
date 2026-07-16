@@ -16,10 +16,20 @@ from sqlalchemy.orm import Mapped, mapped_column
 from backend.database.connection import Base
 
 
+FORECAST_STATUSES = ("PENDING", "ALLOCATED", "CANCELLED")
+PLAN_STATUSES = ("RUNNING", "COMPLETED", "FAILED")
+TRIP_STATUSES = ("SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED")
+ACTIVE_TRIP_STATUSES = ("SCHEDULED", "IN_PROGRESS")
+
+
 class HarvestForecast(Base):
     __tablename__ = "harvest_forecasts"
     __table_args__ = (
         CheckConstraint("quantity_kg > 0", name="chk_forecast_quantity"),
+        CheckConstraint(
+            "status IN ('PENDING', 'ALLOCATED', 'CANCELLED')",
+            name="chk_harvest_forecasts_status",
+        ),
         Index("idx_forecasts_farmer_id", "farmer_id"),
         Index("idx_forecasts_status_date", "status", "harvest_date"),
         Index("idx_forecasts_harvest_date", "harvest_date"),
@@ -64,6 +74,10 @@ class ForecastRequirement(Base):
 class CoordinationPlan(Base):
     __tablename__ = "coordination_plans"
     __table_args__ = (
+        CheckConstraint(
+            "status IN ('RUNNING', 'COMPLETED', 'FAILED')",
+            name="chk_coordination_plans_status",
+        ),
         Index("idx_plans_sector_id", "sector_id"),
         Index("idx_plans_status", "status"),
     )
@@ -74,7 +88,7 @@ class CoordinationPlan(Base):
     )
     generated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     status: Mapped[str] = mapped_column(
-        String(50), default="DRAFT", server_default="DRAFT"
+        String(50), default="RUNNING", server_default="RUNNING"
     )
 
 
@@ -82,6 +96,10 @@ class TripAllocation(Base):
     __tablename__ = "trip_allocations"
     __table_args__ = (
         CheckConstraint("total_load_kg > 0", name="chk_alloc_load"),
+        CheckConstraint(
+            "status IN ('SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED')",
+            name="chk_trip_allocations_status",
+        ),
         Index("idx_alloc_plan_id", "plan_id"),
         Index("idx_alloc_truck_id", "truck_id"),
         Index("idx_alloc_hub_id", "hub_id"),
@@ -107,8 +125,24 @@ class TripAllocation(Base):
     pickup_start: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     estimated_hub_arrival: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     status: Mapped[str] = mapped_column(
-        String(10), default="SCHEDULED", server_default="SCHEDULED"
+        String(20), default="SCHEDULED", server_default="SCHEDULED"
     )
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class ForecastAllocation(Base):
+    __tablename__ = "forecast_allocations"
+
+    allocation_id: Mapped[int] = mapped_column(
+        ForeignKey("trip_allocations.allocation_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    forecast_id: Mapped[int] = mapped_column(
+        ForeignKey("harvest_forecasts.forecast_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    allocated_quantity_kg: Mapped[float] = mapped_column(Float)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
 class HubAllocationReceipt(Base):
@@ -141,7 +175,7 @@ class TripStatusEvent(Base):
     allocation_id: Mapped[int] = mapped_column(
         ForeignKey("trip_allocations.allocation_id", ondelete="CASCADE")
     )
-    status: Mapped[str] = mapped_column(String(10))
+    status: Mapped[str] = mapped_column(String(20))
     changed_by_user_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.user_id", ondelete="SET NULL"), nullable=True
     )
@@ -164,7 +198,9 @@ class ExcludedTrip(Base):
         ForeignKey("coordination_plans.plan_id", ondelete="CASCADE")
     )
     reason_code: Mapped[str] = mapped_column(String(50))
+    reason_detail: Mapped[str | None] = mapped_column(String, nullable=True)
     excluded_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
 class Notification(Base):

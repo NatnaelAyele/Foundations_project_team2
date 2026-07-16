@@ -20,22 +20,20 @@ try:
 except ImportError as error:
     raise ImportError(
         "Could not import Group 1 pipeline classes from "
-        "backend.engine_group1.pipeline. Check that backend/engine_group1 "
-        "is a Python package and that pipeline.py is available."
+        "backend.engine.pipeline. Check that backend/engine is a Python "
+        "package and that pipeline.py is available."
     ) from error
 
 try:
 
     from backend.engine.logger import EngineLogger
-    from backend.engine.notifier import Notifier
-    from backend.Flutterwave.payment import PaymentManager
+    from backend.engine.exclusion_logger import ExclusionLogger
     from backend.engine.planner import Planner
     from backend.engine.reservation import ReservationManager
 except ImportError:
 
     from backend.engine.logger import EngineLogger
-    from backend.engine.notifier import Notifier
-    from backend.Flutterwave.payment import PaymentManager
+    from backend.engine.exclusion_logger import ExclusionLogger
     from backend.engine.planner import Planner
     from backend.engine.reservation import ReservationManager
 
@@ -50,20 +48,22 @@ class CoordinationEngine:
     the database plan first and pass the saved plan here.
     """
 
-    def __init__(self, db=None, logger=None, coordination_plan=None):
+    def __init__(self, db=None, logger=None, coordination_plan=None, sector_id=None):
 
         self.db = db
         self.initial_coordination_plan = coordination_plan
+        self.sector_id = sector_id
 
         self.logger = logger or EngineLogger()
+        self.exclusion_logger = ExclusionLogger()
 
-        self.validator = Validator()
+        self.validator = Validator(exclusion_logger=self.exclusion_logger)
 
-        self.eligibility = EligibilityChecker()
+        self.eligibility = EligibilityChecker(exclusion_logger=self.exclusion_logger)
 
-        self.clustering = ClusteringEngine()
+        self.clustering = ClusteringEngine(exclusion_logger=self.exclusion_logger)
 
-        self.demand = DemandAnalyzer()
+        self.demand = DemandAnalyzer(exclusion_logger=self.exclusion_logger)
 
         self.truck_matcher = None
 
@@ -73,23 +73,17 @@ class CoordinationEngine:
 
         self.reservation = ReservationManager(logger=self.logger)
 
-        self.payment = PaymentManager(logger=self.logger)
-
-        self.notifier = Notifier(logger=self.logger)
-
     def run(self, coordination_plan=None):
         """
         Run the full engine workflow and return a summary dictionary.
 
         Receives an optional persisted coordination plan. Returns success data
-        with plan, payment, and notification results, or a failed status with a
-        readable error message.
+        with plan, reservation, and exclusion results, or a failed status with
+        a readable error message.
         """
 
         start_time = datetime.now()
         plan = None
-        notifications = None
-
         self.logger.info("Starting coordination engine...")
         self.logger.info(f"Coordination engine started at {start_time}.")
 
@@ -154,16 +148,6 @@ class CoordinationEngine:
                 planning_results
             )
 
-            self.logger.info("Initializing payments...")
-            payment_results = self.payment.initialize_payment(
-                reservations
-            )
-
-            self.logger.info("Sending notifications...")
-            notifications = self.notifier.create_notifications(
-                payment_results
-            )
-
             self.logger.info("Completing coordination plan...")
             self.complete_coordination_plan(plan)
 
@@ -173,8 +157,9 @@ class CoordinationEngine:
             return {
                 "status": "success",
                 "plan": plan,
-                "payments": payment_results,
-                "notifications": notifications
+                "planning_results": planning_results,
+                "reservations": reservations,
+                "exclusions": self.exclusion_logger.get_records(),
             }
 
         except Exception as error:
@@ -242,7 +227,7 @@ class CoordinationEngine:
             )
             return []
 
-        return read_pending_forecasts(self.db)
+        return read_pending_forecasts(self.db, sector_id=self.sector_id)
 
     def get_successful_matches(self, hub_matches):
         """
@@ -266,7 +251,9 @@ class CoordinationEngine:
         """
         if self.truck_matcher is None:
             TruckMatcher, _ = self.import_group2_matchers()
-            self.truck_matcher = TruckMatcher(self.db)
+            self.truck_matcher = TruckMatcher(
+                self.db, exclusion_logger=self.exclusion_logger
+            )
 
         return self.truck_matcher
 
@@ -279,7 +266,9 @@ class CoordinationEngine:
         """
         if self.hub_matcher is None:
             _, HubMatcher = self.import_group2_matchers()
-            self.hub_matcher = HubMatcher(self.db)
+            self.hub_matcher = HubMatcher(
+                self.db, exclusion_logger=self.exclusion_logger
+            )
 
         return self.hub_matcher
 
@@ -308,8 +297,8 @@ class CoordinationEngine:
         Add match context needed by later engine steps.
 
         Planner creates the trip fields, while this method keeps contact and
-        forecast data from Group 2 available for reservation, payment, and
-        notifications.
+        forecast data from Group 2 available for reservation and later
+        notification processing.
         """
         trip_allocations = planning_results.get("trip_allocations", [])
         enriched_trips = []

@@ -60,7 +60,6 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outlin
 .hero-image.zoom-out.is-active { animation: kb-out 7s ease forwards; }
 @keyframes kb-in { from { transform: scale(1); } to { transform: scale(1.1); } }
 @keyframes kb-out { from { transform: scale(1.1); } to { transform: scale(1); } }
-/* MUCH lighter overlay — photo stays natural. Just enough for legibility behind text zones. */
 .hero-overlay {
   z-index: 1;
   background:

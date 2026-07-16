@@ -16,6 +16,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from backend.database.connection import Base
 
 
+TRUCK_STATUSES = ("AVAILABLE", "BUSY", "MAINTENANCE")
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -102,6 +105,10 @@ class Transporter(Base):
 class Truck(Base):
     __tablename__ = "trucks"
     __table_args__ = (
+        CheckConstraint(
+            "status IN ('AVAILABLE', 'BUSY', 'MAINTENANCE')",
+            name="chk_trucks_status",
+        ),
         Index("idx_trucks_transporter_id", "transporter_id"),
         Index("idx_trucks_sector_status", "sector_id", "status"),
         Index("idx_trucks_status", "status"),
@@ -116,7 +123,9 @@ class Truck(Base):
     sector_id: Mapped[int] = mapped_column(
         ForeignKey("sectors.sector_id", ondelete="RESTRICT")
     )
-    status: Mapped[str] = mapped_column(String(10), default="IDLE", server_default="IDLE")
+    status: Mapped[str] = mapped_column(
+        String(20), default="AVAILABLE", server_default="AVAILABLE"
+    )
 
 
 class TruckOperationalDetail(Base):

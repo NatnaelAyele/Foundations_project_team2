@@ -1,6 +1,7 @@
 from backend.models.operations import (
     CoordinationPlan,
     ExcludedTrip,
+    ForecastAllocation,
     ForecastRequirement,
     HarvestForecast,
     HubAllocationReceipt,
@@ -30,6 +31,7 @@ __all__ = [
     "Farmer",
     "FarmerAdminProfile",
     "ForecastRequirement",
+    "ForecastAllocation",
     "HarvestForecast",
     "HubAllocationReceipt",
     "Notification",
