@@ -14,3 +14,5 @@ requirements.txt
 indexes.sql
 schema.sql
 seed_data.sql
+.env
+ca.pem
