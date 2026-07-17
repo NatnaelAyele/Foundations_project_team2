@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from backend.database.connection import get_db
 from backend.models.operations import (
     ACTIVE_TRIP_STATUSES,
+    Payment,
     TripAllocation,
     TripStatusEvent,
 )
@@ -23,6 +24,7 @@ from backend.models.provider import (
     User,
 )
 from backend.routes.accounts import require_role
+from backend.services.payment_service import PaymentPermissionError, PaymentService
 
 
 router = APIRouter(prefix="/api/transporter", tags=["Transporter"])
@@ -348,7 +350,7 @@ def list_trips(
         .limit(page_size)
     ).all()
     return {
-        "items": [trip_to_dict(*row) for row in rows],
+        "items": [trip_to_dict(db, *row) for row in rows],
         "page": page,
         "page_size": page_size,
         "total": total,
@@ -368,6 +370,10 @@ def start_trip(
         raise HTTPException(status_code=409, detail="This trip cannot be started")
     if truck.status != "BUSY":
         raise HTTPException(status_code=409, detail="The assigned truck is not reserved")
+    try:
+        PaymentService(db).ensure_trip_can_start(allocation.allocation_id)
+    except PaymentPermissionError as error:
+        raise HTTPException(status_code=403, detail=str(error)) from error
 
     allocation.status = "IN_PROGRESS"
     event = TripStatusEvent(
@@ -431,8 +437,14 @@ def owned_trip(db: Session, transporter_id: int, allocation_id: int):
 
 
 def trip_to_dict(
-    allocation: TripAllocation, truck: Truck, hub: ColdHub, sector: Sector
+    db: Session, allocation: TripAllocation, truck: Truck, hub: ColdHub, sector: Sector
 ):
+    payment = db.scalar(
+        select(Payment)
+        .where(Payment.allocation_id == allocation.allocation_id)
+        .order_by(Payment.created_at.desc(), Payment.payment_id.desc())
+        .limit(1)
+    )
     return {
         "allocation_id": allocation.allocation_id,
         "pickup_location": {
@@ -447,6 +459,9 @@ def trip_to_dict(
         "truck": {"truck_id": truck.truck_id, "plate_number": truck.plate_number},
         "status": allocation.status,
         "database_status": allocation.status,
+        "payment_required": True,
+        "payment_status": payment.status if payment else "MISSING",
+        "payment_reference": payment.payment_reference if payment else None,
     }
 
 

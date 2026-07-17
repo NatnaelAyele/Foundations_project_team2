@@ -25,6 +25,7 @@ from backend.services.coordination_service import (
     CoordinationPersistenceError,
     CoordinationService,
 )
+from backend.services.payment_service import PaymentService
 
 
 router = APIRouter(
@@ -449,6 +450,7 @@ def dashboard_summary(db: Session = Depends(get_db)):
             "latest_plan_status": latest_plan.status if latest_plan else None,
             "latest_run_at": latest_plan.generated_at if latest_plan else None,
         },
+        "payments": PaymentService(db).payment_summary(),
     }
 
 

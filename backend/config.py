@@ -31,6 +31,17 @@ class Config:
         "CORS_ORIGINS",
         "http://localhost:3000,http://127.0.0.1:5500"
     ).split(",")
+    APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:8000")
+    API_BASE_URL = os.getenv("API_BASE_URL", APP_BASE_URL)
+    FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", APP_BASE_URL)
+    FLUTTERWAVE_PUBLIC_KEY = os.getenv("FLUTTERWAVE_PUBLIC_KEY")
+    FLUTTERWAVE_SECRET_KEY = os.getenv("FLUTTERWAVE_SECRET_KEY")
+    FLUTTERWAVE_ENCRYPTION_KEY = os.getenv("FLUTTERWAVE_ENCRYPTION_KEY")
+    FLUTTERWAVE_WEBHOOK_SECRET = os.getenv("FLUTTERWAVE_WEBHOOK_SECRET")
+    FLUTTERWAVE_BASE_URL = os.getenv(
+        "FLUTTERWAVE_BASE_URL",
+        "https://api.flutterwave.com/v3",
+    ).rstrip("/")
 
     @classmethod
     def get_database_url(cls):

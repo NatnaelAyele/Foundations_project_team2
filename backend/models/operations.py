@@ -7,11 +7,14 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     Index,
+    JSON,
+    Numeric,
     String,
+    Text,
     func,
     text,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database.connection import Base
 
@@ -20,6 +23,15 @@ FORECAST_STATUSES = ("PENDING", "ALLOCATED", "CANCELLED")
 PLAN_STATUSES = ("RUNNING", "COMPLETED", "FAILED")
 TRIP_STATUSES = ("SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED")
 ACTIVE_TRIP_STATUSES = ("SCHEDULED", "IN_PROGRESS")
+PAYMENT_STATUSES = (
+    "CREATED",
+    "INITIALIZED",
+    "PENDING",
+    "PAID",
+    "FAILED",
+    "CANCELLED",
+    "REFUNDED",
+)
 
 
 class HarvestForecast(Base):
@@ -128,6 +140,20 @@ class TripAllocation(Base):
         String(20), default="SCHEDULED", server_default="SCHEDULED"
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    forecast_allocations: Mapped[list["ForecastAllocation"]] = relationship(
+        "ForecastAllocation",
+        back_populates="trip_allocation",
+        cascade="all, delete-orphan",
+    )
+    payments: Mapped[list["Payment"]] = relationship(
+        "Payment",
+        back_populates="trip_allocation",
+        cascade="all, delete-orphan",
+    )
+    notifications: Mapped[list["Notification"]] = relationship(
+        "Notification",
+        back_populates="trip_allocation",
+    )
 
 
 class ForecastAllocation(Base):
@@ -143,6 +169,93 @@ class ForecastAllocation(Base):
     )
     allocated_quantity_kg: Mapped[float] = mapped_column(Float)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    trip_allocation: Mapped["TripAllocation"] = relationship(
+        "TripAllocation",
+        back_populates="forecast_allocations",
+    )
+    forecast: Mapped["HarvestForecast"] = relationship("HarvestForecast")
+
+
+class Payment(Base):
+    __tablename__ = "payments"
+    __table_args__ = (
+        CheckConstraint("amount > 0", name="chk_payments_amount"),
+        CheckConstraint(
+            "status IN ('CREATED', 'INITIALIZED', 'PENDING', 'PAID', 'FAILED', 'CANCELLED', 'REFUNDED')",
+            name="chk_payments_status",
+        ),
+        Index("idx_payments_allocation_id", "allocation_id"),
+        Index("idx_payments_farmer_id", "farmer_id"),
+        Index("idx_payments_status", "status"),
+        Index("idx_payments_tx_ref", "tx_ref", unique=True),
+        Index("idx_payments_payment_reference", "payment_reference", unique=True),
+        Index("idx_payments_transaction_id", "transaction_id", unique=True),
+    )
+
+    payment_id: Mapped[int] = mapped_column(primary_key=True)
+    allocation_id: Mapped[int] = mapped_column(
+        ForeignKey("trip_allocations.allocation_id", ondelete="CASCADE")
+    )
+    farmer_id: Mapped[int] = mapped_column(
+        ForeignKey("farmers.farmer_id", ondelete="CASCADE")
+    )
+    payer_type: Mapped[str] = mapped_column(String(50))
+    payee_type: Mapped[str] = mapped_column(String(50))
+    payer_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    payee_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    amount: Mapped[float] = mapped_column(Numeric(12, 2))
+    currency: Mapped[str] = mapped_column(
+        String(3), default="RWF", server_default="RWF"
+    )
+    purpose: Mapped[str] = mapped_column(String(100))
+    payment_method: Mapped[str] = mapped_column(
+        String(30), default="FLUTTERWAVE", server_default="FLUTTERWAVE"
+    )
+    status: Mapped[str] = mapped_column(
+        String(20), default="CREATED", server_default="CREATED"
+    )
+    payment_reference: Mapped[str] = mapped_column(String(100), unique=True)
+    flutterwave_ref: Mapped[str | None] = mapped_column(
+        String(100), unique=True, nullable=True
+    )
+    tx_ref: Mapped[str | None] = mapped_column(String(100), unique=True, nullable=True)
+    transaction_id: Mapped[str | None] = mapped_column(
+        String(100), unique=True, nullable=True
+    )
+    payment_link: Mapped[str | None] = mapped_column(Text, nullable=True)
+    provider_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    provider_response: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    failed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    paid_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    refunded_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    settled_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    last_checked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    trip_allocation: Mapped["TripAllocation"] = relationship(
+        "TripAllocation",
+        back_populates="payments",
+    )
+    farmer: Mapped["Farmer"] = relationship("Farmer", back_populates="payments")
+
+
+class PaymentWebhookEvent(Base):
+    __tablename__ = "payment_webhook_events"
+    __table_args__ = (
+        Index("idx_payment_webhook_events_payment_id", "payment_id"),
+        Index("idx_payment_webhook_events_tx_ref", "tx_ref"),
+    )
+
+    event_id: Mapped[str] = mapped_column(String(100), primary_key=True)
+    payment_id: Mapped[int | None] = mapped_column(
+        ForeignKey("payments.payment_id", ondelete="SET NULL"), nullable=True
+    )
+    tx_ref: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    event_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    provider_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    payload: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    processed_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    payment: Mapped["Payment | None"] = relationship("Payment")
 
 
 class HubAllocationReceipt(Base):
@@ -220,11 +333,15 @@ class Notification(Base):
     recipient_type: Mapped[str] = mapped_column(String(50))
     recipient_phone: Mapped[str] = mapped_column(String(50))
     channel: Mapped[str] = mapped_column(String(50), default="SMS", server_default="SMS")
-    message: Mapped[str] = mapped_column(String(255))
+    message: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(
         String(10), default="QUEUED", server_default="QUEUED"
     )
     sent_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     related_trip_id: Mapped[int | None] = mapped_column(
         ForeignKey("trip_allocations.allocation_id", ondelete="SET NULL"), nullable=True
+    )
+    trip_allocation: Mapped["TripAllocation | None"] = relationship(
+        "TripAllocation",
+        back_populates="notifications",
     )

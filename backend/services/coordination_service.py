@@ -15,6 +15,7 @@ from backend.models.operations import (
     TripStatusEvent,
 )
 from backend.models.provider import ColdHub, ColdHubCapacityUpdate, Sector, Truck
+from backend.services.payment_service import PaymentService, PaymentServiceError
 from sms_gateway.notifier import send_notification
 
 
@@ -50,6 +51,7 @@ class CoordinationService:
             reservation_count, trip_ids = self.persist_reservations(
                 plan, result["reservations"]
             )
+            payment_count = self.create_payment_records_for_trips(trip_ids)
             exclusion_count = self.persist_exclusions(plan, result["exclusions"])
             notification_count = self.persist_notifications(
                 result["reservations"], trip_ids
@@ -57,6 +59,7 @@ class CoordinationService:
             plan.status = "COMPLETED"
             self.db.commit()
             self.db.refresh(plan)
+            payment_initialization = self.initialize_committed_payments_for_trips(trip_ids)
             dispatch_result = self.dispatch_plan_notifications(plan.plan_id)
 
             return {
@@ -64,6 +67,8 @@ class CoordinationService:
                 "sector_id": plan.sector_id,
                 "status": plan.status,
                 "trip_count": reservation_count,
+                "payment_count": payment_count,
+                **payment_initialization,
                 "exclusion_count": exclusion_count,
                 "notification_count": notification_count,
                 **dispatch_result,
@@ -128,6 +133,30 @@ class CoordinationService:
 
         return persisted_count, trip_ids
 
+    def create_payment_records_for_trips(self, trip_ids: dict[str, int]) -> int:
+        payment_service = PaymentService(self.db)
+        created = 0
+        for allocation_id in trip_ids.values():
+            payment_service.create_payment_record(allocation_id, auto_commit=False)
+            created += 1
+        return created
+
+    def initialize_committed_payments_for_trips(self, trip_ids: dict[str, int]) -> dict:
+        payment_service = PaymentService(self.db)
+        initialized = 0
+        failed = 0
+        for allocation_id in trip_ids.values():
+            try:
+                payment_service.initialize_payment(allocation_id)
+                initialized += 1
+            except PaymentServiceError:
+                self.db.rollback()
+                failed += 1
+        return {
+            "payment_initialized_count": initialized,
+            "payment_initialization_failed_count": failed,
+        }
+
     def persist_notifications(
         self, reservations: dict, trip_ids: dict[str, int]
     ) -> int:
@@ -168,7 +197,7 @@ class CoordinationService:
                 send_notification(
                     notification.recipient_phone,
                     notification.message,
-                    notification_type="TRIP_RESERVED",
+                    notification_type=self.notification_type_for(notification),
                 )
                 notification.status = "SENT"
                 notification.sent_time = datetime.now()
@@ -181,6 +210,20 @@ class CoordinationService:
             "sent_notification_count": sent_count,
             "failed_notification_count": failed_count,
         }
+
+    def notification_type_for(self, notification: Notification) -> str:
+        message = notification.message or ""
+        if message.startswith("FreshLink payment initialized"):
+            return "PAYMENT_INITIALIZED"
+        if "payment is pending" in message:
+            return "PAYMENT_PENDING"
+        if "payment has been confirmed" in message:
+            return "PAYMENT_SUCCESSFUL"
+        if "payment failed" in message:
+            return "PAYMENT_FAILED"
+        if "refund" in message:
+            return "PAYMENT_REFUNDED"
+        return "TRIP_RESERVED"
 
     def persist_forecast_allocations(
         self, trip: TripAllocation, forecast_allocations: list[dict]

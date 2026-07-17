@@ -13,6 +13,7 @@ from backend import models
 from backend.routes.accounts import dashboard_router, router as accounts_router
 from backend.routes.admin import router as admin_router
 from backend.routes.hub import router as hub_router
+from backend.routes.payments import router as payments_router
 from backend.routes.transporter import router as transporter_router
 
 
@@ -45,6 +46,7 @@ def create_app(create_database=True, start_scheduler=True):
     api.include_router(accounts_router)
     api.include_router(admin_router)
     api.include_router(hub_router)
+    api.include_router(payments_router)
     api.include_router(transporter_router)
     api.include_router(dashboard_router)
 

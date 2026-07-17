@@ -6,6 +6,8 @@ from backend.models.operations import (
     HarvestForecast,
     HubAllocationReceipt,
     Notification,
+    Payment,
+    PaymentWebhookEvent,
     TripAllocation,
     TripStatusEvent,
 )
@@ -35,6 +37,8 @@ __all__ = [
     "HarvestForecast",
     "HubAllocationReceipt",
     "Notification",
+    "Payment",
+    "PaymentWebhookEvent",
     "Sector",
     "Transporter",
     "TripAllocation",
