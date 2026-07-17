@@ -40,6 +40,19 @@ CREATE INDEX IF NOT EXISTS idx_excl_forecast_id ON excluded_trips (forecast_id);
 CREATE INDEX IF NOT EXISTS idx_excl_plan_id     ON excluded_trips (plan_id);
 CREATE INDEX IF NOT EXISTS idx_excl_reason      ON excluded_trips (reason_code);   
 
+-- payments
+CREATE INDEX IF NOT EXISTS idx_payments_allocation_id ON payments (allocation_id);
+CREATE INDEX IF NOT EXISTS idx_payments_farmer_id     ON payments (farmer_id);
+CREATE INDEX IF NOT EXISTS idx_payments_status        ON payments (status);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_tx_ref ON payments (tx_ref);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_payment_reference ON payments (payment_reference);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_transaction_id ON payments (transaction_id);
+
+CREATE INDEX IF NOT EXISTS idx_payment_webhook_events_payment_id
+    ON payment_webhook_events (payment_id);
+CREATE INDEX IF NOT EXISTS idx_payment_webhook_events_tx_ref
+    ON payment_webhook_events (tx_ref);
+
 -- notifications
 CREATE INDEX IF NOT EXISTS idx_notif_trip_id ON notifications (related_trip_id);
 CREATE INDEX IF NOT EXISTS idx_notif_phone   ON notifications (recipient_phone);
