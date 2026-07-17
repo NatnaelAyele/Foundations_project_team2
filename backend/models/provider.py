@@ -11,7 +11,7 @@ from sqlalchemy import (
     func,
     true,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database.connection import Base
 
@@ -61,6 +61,10 @@ class Farmer(Base):
     phone: Mapped[str] = mapped_column(String(10))
     cell: Mapped[str | None] = mapped_column(String(50), nullable=True)
     village: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    payments: Mapped[list["Payment"]] = relationship(
+        "Payment",
+        back_populates="farmer",
+    )
 
 
 class FarmerAdminProfile(Base):

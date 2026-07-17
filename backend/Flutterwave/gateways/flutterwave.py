@@ -26,6 +26,7 @@ class FlutterwaveGateway(PaymentGateway):
         secret_key: str | None = None,
         webhook_secret: str | None = None,
         base_url: str | None = None,
+        api_base_url: str | None = None,
         app_base_url: str | None = None,
         timeout_seconds: float = 20.0,
     ):
@@ -33,7 +34,7 @@ class FlutterwaveGateway(PaymentGateway):
         self.secret_key = secret_key or Config.FLUTTERWAVE_SECRET_KEY
         self.webhook_secret = webhook_secret or Config.FLUTTERWAVE_WEBHOOK_SECRET
         self.base_url = (base_url or Config.FLUTTERWAVE_BASE_URL).rstrip("/")
-        self.app_base_url = (app_base_url or Config.APP_BASE_URL).rstrip("/")
+        self.api_base_url = (api_base_url or app_base_url or Config.API_BASE_URL).rstrip("/")
         self.timeout_seconds = timeout_seconds
 
     def initialize_payment(self, payment):
@@ -132,7 +133,7 @@ class FlutterwaveGateway(PaymentGateway):
         return hmac.compare_digest(expected, signature)
 
     def callback_url(self):
-        return f"{self.app_base_url}/api/payments/flutterwave/callback"
+        return f"{self.api_base_url}/api/payments/flutterwave/callback"
 
     def default_email(self, payment):
         farmer_id = payment.get("farmer_id") or "unknown"

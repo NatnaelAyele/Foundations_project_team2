@@ -99,7 +99,7 @@ def flutterwave_callback(
     except PaymentServiceError:
         result = "failed"
     return RedirectResponse(
-        f"{Config.APP_BASE_URL}/landing_page/index.html?payment_status={result}"
+        f"{Config.FRONTEND_BASE_URL}/landing_page/index.html?payment_status={result}"
     )
 
 

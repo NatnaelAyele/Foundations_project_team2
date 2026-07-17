@@ -1,3 +1,5 @@
+import hashlib
+import logging
 from datetime import datetime
 from decimal import Decimal
 
@@ -19,6 +21,9 @@ from backend.models.operations import (
     TripAllocation,
 )
 from backend.models.provider import ColdHub, ColdHubAccount, Farmer, Transporter, Truck, User
+
+
+logger = logging.getLogger(__name__)
 
 
 class PaymentServiceError(RuntimeError):
@@ -111,26 +116,29 @@ class PaymentService:
             allocation = self.get_allocation_or_raise(allocation_id)
             farmer = self.get_farmer_for_payment(allocation_id, farmer_id)
             existing = self.get_existing_payment(allocation_id, farmer.farmer_id)
+            payment = None
             if existing:
                 if existing.status == PaymentStatus.PAID:
                     raise PaymentConflictError("Payment is already completed")
-                return self.payment_to_dict(existing)
+                if (
+                    existing.status in {PaymentStatus.INITIALIZED, PaymentStatus.PENDING}
+                    and existing.payment_link
+                ):
+                    return self.payment_to_dict(existing)
+                if existing.status == PaymentStatus.CREATED and not existing.payment_link:
+                    payment = existing
 
-            reservation = self.build_reservation(allocation, farmer)
-            payment_data = self.payment_manager.create_payment(reservation)
-            payment = self.persist_payment(payment_data, allocation, farmer)
+            if payment is None:
+                payment = self.create_payment_record(
+                    allocation_id,
+                    farmer.farmer_id,
+                    auto_commit=False,
+                    allocation=allocation,
+                    farmer=farmer,
+                )
             self.db.flush()
 
-            gateway_response = self.gateway.initialize_payment(
-                self.payment_to_manager_dict(payment)
-            )
-            payment.payment_link = gateway_response["payment_link"]
-            payment.tx_ref = gateway_response.get("tx_ref") or payment.tx_ref
-            payment.flutterwave_ref = payment.tx_ref
-            payment.provider_status = gateway_response.get("provider_status")
-            payment.provider_response = gateway_response.get("raw_response")
-            self.apply_status(payment, PaymentStatus.INITIALIZED)
-            self.create_payment_notification(payment, "PAYMENT_INITIALIZED")
+            self.initialize_existing_payment_record(payment)
             self.db.flush()
 
             if auto_commit:
@@ -154,6 +162,61 @@ class PaymentService:
         auto_commit: bool = True,
     ) -> dict:
         return self.initialize_payment(allocation_id, farmer_id, auto_commit)
+
+    def create_payment_record(
+        self,
+        allocation_id: int,
+        farmer_id: int | None = None,
+        auto_commit: bool = True,
+        allocation: TripAllocation | None = None,
+        farmer: Farmer | None = None,
+    ) -> Payment:
+        allocation = allocation or self.get_allocation_or_raise(allocation_id)
+        farmer = farmer or self.get_farmer_for_payment(allocation_id, farmer_id)
+        existing = self.get_existing_payment(allocation_id, farmer.farmer_id)
+        if existing and existing.status in {
+            PaymentStatus.CREATED,
+            PaymentStatus.INITIALIZED,
+            PaymentStatus.PENDING,
+            PaymentStatus.PAID,
+        }:
+            return existing
+
+        reservation = self.build_reservation(allocation, farmer)
+        payment_data = self.payment_manager.create_payment(reservation)
+        payment = self.persist_payment(payment_data, allocation, farmer)
+        if auto_commit:
+            self.db.commit()
+            self.db.refresh(payment)
+        return payment
+
+    def initialize_existing_payment_record(
+        self,
+        payment: Payment,
+        auto_commit: bool = False,
+    ) -> dict:
+        if payment.status == PaymentStatus.PAID:
+            raise PaymentConflictError("Payment is already completed")
+        if payment.status in {PaymentStatus.INITIALIZED, PaymentStatus.PENDING} and payment.payment_link:
+            return self.payment_to_dict(payment)
+        if payment.status not in {PaymentStatus.CREATED, PaymentStatus.INITIALIZED, PaymentStatus.PENDING}:
+            raise PaymentConflictError("Create a new payment before reinitializing this status")
+
+        gateway_response = self.gateway.initialize_payment(self.payment_to_manager_dict(payment))
+        payment.payment_link = gateway_response["payment_link"]
+        payment.tx_ref = gateway_response.get("tx_ref") or payment.tx_ref
+        payment.flutterwave_ref = payment.tx_ref
+        payment.provider_status = gateway_response.get("provider_status")
+        payment.provider_response = gateway_response.get("raw_response")
+        if payment.status == PaymentStatus.CREATED:
+            self.apply_status(payment, PaymentStatus.INITIALIZED)
+        else:
+            self.create_payment_notification(payment, "PAYMENT_INITIALIZED")
+        self.db.flush()
+        if auto_commit:
+            self.db.commit()
+            self.db.refresh(payment)
+        return self.payment_to_dict(payment)
 
     def verify_payment(
         self,
@@ -202,7 +265,6 @@ class PaymentService:
             payment.provider_status = response.get("provider_status")
             payment.provider_response = response.get("raw_response")
             self.apply_status(payment, PaymentStatus.REFUNDED)
-            self.create_payment_notification(payment, "REFUND_COMPLETED")
             if auto_commit:
                 self.db.commit()
                 self.db.refresh(payment)
@@ -224,14 +286,18 @@ class PaymentService:
             data = payload.get("data") or {}
             tx_ref = data.get("tx_ref")
             transaction_id = data.get("id")
-            event_id = (
-                payload.get("webhook_id")
-                or payload.get("id")
-                or data.get("id")
-                or f"{tx_ref}:{payload.get('type')}:{data.get('status')}"
+            event_id = self.build_webhook_event_id(payload, data, raw_body)
+
+            existing = self.db.get(PaymentWebhookEvent, str(event_id))
+            if existing is not None:
+                return {"ok": True, "duplicate": True, "event_id": str(event_id)}
+
+            payment = self.get_payment_for_verification(None, tx_ref)
+            verification_response = self.gateway.verify_payment(
+                payment.tx_ref,
+                transaction_id=str(transaction_id) if transaction_id is not None else None,
             )
-            if event_id is None:
-                raise PaymentServiceError("Webhook event ID is missing")
+            self.db.rollback()
 
             existing = self.db.get(PaymentWebhookEvent, str(event_id))
             if existing is not None:
@@ -248,16 +314,15 @@ class PaymentService:
             )
             self.db.add(event)
             self.db.flush()
-            self.verify_payment(
-                payment_id=payment.payment_id,
-                transaction_id=str(transaction_id) if transaction_id is not None else None,
-                auto_commit=False,
-            )
+            self.apply_verified_response(payment, verification_response)
             self.db.commit()
             return {"ok": True, "duplicate": False, "event_id": str(event_id)}
-        except IntegrityError:
+        except IntegrityError as error:
             self.db.rollback()
-            return {"ok": True, "duplicate": True}
+            if self.is_duplicate_webhook_event_error(error, event_id if "event_id" in locals() else None):
+                return {"ok": True, "duplicate": True, "event_id": str(event_id)}
+            logger.exception("Unexpected database integrity error while processing payment webhook")
+            raise
         except Exception:
             self.db.rollback()
             raise
@@ -272,10 +337,6 @@ class PaymentService:
             if not tx_ref:
                 raise PaymentServiceError("Invalid callback: tx_ref is required")
             payment = self.get_payment_for_verification(None, tx_ref)
-            if provider_status in {"cancelled", "canceled"}:
-                self.apply_status(payment, PaymentStatus.CANCELLED)
-                self.db.commit()
-                return self.payment_to_dict(payment)
             return self.verify_payment(
                 payment_id=payment.payment_id,
                 transaction_id=transaction_id,
@@ -288,7 +349,7 @@ class PaymentService:
         payments = self.db.scalars(
             select(Payment).where(Payment.allocation_id == allocation_id)
         ).all()
-        if payments and not any(payment.status == PaymentStatus.PAID for payment in payments):
+        if not payments or not any(payment.status == PaymentStatus.PAID for payment in payments):
             raise PaymentPermissionError(
                 "Payment must be completed before this trip can be started"
             )
@@ -371,7 +432,9 @@ class PaymentService:
                 raise PaymentConflictError("Flutterwave transaction currency mismatch")
             if response_amount < expected_amount:
                 raise PaymentConflictError("Flutterwave transaction amount is too low")
-        payment.transaction_id = str(response.get("transaction_id") or payment.transaction_id)
+        transaction_id = response.get("transaction_id")
+        if transaction_id is not None and str(transaction_id).strip():
+            payment.transaction_id = str(transaction_id)
         payment.flutterwave_ref = response.get("flutterwave_ref") or payment.flutterwave_ref
         payment.provider_status = provider_status
         payment.provider_response = response.get("raw_response")
@@ -401,6 +464,7 @@ class PaymentService:
             self.create_payment_notification(payment, "PAYMENT_FAILED")
         elif next_status == PaymentStatus.REFUNDED:
             payment.refunded_at = now
+            self.create_payment_notification(payment, "PAYMENT_REFUNDED")
 
     def get_allocation_or_raise(self, allocation_id: int) -> TripAllocation:
         allocation = self.db.get(TripAllocation, allocation_id)
@@ -541,17 +605,61 @@ class PaymentService:
             "PAYMENT_PENDING": "FreshLink payment is pending confirmation.",
             "PAYMENT_SUCCESSFUL": "Your FreshLink payment has been confirmed successfully.",
             "PAYMENT_FAILED": "Your FreshLink payment failed. Please retry or contact support.",
-            "REFUND_COMPLETED": "Your FreshLink refund has been initiated.",
+            "PAYMENT_REFUNDED": "Your FreshLink refund has been initiated.",
         }
         self.db.add(
             Notification(
                 recipient_type="FARMER",
                 recipient_phone=farmer.phone,
                 channel="SMS",
-                message=messages[event][:255],
+                message=messages[event],
                 status="QUEUED",
                 related_trip_id=payment.allocation_id,
             )
+        )
+
+    def build_webhook_event_id(self, payload: dict, data: dict, raw_body: bytes | None = None) -> str:
+        provider_event_id = (
+            payload.get("webhook_id")
+            or payload.get("event_id")
+            or payload.get("id")
+            or data.get("event_id")
+        )
+        if provider_event_id:
+            return str(provider_event_id)
+
+        composite = "|".join(
+            str(value or "")
+            for value in (
+                data.get("id"),
+                data.get("tx_ref"),
+                payload.get("type") or payload.get("event"),
+                data.get("status"),
+                payload.get("created_at")
+                or data.get("created_at")
+                or hashlib.sha256(raw_body or repr(payload).encode("utf-8")).hexdigest(),
+            )
+        )
+        if not composite.strip("|"):
+            raise PaymentServiceError("Webhook event ID is missing")
+        return "fw-" + hashlib.sha256(composite.encode("utf-8")).hexdigest()
+
+    def is_duplicate_webhook_event_error(
+        self,
+        error: IntegrityError,
+        event_id: str | None,
+    ) -> bool:
+        if not event_id:
+            return False
+        original = getattr(error, "orig", None)
+        constraint = getattr(getattr(original, "diag", None), "constraint_name", None)
+        if constraint in {"payment_webhook_events_pkey", "payment_webhook_events_event_id_key"}:
+            return True
+        message = str(original or error).lower()
+        return (
+            "payment_webhook_events" in message
+            and "event_id" in message
+            and ("duplicate" in message or "unique" in message)
         )
 
     def ensure_user_can_view_payment(self, user: User | None, payment: Payment) -> None:
