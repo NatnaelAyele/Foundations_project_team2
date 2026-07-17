@@ -23,3 +23,7 @@ class PaymentGateway(ABC):
     @abstractmethod
     def refund_payment(self, tx_ref):
         """Request a refund from a payment provider."""
+
+    @abstractmethod
+    def verify_webhook_signature(self, raw_body, signature):
+        """Check whether a webhook signature came from the payment provider."""
