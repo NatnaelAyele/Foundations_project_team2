@@ -1,3 +1,4 @@
+# ussd_gateway/menus.py
 def language_menu():
     """
     First screen where the farmer chooses language.
@@ -7,6 +8,7 @@ def language_menu():
         "1. English\n"
         "2. Kinyarwanda"
     )
+
 
 def main_menu(farmer, language):
     """
@@ -102,34 +104,69 @@ def confirm_harvest_message(session):
         "0. Exit"
     )
 
+
 def submitted_message(language):
     """
-    USSD message after successful harvest submission.
+    Final USSD screen after a harvest report is submitted.
+
+    Tells the farmer clearly that the work is done and an SMS is coming,
+    so even if Africa's Talking shows a timeout afterwards, the farmer
+    already knows the submission succeeded.
     """
     if language == "rw":
-        return "Raporo y'umusaruro yoherejwe neza.\nUrahita ubona ubutumwa bwa SMS."
+        return (
+            "BYAKUNZE\n"
+            "Raporo y'umusaruro yoherejwe neza.\n\n"
+            "Tegereza ubutumwa bwa SMS bwo kwemeza.\n\n"
+            "Kanda buto iyo ari yo yose kugira ngo usohoke."
+        )
 
-    return "Harvest report submitted successfully.\nYou will receive an SMS confirmation."
+    return (
+        "SUBMITTED\n"
+        "Your harvest report has been submitted.\n\n"
+        "Please wait for an SMS confirmation.\n\n"
+        "Press any key to exit."
+    )
 
 
 def updated_message(language):
     """
-    USSD message after successful harvest update.
+    Final USSD screen after a harvest report is updated.
     """
     if language == "rw":
-        return "Raporo y'umusaruro yavuguruwe neza.\nUrahita ubona ubutumwa bwa SMS."
+        return (
+            "BYAVUGURUWE\n"
+            "Raporo y'umusaruro yavuguruwe neza.\n\n"
+            "Tegereza ubutumwa bwa SMS bwo kwemeza.\n\n"
+            "Kanda buto iyo ari yo yose kugira ngo usohoke."
+        )
 
-    return "Harvest report updated successfully.\nYou will receive an SMS confirmation."
+    return (
+        "UPDATED\n"
+        "Your harvest report has been updated.\n\n"
+        "Please wait for an SMS confirmation.\n\n"
+        "Press any key to exit."
+    )
 
 
 def cancelled_message(language):
     """
-    USSD message after successful harvest cancellation.
+    Final USSD screen after a harvest report is cancelled.
     """
     if language == "rw":
-        return "Raporo y'umusaruro yasibwe neza.\nUrahita ubona ubutumwa bwa SMS."
+        return (
+            "BYASIBWE\n"
+            "Raporo y'umusaruro yasibwe neza.\n\n"
+            "Tegereza ubutumwa bwa SMS bwo kwemeza.\n\n"
+            "Kanda buto iyo ari yo yose kugira ngo usohoke."
+        )
 
-    return "Harvest report cancelled successfully.\nYou will receive an SMS confirmation."
+    return (
+        "CANCELLED\n"
+        "Your harvest report has been cancelled.\n\n"
+        "Please wait for an SMS confirmation.\n\n"
+        "Press any key to exit."
+    )
 
 
 def help_menu(language):

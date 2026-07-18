@@ -1,24 +1,14 @@
-# Sprint 1: this file simulates registered farmers.
-# Future: this file will connect to the farmers table in PostgreSQL.
+# ussd_gateway/farmers.py
 
-REGISTERED_FARMERS = {
-    "+250788000001": {
-        "farmer_code": "001",
-        "name": "Jean",
-        "preferred_language": "en"
-    },
-    "+250788000002": {
-        "farmer_code": "002",
-        "name": "Aline",
-        "preferred_language": "rw"
-    }
-}
+from backend.database import fetch_one
 
 
 def normalize_phone(phone_number):
     """
-    Converts phone numbers into one standard format.
-    Eg: 0788000001 becomes +250788000001
+    Converts local Rwanda phone numbers into international format.
+
+    Example:
+    0788000001 becomes +250788000001
     """
     phone_number = phone_number.strip().replace(" ", "")
 
@@ -30,9 +20,20 @@ def normalize_phone(phone_number):
 
 def get_farmer_by_phone(phone_number):
     """
-    Finds a registered farmer using their phone number.
-    This currently looks in the registered farmer list, 
-    But in the future will be replaced with sql querries
+    Finds a registered farmer by phone number.
+
+    This is the access check for USSD:
+    - registered phone number = menu opens
+    - unregistered phone number = access denied
     """
     phone_number = normalize_phone(phone_number)
-    return REGISTERED_FARMERS.get(phone_number)
+
+    return fetch_one(
+        """
+        SELECT farmer_id, farmer_code, name, phone, preferred_language
+        FROM farmers
+        WHERE phone = %s
+          AND is_active = TRUE
+        """,
+        (phone_number,)
+    )
