@@ -1,12 +1,8 @@
-# ussd_gateway/forecast_repository.py
-
 from backend.database import fetch_one, execute_query
-
 
 def save_forecast(farmer_id, quantity_kg, harvest_date, harvest_time):
     """
     Saves a new harvest forecast from the USSD menu into the database.
-
     PostgreSQL has no lastrowid, so the INSERT uses RETURNING to hand
     back the new forecast_id.
     """
@@ -46,7 +42,6 @@ def get_forecast_by_id(forecast_id):
 def get_latest_forecast(farmer_id):
     """
     Gets the latest harvest forecast for one farmer.
-    Used for checking status.
     """
     return fetch_one(
         """
@@ -64,10 +59,7 @@ def get_latest_forecast(farmer_id):
 def get_latest_pending_forecast(farmer_id):
     """
     Gets the latest pending forecast.
-
     Only pending forecasts can be updated or cancelled by the farmer.
-    Allocated forecasts should be handled by admin because a trip may
-    already be planned.
     """
     return fetch_one(
         """
@@ -85,10 +77,7 @@ def get_latest_pending_forecast(farmer_id):
 
 def update_forecast(forecast_id, quantity_kg, harvest_date, harvest_time):
     """
-    Updates a pending harvest forecast.
-
-    This helps when a farmer expected 300kg but later realizes the real
-    harvest will be higher or lower.
+    Updates a pending harvest forecast
     """
     execute_query(
         """
@@ -109,10 +98,6 @@ def update_forecast(forecast_id, quantity_kg, harvest_date, harvest_time):
 def cancel_forecast(forecast_id):
     """
     Cancels a pending harvest forecast.
-
-    Only pending forecasts can be cancelled. If the engine already
-    allocated it to a trip, the status is no longer pending and this
-    update matches nothing, which is the safe behaviour.
     """
     execute_query(
         """

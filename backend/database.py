@@ -1,5 +1,4 @@
 import os
-
 import psycopg2
 from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
@@ -7,21 +6,21 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# One shared connection pool for the whole app.
-#
-# Opening a new connection per query is what made the USSD flow time out:
-# every connect costs a TCP + TLS handshake. A pool opens connections once
-# and reuses them, so each query costs milliseconds.
+""" Create one shared connection pool for the whole app to prevent each 
+querry from opening a new connection which leads to session timeout on 
+the ussd simulator
+"""
+
 _pool = None
 
 
 def _build_pool():
     """
-    Creates the connection pool once, on first use.
+    Creates the connection pool once, on the first querry.
     """
     return pool.ThreadedConnectionPool(
-        minconn=1,
-        maxconn=int(os.getenv("DB_POOL_SIZE", "5")),
+        minconn=1, # minimum number of database connections the pool can make
+        maxconn=int(os.getenv("DB_POOL_SIZE", "5")), # max number of databse connections
         host=os.getenv("DB_HOST", "127.0.0.1"),
         port=int(os.getenv("DB_PORT", "5432")),
         user=os.getenv("DB_USER", "postgres"),
@@ -69,11 +68,9 @@ def fetch_all(query, params=None):
 def execute_query(query, params=None):
     """
     Runs INSERT, UPDATE, or DELETE.
-
-    PostgreSQL has no cursor.lastrowid. To get a new id back, add
-    RETURNING to the INSERT and this returns it automatically.
-
-        execute_query("INSERT INTO t (a) VALUES (%s) RETURNING t_id", (1,))
+    Because PostgreSQL has no coursor.lastrowid, we use RETURNING to get
+    the id of the new row automatically
+   
     """
     conn = _get_pool().getconn()
     try:
@@ -98,7 +95,7 @@ def execute_query(query, params=None):
 def warm_up_pool():
     """
     Opens the pool at startup so the first farmer does not pay the
-    connection cost during their USSD session.
+    connection cost (seconds) during their USSD session.
     """
     try:
         fetch_one("SELECT 1 AS ok")

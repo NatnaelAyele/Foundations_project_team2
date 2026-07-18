@@ -1,18 +1,18 @@
-# backend/main.py
-
 import concurrent.futures
 import time
 
+# Importing fastapi frameworks
 from fastapi import FastAPI, Form
 from fastapi.responses import PlainTextResponse
 
+# importing functions from different files
 from backend.database import warm_up_pool, fetch_one
 from ussd_gateway.ussd_app import handle_ussd
 
 app = FastAPI(title="FreshLink USSD API")
 
-# Africa's Talking drops the session if we take too long, so we cap
-# how long we are willing to wait for our own logic.
+# Africa's talking ends a session if it goes beyond 10 seconds, so we 
+# set out ussd timeout seconds to 10 as well
 USSD_TIMEOUT_SECONDS = 10
 
 _executor = concurrent.futures.ThreadPoolExecutor(max_workers=8)

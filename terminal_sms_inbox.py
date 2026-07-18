@@ -1,13 +1,4 @@
-# terminal_sms_inbox.py
-#
 # Farmer SMS inbox viewer.
-#
-# The Africa's Talking simulator inbox only shows messages your app
-# actually sent through their API. It cannot read your database.
-# This tool reads the notifications table directly, so you can prove
-# every message was recorded, even when SMS sending is switched off.
-#
-# Run:  python terminal_sms_inbox.py
 
 from backend.database import fetch_one, fetch_all
 from ussd_gateway.farmers import normalize_phone
@@ -32,9 +23,6 @@ def get_farmer_by_phone_any_status(phone_number):
 def get_inbox(farmer_id, limit=None):
     """
     Reads the farmer's notifications, newest first.
-
-    This is an inbox only. Farmers never send SMS into the system,
-    so there is no outgoing folder.
     """
     if limit:
         return fetch_all(
@@ -65,7 +53,7 @@ def print_message(index, notification, highlight=False):
     """
     Prints one SMS the way a phone inbox would show it.
     """
-    marker = "  << LATEST" if highlight else ""
+    marker = "  LATEST" if highlight else ""
 
     print(f"\n[{index}] {notification['notification_type']}{marker}")
     print(f"    Sent:   {notification['sent_time']}")

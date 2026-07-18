@@ -30,9 +30,6 @@ def get_sms_client():
 
     username = os.getenv("AT_USERNAME", "sandbox")
     api_key = os.getenv("AT_API_KEY")
-
-    print(f"--- DEBUG AT_USERNAME: {username} ---")
-    print(f"--- DEBUG AT_API_KEY: {api_key} ---")
     
     if not api_key:
         return None
@@ -101,17 +98,12 @@ def update_notification_status(notification_id, status):
 
 def process_notification_in_background(farmer_id, phone_number, message, notification_type, language):
     """
-    Does ALL the slow work off the USSD request thread:
-
-    1. saves the notification row
-    2. sends the SMS through Africa's Talking
-    3. updates the delivery status
-
-    Nothing here can delay or break the USSD screen the farmer sees.
+    Saves the data in the notification row, send the SMS though Africa's 
+    Talking, and updates the delivery status in the thread background
     """
     notification_id = None
 
-    # 1. save to database
+    # Action 1: Save the notification in the database
     try:
         notification_id = save_notification(
             farmer_id, phone_number, message, notification_type, language
@@ -123,7 +115,7 @@ def process_notification_in_background(farmer_id, phone_number, message, notific
         print("=============================================\n")
         return
 
-    # 2. send SMS
+    # Action 2: Send the SMS
     sms_enabled = os.getenv("AT_SMS_ENABLED", "false").lower() == "true"
 
     if not sms_enabled:
@@ -148,12 +140,9 @@ def process_notification_in_background(farmer_id, phone_number, message, notific
 
 def send_notification(farmer_id, phone_number, message, notification_type, language="en"):
     """
-    Queues a notification and returns immediately.
-
-    IMPORTANT: this does no database work on the calling thread.
-    The USSD response must go back to Africa's Talking within a few
-    seconds or the farmer sees a network error, so everything slow
-    happens in a background thread.
+    Queues a notification and returns immediately to Africa's Talking so 
+    that the notifications can later be saved in the backgorund to 
+    prevent the farmer from waiting since sessions are timed
     """
     Thread(
         target=process_notification_in_background,

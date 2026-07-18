@@ -1,4 +1,3 @@
-# ussd_gateway/menus.py
 def language_menu():
     """
     First screen where the farmer chooses language.
@@ -118,14 +117,12 @@ def submitted_message(language):
             "BYAKUNZE\n"
             "Raporo y'umusaruro yoherejwe neza.\n\n"
             "Tegereza ubutumwa bwa SMS bwo kwemeza.\n\n"
-            "Kanda buto iyo ari yo yose kugira ngo usohoke."
         )
 
     return (
         "SUBMITTED\n"
         "Your harvest report has been submitted.\n\n"
         "Please wait for an SMS confirmation.\n\n"
-        "Press any key to exit."
     )
 
 
@@ -138,14 +135,12 @@ def updated_message(language):
             "BYAVUGURUWE\n"
             "Raporo y'umusaruro yavuguruwe neza.\n\n"
             "Tegereza ubutumwa bwa SMS bwo kwemeza.\n\n"
-            "Kanda buto iyo ari yo yose kugira ngo usohoke."
         )
 
     return (
         "UPDATED\n"
         "Your harvest report has been updated.\n\n"
         "Please wait for an SMS confirmation.\n\n"
-        "Press any key to exit."
     )
 
 
@@ -158,14 +153,12 @@ def cancelled_message(language):
             "BYASIBWE\n"
             "Raporo y'umusaruro yasibwe neza.\n\n"
             "Tegereza ubutumwa bwa SMS bwo kwemeza.\n\n"
-            "Kanda buto iyo ari yo yose kugira ngo usohoke."
         )
 
     return (
         "CANCELLED\n"
         "Your harvest report has been cancelled.\n\n"
         "Please wait for an SMS confirmation.\n\n"
-        "Press any key to exit."
     )
 
 

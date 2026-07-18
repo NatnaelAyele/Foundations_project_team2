@@ -1,5 +1,3 @@
-# ussd_gateway/notifications.py
-
 from sms_gateway.notifier import send_notification
 from sms_gateway.templates import (
     harvest_recorded_message,

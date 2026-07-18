@@ -1,5 +1,3 @@
-# ussd_gateway/ussd_app.py
-
 from datetime import datetime
 
 from sms_gateway.notifier import get_recent_notifications
@@ -11,7 +9,6 @@ from ussd_gateway.forecast_repository import (
     update_forecast,
     cancel_forecast
 )
-from ussd_gateway.session_store import SESSIONS
 from ussd_gateway.menus import (
     language_menu,
     main_menu,
@@ -33,7 +30,7 @@ from ussd_gateway.notifications import (
     notify_harvest_updated,
     notify_harvest_cancelled
 )
-
+from ussd_gateway.session_store import SESSIONS
 
 def continue_session(message):
     """
@@ -54,9 +51,7 @@ def end_session(session_key, message):
 
 def handle_ussd(phone_number, message, session_id=None):
     """
-    Main USSD controller.
-
-    Terminal demo and FastAPI both call this same function.
+    Main USSD controller used by both the terminal and the FastAPI
     FastAPI passes session_id from Africa's Talking.
     """
     phone_number = normalize_phone(phone_number)
