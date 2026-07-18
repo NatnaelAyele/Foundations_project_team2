@@ -284,9 +284,26 @@ class PaymentService:
                 raise InvalidWebhookSignatureError("Invalid Flutterwave webhook signature")
 
             data = payload.get("data") or {}
-            tx_ref = data.get("tx_ref")
-            transaction_id = data.get("id")
-            event_id = self.build_webhook_event_id(payload, data, raw_body)
+            tx_ref = data.get("tx_ref") or data.get("txRef") or payload.get("tx_ref") or payload.get("txRef")
+            transaction_id = data.get("id") or data.get("transaction_id") or payload.get("id") or payload.get("transaction_id")
+            event_type = (
+                payload.get("type")
+                or payload.get("event")
+                or payload.get("event_type")
+                or data.get("type")
+                or data.get("event")
+                or data.get("event_type")
+            )
+            provider_status = data.get("status") or payload.get("status")
+            event_id = self.build_webhook_event_id(
+                payload,
+                data,
+                raw_body,
+                tx_ref=tx_ref,
+                transaction_id=transaction_id,
+                event_type=event_type,
+                provider_status=provider_status,
+            )
 
             existing = self.db.get(PaymentWebhookEvent, str(event_id))
             if existing is not None:
@@ -308,8 +325,8 @@ class PaymentService:
                 event_id=str(event_id),
                 payment_id=payment.payment_id,
                 tx_ref=tx_ref,
-                event_type=payload.get("type"),
-                provider_status=data.get("status"),
+                event_type=event_type,
+                provider_status=provider_status,
                 payload=payload,
             )
             self.db.add(event)
@@ -453,7 +470,9 @@ class PaymentService:
             )
         payment.status = next_status
         now = datetime.now()
-        if next_status == PaymentStatus.PENDING:
+        if next_status == PaymentStatus.INITIALIZED:
+            self.create_payment_notification(payment, "PAYMENT_INITIALIZED")
+        elif next_status == PaymentStatus.PENDING:
             self.create_payment_notification(payment, "PAYMENT_PENDING")
         elif next_status == PaymentStatus.PAID:
             payment.paid_at = now
@@ -618,11 +637,20 @@ class PaymentService:
             )
         )
 
-    def build_webhook_event_id(self, payload: dict, data: dict, raw_body: bytes | None = None) -> str:
+    def build_webhook_event_id(
+        self,
+        payload: dict,
+        data: dict,
+        raw_body: bytes | None = None,
+        tx_ref: str | None = None,
+        transaction_id: str | int | None = None,
+        event_type: str | None = None,
+        provider_status: str | None = None,
+    ) -> str:
         provider_event_id = (
             payload.get("webhook_id")
             or payload.get("event_id")
-            or payload.get("id")
+            or data.get("webhook_id")
             or data.get("event_id")
         )
         if provider_event_id:
@@ -631,10 +659,10 @@ class PaymentService:
         composite = "|".join(
             str(value or "")
             for value in (
-                data.get("id"),
-                data.get("tx_ref"),
-                payload.get("type") or payload.get("event"),
-                data.get("status"),
+                transaction_id or data.get("id") or data.get("transaction_id"),
+                tx_ref or data.get("tx_ref") or data.get("txRef") or payload.get("tx_ref") or payload.get("txRef"),
+                event_type or payload.get("type") or payload.get("event") or payload.get("event_type"),
+                provider_status or data.get("status") or payload.get("status"),
                 payload.get("created_at")
                 or data.get("created_at")
                 or hashlib.sha256(raw_body or repr(payload).encode("utf-8")).hexdigest(),
