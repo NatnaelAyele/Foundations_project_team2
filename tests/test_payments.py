@@ -1,6 +1,3 @@
-import base64
-import hashlib
-import hmac
 from datetime import datetime
 
 import pytest
@@ -20,6 +17,7 @@ from backend.models.operations import (
     TripAllocation,
 )
 from backend.models.provider import ColdHub, Farmer, Sector, Transporter, Truck, User
+from backend.routes import payments as payment_routes
 from backend.services.payment_service import (
     PaymentPermissionError,
     PaymentService,
@@ -27,17 +25,12 @@ from backend.services.payment_service import (
 )
 
 
-def signed_body(body, secret):
-    digest = hmac.new(secret.encode("utf-8"), body, hashlib.sha256).digest()
-    return base64.b64encode(digest).decode("utf-8")
-
-
 def test_gateway_accepts_valid_webhook_signature():
     body = b'{"event":"charge.completed"}'
     secret = "freshlink-secret"
     gateway = FlutterwaveGateway(secret_key="sk", webhook_secret=secret)
 
-    assert gateway.verify_webhook_signature(body, signed_body(body, secret))
+    assert gateway.verify_webhook_signature(body, secret)
 
 
 def test_gateway_rejects_invalid_webhook_signature():
@@ -234,6 +227,38 @@ def test_duplicate_initialized_payment_is_reused(db_session):
     assert gateway.initialize_calls == 1
 
 
+def test_initialize_existing_endpoint_persists_initialized_payment(db_session, monkeypatch):
+    gateway = FakeGateway()
+    service = PaymentService(db_session, gateway=gateway)
+    payment = service.create_payment_record(1)
+    db_session.commit()
+
+    def payment_service_factory(db):
+        return PaymentService(db, gateway=gateway)
+
+    user = User(
+        user_id=99,
+        username="admin",
+        password_hash="x",
+        role="ADMIN",
+    )
+    monkeypatch.setattr(payment_routes, "PaymentService", payment_service_factory)
+
+    response = payment_routes.initialize_existing_payment(
+        payment_routes.ExistingPaymentInitializeRequest(payment_id=payment.payment_id),
+        user=user,
+        db=db_session,
+    )
+    db_session.expire_all()
+    saved = db_session.get(Payment, payment.payment_id)
+
+    assert response["payment_id"] == payment.payment_id
+    assert saved.status == PaymentStatus.INITIALIZED
+    assert saved.payment_link == gateway.payment_link
+    assert saved.tx_ref
+    assert saved.provider_response == {"status": "success"}
+
+
 def test_callback_ignores_forged_cancelled_status_and_verifies(db_session):
     gateway = FakeGateway()
     service = PaymentService(db_session, gateway=gateway)
@@ -243,6 +268,36 @@ def test_callback_ignores_forged_cancelled_status_and_verifies(db_session):
 
     assert result["status"] == PaymentStatus.PENDING
     assert gateway.verify_calls == 1
+
+
+@pytest.mark.parametrize(
+    ("service_status", "redirect_status"),
+    [
+        (PaymentStatus.PAID, "success"),
+        (PaymentStatus.PENDING, "pending"),
+        (PaymentStatus.INITIALIZED, "pending"),
+        (PaymentStatus.FAILED, "failed"),
+        (PaymentStatus.CANCELLED, "failed"),
+    ],
+)
+def test_callback_redirect_maps_verified_statuses(
+    db_session,
+    monkeypatch,
+    service_status,
+    redirect_status,
+):
+    class CallbackPaymentService:
+        def __init__(self, db):
+            pass
+
+        def process_callback(self, tx_ref, transaction_id, provider_status):
+            return {"status": service_status}
+
+    monkeypatch.setattr(payment_routes, "PaymentService", CallbackPaymentService)
+
+    response = payment_routes.flutterwave_callback("tx", "123", "successful", db_session)
+
+    assert f"payment_status={redirect_status}" in response.headers["location"]
 
 
 def test_missing_transaction_id_is_not_saved_as_string_none(db_session):
@@ -275,6 +330,56 @@ def test_duplicate_webhook_is_idempotent(db_session):
     assert first["duplicate"] is False
     assert second["duplicate"] is True
     assert db_session.scalar(select(PaymentWebhookEvent).where(PaymentWebhookEvent.event_id == "evt-1"))
+
+
+def test_flat_v3_webhook_payload_persists_metadata_and_payment_status(db_session):
+    gateway = FakeGateway()
+    gateway.verify_status = "successful"
+    gateway.transaction_id = "10380986"
+    service = PaymentService(db_session, gateway=gateway)
+    payment = service.initialize_payment(1)
+    payload = {
+        "id": 10380986,
+        "txRef": payment["tx_ref"],
+        "event": "charge.completed",
+        "status": "successful",
+    }
+
+    result = service.process_webhook(b'{"id":10380986}', "valid", payload)
+    saved = db_session.get(Payment, payment["payment_id"])
+    event = db_session.scalar(select(PaymentWebhookEvent))
+
+    assert result["duplicate"] is False
+    assert result["event_id"].startswith("fw-")
+    assert saved.status == PaymentStatus.PAID
+    assert saved.transaction_id == "10380986"
+    assert saved.provider_status == "successful"
+    assert saved.verified_at is not None
+    assert event.event_type == "charge.completed"
+    assert event.provider_status == "successful"
+
+
+def test_flat_v3_webhook_duplicate_uses_composite_event_id(db_session):
+    gateway = FakeGateway()
+    gateway.verify_status = "successful"
+    gateway.transaction_id = "10380986"
+    service = PaymentService(db_session, gateway=gateway)
+    payment = service.initialize_payment(1)
+    payload = {
+        "id": 10380986,
+        "txRef": payment["tx_ref"],
+        "event": "charge.completed",
+        "status": "successful",
+    }
+
+    first = service.process_webhook(b'{"id":10380986}', "valid", payload)
+    second = service.process_webhook(b'{"id":10380986}', "valid", payload)
+    events = db_session.scalars(select(PaymentWebhookEvent)).all()
+
+    assert first["duplicate"] is False
+    assert second["duplicate"] is True
+    assert first["event_id"] == second["event_id"]
+    assert len(events) == 1
 
 
 def test_payment_notification_keeps_full_payment_link(db_session):
