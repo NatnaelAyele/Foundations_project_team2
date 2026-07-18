@@ -6,42 +6,45 @@ from sms_gateway.templates import (
 )
 
 
-def notify_harvest_recorded(phone_number, forecast, language="en"):
+def notify_harvest_recorded(farmer, forecast, language="en"):
     """
-    Sends SMS message after a new harvest report is submitted through USSD.
+    Sends SMS after a harvest report is submitted.
     """
     message = harvest_recorded_message(forecast, language)
 
     return send_notification(
-        phone_number=phone_number,
+        farmer_id=farmer["farmer_id"],
+        phone_number=farmer["phone"],
         message=message,
         notification_type="HARVEST_RECORDED",
         language=language
     )
 
 
-def notify_harvest_updated(phone_number, forecast, language="en"):
+def notify_harvest_updated(farmer, forecast, language="en"):
     """
-    Sends SMS message after a farmer updates a pending harvest report.
+    Sends SMS after a harvest report is updated.
     """
     message = harvest_updated_message(forecast, language)
 
     return send_notification(
-        phone_number=phone_number,
+        farmer_id=farmer["farmer_id"],
+        phone_number=farmer["phone"],
         message=message,
         notification_type="HARVEST_UPDATED",
         language=language
     )
 
 
-def notify_harvest_cancelled(phone_number, forecast, language="en"):
+def notify_harvest_cancelled(farmer, forecast, language="en"):
     """
-    Sends SMS message after a pending harvest report is cancelled.
+    Sends SMS after a harvest report is cancelled.
     """
     message = harvest_cancelled_message(forecast, language)
 
     return send_notification(
-        phone_number=phone_number,
+        farmer_id=farmer["farmer_id"],
+        phone_number=farmer["phone"],
         message=message,
         notification_type="HARVEST_CANCELLED",
         language=language

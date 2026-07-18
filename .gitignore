@@ -15,3 +15,12 @@ schema.sql
 seed_data.sql
 .env
 ca.pem
+# Environments
+.venv/
+
+
+# Python cache
+__pycache__/
+
+# Security
+.env
