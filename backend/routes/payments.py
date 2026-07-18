@@ -22,6 +22,10 @@ class PaymentActionRequest(BaseModel):
     payment_id: int = Field(gt=0)
 
 
+class ExistingPaymentInitializeRequest(BaseModel):
+    payment_id: int = Field(gt=0)
+
+
 def service_error(error: PaymentServiceError) -> HTTPException:
     return HTTPException(status_code=error.status_code, detail=str(error))
 
@@ -43,6 +47,21 @@ def initialize_payment(
             payload.allocation_id,
             payload.farmer_id,
         )
+    except PaymentServiceError as error:
+        raise service_error(error) from error
+
+
+@router.post("/initialize-existing")
+def initialize_existing_payment(
+    payload: ExistingPaymentInitializeRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    require_admin(user)
+    try:
+        service = PaymentService(db)
+        payment = service.get_payment_or_raise(payload.payment_id)
+        return service.initialize_existing_payment_record(payment, auto_commit=True)
     except PaymentServiceError as error:
         raise service_error(error) from error
 
@@ -76,7 +95,7 @@ def refund_payment(
 @router.post("/flutterwave/webhook")
 async def flutterwave_webhook(request: Request, db: Session = Depends(get_db)):
     raw_body = await request.body()
-    signature = request.headers.get("flutterwave-signature")
+    signature = request.headers.get("verif-hash")
     try:
         payload = await request.json()
         return PaymentService(db).process_webhook(raw_body, signature, payload)
@@ -95,7 +114,12 @@ def flutterwave_callback(
 ):
     try:
         payment = PaymentService(db).process_callback(tx_ref, transaction_id, status)
-        result = "success" if payment["status"] == "PAID" else "failed"
+        if payment["status"] == "PAID":
+            result = "success"
+        elif payment["status"] in {"FAILED", "CANCELLED"}:
+            result = "failed"
+        else:
+            result = "pending"
     except PaymentServiceError:
         result = "failed"
     return RedirectResponse(
