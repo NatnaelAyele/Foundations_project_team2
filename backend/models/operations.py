@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 
 from sqlalchemy import (
     Boolean,
@@ -11,6 +11,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    Time,
     func,
     text,
 )
@@ -39,7 +40,7 @@ class HarvestForecast(Base):
     __table_args__ = (
         CheckConstraint("quantity_kg > 0", name="chk_forecast_quantity"),
         CheckConstraint(
-            "status IN ('PENDING', 'ALLOCATED', 'CANCELLED')",
+            "LOWER(status) IN ('pending', 'allocated', 'cancelled', 'excluded', 'expired')",
             name="chk_harvest_forecasts_status",
         ),
         Index("idx_forecasts_farmer_id", "farmer_id"),
@@ -53,10 +54,15 @@ class HarvestForecast(Base):
     )
     quantity_kg: Mapped[float] = mapped_column(Float)
     harvest_date: Mapped[datetime] = mapped_column(DateTime)
+    harvest_time: Mapped[time] = mapped_column(Time, default=time(8, 0), server_default=text("'08:00'"))
     status: Mapped[str] = mapped_column(
         String(10), default="PENDING", server_default="PENDING"
     )
     submitted_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+    requirement: Mapped["ForecastRequirement"] = relationship(
+        "ForecastRequirement", back_populates="forecast", uselist=False
+    )
 
 
 class ForecastRequirement(Base):
@@ -80,6 +86,9 @@ class ForecastRequirement(Base):
     notes: Mapped[str | None] = mapped_column(String(500), nullable=True)
     source: Mapped[str] = mapped_column(
         String(10), default="USSD", server_default="USSD"
+    )
+    forecast: Mapped["HarvestForecast"] = relationship(
+        "HarvestForecast", back_populates="requirement"
     )
 
 
@@ -193,8 +202,8 @@ class Payment(Base):
     )
 
     payment_id: Mapped[int] = mapped_column(primary_key=True)
-    allocation_id: Mapped[int] = mapped_column(
-        ForeignKey("trip_allocations.allocation_id", ondelete="CASCADE")
+    allocation_id: Mapped[int | None] = mapped_column(
+        ForeignKey("trip_allocations.allocation_id", ondelete="CASCADE"), nullable=True
     )
     farmer_id: Mapped[int] = mapped_column(
         ForeignKey("farmers.farmer_id", ondelete="CASCADE")
@@ -224,6 +233,7 @@ class Payment(Base):
     )
     payment_link: Mapped[str | None] = mapped_column(Text, nullable=True)
     provider_status: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    provider_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     provider_response: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     verified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
@@ -232,7 +242,7 @@ class Payment(Base):
     refunded_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     settled_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     last_checked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    trip_allocation: Mapped["TripAllocation"] = relationship(
+    trip_allocation: Mapped["TripAllocation | None"] = relationship(
         "TripAllocation",
         back_populates="payments",
     )
@@ -324,24 +334,39 @@ class Notification(Base):
         Index(
             "idx_notif_queued",
             "notification_id",
-            postgresql_where=text("status = 'QUEUED'"),
-            sqlite_where=text("status = 'QUEUED'"),
+            postgresql_where=text("LOWER(status) IN ('queued', 'pending')"),
+            sqlite_where=text("LOWER(status) IN ('queued', 'pending')"),
         ),
     )
 
     notification_id: Mapped[int] = mapped_column(primary_key=True)
-    recipient_type: Mapped[str] = mapped_column(String(50))
-    recipient_phone: Mapped[str] = mapped_column(String(50))
+    recipient_type: Mapped[str] = mapped_column(
+        String(50), default="FARMER", server_default="FARMER"
+    )
+    recipient_phone: Mapped[str] = mapped_column(String(15))
     channel: Mapped[str] = mapped_column(String(50), default="SMS", server_default="SMS")
     message: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(
-        String(10), default="QUEUED", server_default="QUEUED"
+        String(20), default="pending", server_default="pending"
     )
-    sent_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    sent_time: Mapped[datetime | None] = mapped_column(
+        DateTime, nullable=True, server_default=func.now()
+    )
     related_trip_id: Mapped[int | None] = mapped_column(
         ForeignKey("trip_allocations.allocation_id", ondelete="SET NULL"), nullable=True
     )
+    farmer_id: Mapped[int | None] = mapped_column(
+        ForeignKey("farmers.farmer_id", ondelete="CASCADE"), nullable=True
+    )
+    notification_type: Mapped[str] = mapped_column(
+        String(40), default="GENERAL", server_default="GENERAL"
+    )
+    language: Mapped[str] = mapped_column(String(5), default="en", server_default="en")
     trip_allocation: Mapped["TripAllocation | None"] = relationship(
         "TripAllocation",
+        back_populates="notifications",
+    )
+    farmer: Mapped["Farmer | None"] = relationship(
+        "Farmer",
         back_populates="notifications",
     )

@@ -191,3 +191,23 @@ class FlutterwaveGateway(PaymentGateway):
         if normalized in {"cancelled", "canceled"}:
             return "CANCELLED"
         return "PENDING"
+
+    def charge_mobile_money_rwanda(self, payment: dict) -> dict:
+        """Push a MoMo charge to the payer's phone instead of a hosted link."""
+        response = self.post(
+            "/charges?type=mobile_money_rwanda",
+            {
+                "tx_ref": payment["tx_ref"],
+                "amount": str(payment["amount"]),
+                "currency": "RWF",
+                "email": payment.get("email") or "farmers@freshlink.rw",
+                "phone_number": payment["payer_phone"],   # 07XXXXXXXX local format
+                "fullname": payment.get("payer_name", ""),
+            },
+        )
+        return {
+            "provider_status": response.get("status"),
+            "auth_mode": response.get("meta", {}).get("authorization", {}).get("mode"),
+            "redirect": response.get("meta", {}).get("authorization", {}).get("redirect"),
+            "raw_response": response,
+        }
