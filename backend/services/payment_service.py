@@ -3,7 +3,8 @@ import logging
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import func, select
+from sqlalchemy import select
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -20,7 +21,7 @@ from backend.models.operations import (
     PaymentWebhookEvent,
     TripAllocation,
 )
-from backend.models.provider import ColdHub, ColdHubAccount, Farmer, Transporter, Truck, User
+from backend.models.provider import ColdHub, ColdHubAccount, Farmer, Sector, Transporter, Truck, User
 
 
 logger = logging.getLogger(__name__)
@@ -109,10 +110,15 @@ class PaymentService:
     def initialize_payment(
         self,
         allocation_id: int,
-        farmer_id: int | None = None,
+        farmer_id: int,
         auto_commit: bool = True,
     ) -> dict:
         try:
+            if farmer_id is None:
+                raise PaymentServiceError(
+                    "farmer_id is required: a trip can carry several farmers' "
+                    "produce, so a payment must specify which farmer it is for"
+                )
             allocation = self.get_allocation_or_raise(allocation_id)
             farmer = self.get_farmer_for_payment(allocation_id, farmer_id)
             existing = self.get_existing_payment(allocation_id, farmer.farmer_id)
@@ -158,7 +164,7 @@ class PaymentService:
     def create_payment(
         self,
         allocation_id: int,
-        farmer_id: int | None = None,
+        farmer_id: int,
         auto_commit: bool = True,
     ) -> dict:
         return self.initialize_payment(allocation_id, farmer_id, auto_commit)
@@ -166,11 +172,20 @@ class PaymentService:
     def create_payment_record(
         self,
         allocation_id: int,
-        farmer_id: int | None = None,
+        farmer_id: int,
         auto_commit: bool = True,
         allocation: TripAllocation | None = None,
         farmer: Farmer | None = None,
     ) -> Payment:
+        """
+        Creates (or returns the existing) payment for ONE farmer's own
+        share of one trip. farmer_id is required: a truck can carry
+        several farmers' produce clustered together, and picking "any"
+        farmer here would bill the wrong person for everyone else's
+        harvest too.
+        """
+        if farmer_id is None:
+            raise PaymentServiceError("farmer_id is required to create a payment")
         allocation = allocation or self.get_allocation_or_raise(allocation_id)
         farmer = farmer or self.get_farmer_for_payment(allocation_id, farmer_id)
         existing = self.get_existing_payment(allocation_id, farmer.farmer_id)
@@ -366,9 +381,13 @@ class PaymentService:
         payments = self.db.scalars(
             select(Payment).where(Payment.allocation_id == allocation_id)
         ).all()
-        if not payments or not any(payment.status == PaymentStatus.PAID for payment in payments):
+        # A trip can carry harvests from several farmers sharing one truck.
+        # Every one of them must have paid - checking any() would let the
+        # truck depart after only one of several farmers pays, leaving the
+        # others' produce picked up for free.
+        if not payments or not all(payment.status == PaymentStatus.PAID for payment in payments):
             raise PaymentPermissionError(
-                "Payment must be completed before this trip can be started"
+                "All farmers on this trip must complete payment before it can start"
             )
 
     def get_payment(self, payment_id: int, user: User | None = None) -> dict:
@@ -387,6 +406,29 @@ class PaymentService:
         for payment in payments:
             self.ensure_user_can_view_payment(user, payment)
         return [self.payment_to_dict(payment) for payment in payments]
+
+    def get_farmer_payment_overview(self, farmer_id: int, user: User | None = None) -> list[dict]:
+        payments = self.get_payments_by_farmer(farmer_id, user=user)
+        summarized = []
+        for payment in payments:
+            allocation = self.db.get(TripAllocation, payment["allocation_id"])
+            sector = self.db.get(Sector, allocation.sector_id) if allocation else None
+            hub = self.db.get(ColdHub, allocation.hub_id) if allocation else None
+            truck = self.db.get(Truck, allocation.truck_id) if allocation else None
+            trip_label = (
+                f"{sector.name} → {hub.name}" if sector and hub else f"Allocation {payment['allocation_id']}"
+            )
+            item = dict(payment)
+            item.update(
+                {
+                    "trip_label": trip_label,
+                    "sector_name": sector.name if sector else None,
+                    "hub_name": hub.name if hub else None,
+                    "truck_plate": truck.plate_number if truck else None,
+                }
+            )
+            summarized.append(item)
+        return summarized
 
     def get_payments_by_allocation(
         self,
@@ -552,18 +594,108 @@ class PaymentService:
             .limit(1)
         )
 
+    def get_payment_by_allocation_or_raise(self, allocation_id: int, farmer_id: int) -> Payment:
+        """
+        Loads one specific farmer's payment for a trip allocation. A trip
+        can carry several farmers' produce, each with their own payment
+        row, so this must be scoped by farmer_id - not just allocation_id.
+        """
+        payment = self.get_existing_payment(allocation_id, farmer_id)
+        if payment is None:
+            raise PaymentNotFoundError("No payment found for this farmer on this allocation")
+        return payment
+
+    def notify_payment_ready_for_ussd(
+        self,
+        allocation_id: int,
+        farmer_id: int,
+        auto_commit: bool = True,
+    ) -> dict:
+        """
+        Tells one farmer their trip is confirmed and payment can be
+        completed via USSD, without generating a hosted checkout link or
+        calling Flutterwave. USSD farmers have no browser, so the engine
+        should not auto-initialize a web payment link on their behalf;
+        the actual Mobile Money charge only fires when the farmer presses
+        Pay themselves, via initialize_momo_payment.
+
+        Idempotent per (allocation, farmer): if a PAYMENT_READY_USSD
+        notification was already queued or sent to THIS farmer for THIS
+        trip, this is a no-op. Scoping by farmer_id matters because a
+        trip can carry several farmers - without it, notifying farmer A
+        would have blocked farmer B from ever being notified about their
+        own, separate payment.
+        """
+        try:
+            payment = self.get_payment_by_allocation_or_raise(allocation_id, farmer_id)
+            if payment.status not in {PaymentStatus.CREATED}:
+                # Already initialized, pending, paid, failed, or cancelled -
+                # a fresh "payment ready" notice would be confusing.
+                return self.payment_to_dict(payment)
+
+            already_notified = self.db.scalar(
+                select(Notification)
+                .where(
+                    Notification.related_trip_id == allocation_id,
+                    Notification.farmer_id == farmer_id,
+                    Notification.notification_type == "PAYMENT_READY_USSD",
+                )
+                .limit(1)
+            )
+            if already_notified is not None:
+                return self.payment_to_dict(payment)
+
+            self.create_payment_notification(payment, "PAYMENT_READY_USSD")
+            self.db.flush()
+            if auto_commit:
+                self.db.commit()
+                self.db.refresh(payment)
+            return self.payment_to_dict(payment)
+        except (PaymentServiceError, SQLAlchemyError) as error:
+            if auto_commit:
+                self.db.rollback()
+            if isinstance(error, PaymentServiceError):
+                raise
+            raise PaymentServiceError(str(error)) from error
+
+    def get_farmers_for_allocation(self, allocation_id: int) -> list[Farmer]:
+        """
+        Every distinct farmer whose harvest is riding on this trip. A truck
+        typically carries several farmers' produce clustered together, and
+        each of them gets their own payment for their own share.
+        """
+        return list(
+            self.db.scalars(
+                select(Farmer)
+                .join(HarvestForecast, HarvestForecast.farmer_id == Farmer.farmer_id)
+                .join(ForecastAllocation, ForecastAllocation.forecast_id == HarvestForecast.forecast_id)
+                .where(ForecastAllocation.allocation_id == allocation_id)
+                .distinct()
+                .order_by(Farmer.farmer_id)
+            ).all()
+        )
+
     def build_reservation(self, allocation: TripAllocation, farmer: Farmer) -> dict:
         truck = self.db.get(Truck, allocation.truck_id)
         hub = self.db.get(ColdHub, allocation.hub_id)
         transporter = self.db.get(Transporter, truck.transporter_id) if truck else None
-        forecasts = self.get_allocation_forecasts(allocation.allocation_id)
+        # Only THIS farmer's own forecasts on the trip - not everyone's.
+        # total_load_kg below is intentionally this farmer's own quantity,
+        # not allocation.total_load_kg (the whole truck's load): the cost
+        # formula in PaymentManager is a flat rate per kg, so billing off
+        # the farmer's own quantity is what makes each farmer pay only for
+        # their own share instead of the farmer with the lowest farmer_id
+        # being billed for everyone else's produce too.
+        forecasts = self.get_allocation_forecasts(allocation.allocation_id, farmer_id=farmer.farmer_id)
+        farmer_load_kg = sum(f["quantity_kg"] for f in forecasts)
         return {
             "allocation_id": allocation.allocation_id,
             "truck_id": allocation.truck_id,
             "hub_id": allocation.hub_id,
             "sector_id": allocation.sector_id,
             "status": "RESERVED",
-            "total_load_kg": allocation.total_load_kg,
+            "total_load_kg": farmer_load_kg,
+            "trip_total_load_kg": allocation.total_load_kg,
             "farmer_id": farmer.farmer_id,
             "farmer_phone": farmer.phone,
             "farmer_phones": [farmer.phone],
@@ -572,13 +704,16 @@ class PaymentService:
             "forecasts": forecasts,
         }
 
-    def get_allocation_forecasts(self, allocation_id: int) -> list[dict]:
-        rows = self.db.execute(
+    def get_allocation_forecasts(self, allocation_id: int, farmer_id: int | None = None) -> list[dict]:
+        query = (
             select(ForecastAllocation, HarvestForecast, Farmer)
             .join(HarvestForecast, HarvestForecast.forecast_id == ForecastAllocation.forecast_id)
             .join(Farmer, Farmer.farmer_id == HarvestForecast.farmer_id)
             .where(ForecastAllocation.allocation_id == allocation_id)
-        ).all()
+        )
+        if farmer_id is not None:
+            query = query.where(HarvestForecast.farmer_id == farmer_id)
+        rows = self.db.execute(query).all()
         return [
             {
                 "forecast_id": forecast.forecast_id,
@@ -621,21 +756,53 @@ class PaymentService:
                 f"FreshLink payment initialized. Amount: {payment.amount} {payment.currency}. "
                 f"Pay here: {payment.payment_link}"
             ),
+            "PAYMENT_READY_USSD": (
+                f"FreshLink: Your harvest trip is confirmed. "
+                f"Amount due: {payment.amount} {payment.currency}. "
+                f"Dial *384*55993#, go to Payments > Pay, and approve "
+                f"the Mobile Money prompt to complete payment."
+            ),
             "PAYMENT_PENDING": "FreshLink payment is pending confirmation.",
             "PAYMENT_SUCCESSFUL": "Your FreshLink payment has been confirmed successfully.",
             "PAYMENT_FAILED": "Your FreshLink payment failed. Please retry or contact support.",
             "PAYMENT_REFUNDED": "Your FreshLink refund has been initiated.",
         }
-        self.db.add(
-            Notification(
-                recipient_type="FARMER",
-                recipient_phone=farmer.phone,
-                channel="SMS",
-                message=messages[event],
-                status="QUEUED",
-                related_trip_id=payment.allocation_id,
-            )
+        notification = Notification(
+            recipient_type="FARMER",
+            recipient_phone=farmer.phone,
+            channel="SMS",
+            message=messages[event],
+            status="QUEUED",
+            related_trip_id=payment.allocation_id,
+            farmer_id=payment.farmer_id,
+            notification_type=event,
         )
+        self.db.add(notification)
+        self.db.flush()
+
+        # Send immediately rather than only queuing. Queuing alone works
+        # for engine-triggered notifications (coordination_service later
+        # calls dispatch_plan_notifications for those), but webhook-
+        # triggered ones (PAYMENT_SUCCESSFUL/FAILED/REFUNDED, fired from
+        # apply_verified_response) have no equivalent dispatcher anywhere
+        # in the codebase - without sending here, they sit QUEUED forever
+        # and the farmer never gets the "payment confirmed" SMS.
+        try:
+            from sms_gateway.notifier import send_notification
+
+            send_notification(
+                farmer_id=payment.farmer_id,
+                phone_number=farmer.phone,
+                message=messages[event],
+                notification_type=event,
+                language="en",
+            )
+            notification.status = "SENT"
+            notification.sent_time = datetime.now()
+        except Exception as error:
+            notification.status = "FAILED"
+            print(f"[create_payment_notification] send failed for "
+                  f"payment {payment.payment_id} ({event}): {error}")
 
     def build_webhook_event_id(
         self,
@@ -773,3 +940,96 @@ class PaymentService:
             "settled_at": payment.settled_at,
             "last_checked_at": payment.last_checked_at,
         }
+
+    def initialize_momo_payment(self, allocation_id: int, farmer_id: int) -> dict:
+        """
+        Charges the farmer via Flutterwave Rwanda Mobile Money (MoMo push)
+        instead of generating a hosted payment link. Used by the USSD flow,
+        where the farmer has no browser.
+
+        The confirmation still arrives asynchronously through the existing
+        Flutterwave webhook, which looks the payment up by tx_ref.
+        """
+        try:
+            allocation = self.get_allocation_or_raise(allocation_id)
+            farmer = self.get_farmer_for_payment(allocation_id, farmer_id)
+
+            existing = self.get_existing_payment(allocation_id, farmer.farmer_id)
+            if existing:
+                if existing.status == PaymentStatus.PAID:
+                    raise PaymentConflictError("Payment is already completed")
+                # A MoMo prompt is already in flight - don't charge twice.
+                if existing.status == PaymentStatus.PENDING:
+                    return self.payment_to_dict(existing)
+
+            if existing and existing.status in {
+                PaymentStatus.CREATED,
+                PaymentStatus.INITIALIZED,
+            }:
+                payment = existing
+            else:
+                payment = self.create_payment_record(
+                    allocation_id,
+                    farmer.farmer_id,
+                    auto_commit=False,
+                    allocation=allocation,
+                    farmer=farmer,
+                )
+            self.db.flush()
+
+            # Ensure a tx_ref exists and is SAVED before charging, so the
+            # webhook can find this payment by tx_ref later.
+            if not payment.tx_ref:
+                payment.tx_ref = self.generate_tx_ref(payment)
+                payment.flutterwave_ref = payment.tx_ref
+                self.db.flush()
+
+            result = self.gateway.charge_mobile_money_rwanda({
+                "tx_ref": payment.tx_ref,
+                "amount": float(payment.amount),
+                "payer_phone": local_phone(farmer.phone),
+                "payer_name": farmer.name,
+            })
+
+            payment.provider_status = result.get("provider_status")
+            payment.provider_response = result.get("raw_response")
+
+            # In Flutterwave TEST MODE there is no real MTN network, so
+            # instead of a PIN prompt on the farmer's phone, the response
+            # includes a redirect/authorization URL that stands in for it -
+            # opening it in a browser simulates the farmer approving.
+            # Reuse the payment_link column to store it, so it's queryable
+            # (SELECT payment_link FROM payments WHERE payment_id = ...)
+            # instead of only living in the terminal output below.
+            redirect_url = result.get("redirect")
+            if redirect_url:
+                payment.payment_link = redirect_url
+                print(
+                    f"[Flutterwave sandbox] MoMo approval link for payment "
+                    f"{payment.payment_id} (tx_ref={payment.tx_ref}):\n"
+                    f"    {redirect_url}\n"
+                    f"Open this URL to simulate the farmer approving the "
+                    f"charge - there is no real MTN network in sandbox mode."
+                )
+
+            self.apply_status(payment, PaymentStatus.PENDING)
+            self.db.commit()
+            self.db.refresh(payment)
+            return self.payment_to_dict(payment)
+        except (PaymentServiceError, PaymentError, SQLAlchemyError, FlutterwaveGatewayError) as error:
+            self.db.rollback()
+            if isinstance(error, PaymentServiceError):
+                raise
+            if isinstance(error, FlutterwaveGatewayError):
+                raise PaymentGatewayUnavailableError(str(error)) from error
+            raise PaymentServiceError(str(error)) from error
+
+    def generate_tx_ref(self, payment: Payment) -> str:
+        """Unique per payment + per attempt, so retries never collide."""
+        stamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        return f"FL-MOMO-{payment.payment_id}-{stamp}"
+
+
+def local_phone(phone: str) -> str:
+    """Flutterwave's mobile_money_rwanda charge wants the local 07... format."""
+    return "0" + phone[4:] if phone.startswith("+250") else phone
