@@ -19,6 +19,11 @@ from backend.database.connection import Base
 TRUCK_STATUSES = ("AVAILABLE", "BUSY", "MAINTENANCE")
 
 
+def default_farmer_code(context):
+    farmer_id = context.get_current_parameters().get("farmer_id")
+    return str(farmer_id).zfill(3) if farmer_id is not None else None
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -51,18 +56,29 @@ class Farmer(Base):
     )
 
     farmer_id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.user_id", ondelete="CASCADE")
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.user_id", ondelete="CASCADE"), nullable=True
     )
     sector_id: Mapped[int] = mapped_column(
         ForeignKey("sectors.sector_id", ondelete="RESTRICT")
     )
     name: Mapped[str] = mapped_column(String(100))
-    phone: Mapped[str] = mapped_column(String(10))
+    phone: Mapped[str] = mapped_column(String(15), unique=True)
     cell: Mapped[str | None] = mapped_column(String(50), nullable=True)
     village: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    farmer_code: Mapped[str | None] = mapped_column(
+        String(20), unique=True, nullable=True, default=default_farmer_code
+    )
+    preferred_language: Mapped[str] = mapped_column(String(5), default="en", server_default="en")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
     payments: Mapped[list["Payment"]] = relationship(
         "Payment",
+        back_populates="farmer",
+    )
+    notifications: Mapped[list["Notification"]] = relationship(
+        "Notification",
         back_populates="farmer",
     )
 

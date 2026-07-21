@@ -178,39 +178,20 @@ def create_forecast(payload: ForecastCreate, db: Session = Depends(get_db)):
     if farmer is None:
         raise HTTPException(status_code=404, detail="Farmer not found")
 
-    forecast = HarvestForecast(
+    from backend.services.harvest_service import HarvestService
+
+    service = HarvestService(db)
+    forecast = service.create_harvest(
         farmer_id=farmer.farmer_id,
         quantity_kg=payload.quantity_kg,
         harvest_date=datetime.combine(payload.harvest_date, time.min),
-        status="PENDING",
-    )
-    db.add(forecast)
-    db.flush()
-
-    requirement = ForecastRequirement(
-        forecast_id=forecast.forecast_id,
         needs_transport=payload.needs_transport,
         needs_storage=payload.needs_storage,
         notes=clean_optional(payload.notes),
-        source="ADMIN",
+        source="ADMIN"
     )
-    db.add(requirement)
-    db.commit()
-    db.refresh(forecast)
 
-    sector = db.get(Sector, farmer.sector_id)
-    coordination = None
-    if Config.ENGINE_RUN_ON_FORECAST_CREATED:
-        try:
-            coordination = CoordinationService(db).run_sector(farmer.sector_id)
-        except CoordinationPersistenceError:
-            coordination = {"status": "FAILED"}
-        db.refresh(forecast)
-
-    return {
-        **forecast_to_dict(forecast, farmer, sector, requirement),
-        "coordination": coordination,
-    }
+    return forecast_to_dict(forecast, farmer, sector, forecast.requirement)
 
 
 @router.get("/forecasts")
