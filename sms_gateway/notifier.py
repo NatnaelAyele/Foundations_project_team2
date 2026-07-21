@@ -1,5 +1,9 @@
 import os
+import json
 from threading import Thread
+from urllib.error import HTTPError
+from urllib.parse import urlencode, urlparse
+from urllib.request import Request, urlopen
 
 from dotenv import load_dotenv
 
@@ -14,6 +18,23 @@ except ImportError:
 
 
 _sms_client = None
+DEFAULT_SMS_BASE_URL = "https://api.sandbox.africastalking.com/version1/messaging"
+
+
+def normalize_sms_phone(phone_number):
+    """
+    Converts Rwanda phone numbers to the E.164 format Africa's Talking expects.
+    """
+    phone = str(phone_number).strip().replace(" ", "").replace("-", "")
+
+    if phone.startswith("+"):
+        return phone
+    if phone.startswith("0"):
+        return "+250" + phone[1:]
+    if phone.startswith("250"):
+        return "+" + phone
+
+    return phone
 
 
 def get_sms_client():
@@ -40,22 +61,76 @@ def get_sms_client():
     return _sms_client
 
 
+def get_sms_base_url():
+    """
+    Returns the HTTPS Africa's Talking SMS endpoint.
+    """
+    base_url = os.getenv("AT_SMS_BASE_URL", DEFAULT_SMS_BASE_URL).strip()
+    parsed = urlparse(base_url)
+
+    if parsed.scheme == "http" and parsed.port == 443:
+        raise RuntimeError("AT_SMS_BASE_URL cannot use plain HTTP on port 443")
+    if parsed.scheme != "https":
+        raise RuntimeError("AT_SMS_BASE_URL must use https://")
+
+    return base_url
+
+
+def send_sms_over_https(phone_number, message, timeout=15):
+    """
+    Sends SMS directly to Africa's Talking over HTTPS.
+    """
+    username = os.getenv("AT_USERNAME", "sandbox")
+    api_key = os.getenv("AT_API_KEY")
+
+    if not api_key:
+        raise RuntimeError("Africa's Talking SMS API key is not configured.")
+
+    phone_number = normalize_sms_phone(phone_number)
+    payload = urlencode(
+        {
+            "username": username,
+            "to": phone_number,
+            "message": message,
+            "bulkSMSMode": 1,
+        }
+    ).encode("utf-8")
+
+    request = Request(
+        get_sms_base_url(),
+        data=payload,
+        headers={
+            "Accept": "application/json",
+            "apiKey": api_key,
+            "User-Agent": "freshlink-sms/1.0",
+        },
+        method="POST",
+    )
+
+    try:
+        with urlopen(request, timeout=timeout) as response:
+            response_text = response.read().decode("utf-8")
+            return json.loads(response_text)
+    except HTTPError as error:
+        response_text = error.read().decode("utf-8", errors="replace")
+        raise RuntimeError(response_text) from error
+
+
 def send_sms_to_africas_talking(phone_number, message):
     """
     Sends SMS through Africa's Talking to the sandbox
     """
-    sms_client = get_sms_client()
+    phone_number = normalize_sms_phone(phone_number)
 
-    if sms_client is None:
-        raise RuntimeError("Africa's Talking SMS client is not configured.")
-
-    return sms_client.send(message, [phone_number])
+    return send_sms_over_https(phone_number, message)
 
 
 def save_notification(farmer_id, phone_number, message, notification_type, language):
     """
     Inserts the content of the notification table row, and returns its id
     """
+    phone_number = normalize_sms_phone(phone_number)
+
     return execute_query(
         """
         INSERT INTO notifications (
@@ -102,6 +177,7 @@ def process_notification_in_background(farmer_id, phone_number, message, notific
     Talking, and updates the delivery status in the thread background
     """
     notification_id = None
+    phone_number = normalize_sms_phone(phone_number)
 
     # Action 1: Save the notification in the database
     try:
@@ -144,6 +220,8 @@ def send_notification(farmer_id, phone_number, message, notification_type, langu
     that the notifications can later be saved in the backgorund to 
     prevent the farmer from waiting since sessions are timed
     """
+    phone_number = normalize_sms_phone(phone_number)
+
     Thread(
         target=process_notification_in_background,
         args=(farmer_id, phone_number, message, notification_type, language),

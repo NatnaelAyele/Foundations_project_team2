@@ -183,6 +183,21 @@ def test_trip_start_requires_existing_paid_payment(db_session):
         service.ensure_trip_can_start(1)
 
 
+def test_farmer_payment_overview_lists_pending_items(db_session):
+    service = PaymentService(db_session, gateway=FakeGateway())
+    service.create_payment_record(1)
+    db_session.commit()
+
+    overview = service.get_farmer_payment_overview(1)
+
+    assert overview
+    first = overview[0]
+    assert first["allocation_id"] == 1
+    assert first["farmer_id"] == 1
+    assert first["status"] == PaymentStatus.CREATED
+    assert first["amount"] > 0
+
+
 def test_trip_start_rejects_failed_payment(db_session):
     service = PaymentService(db_session, gateway=FakeGateway())
     payment = service.create_payment_record(1)

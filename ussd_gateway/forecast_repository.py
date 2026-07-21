@@ -15,7 +15,7 @@ def save_forecast(farmer_id, quantity_kg, harvest_date, harvest_time):
             harvest_time,
             status
         )
-        VALUES (%s, %s, %s, %s, 'pending')
+        VALUES (%s, %s, %s, %s, 'PENDING')
         RETURNING forecast_id
         """,
         (farmer_id, quantity_kg, harvest_date, harvest_time)
@@ -67,7 +67,7 @@ def get_latest_pending_forecast(farmer_id):
                harvest_time, status, submitted_at, updated_at
         FROM harvest_forecasts
         WHERE farmer_id = %s
-          AND status = 'pending'
+          AND status = 'PENDING'
         ORDER BY submitted_at DESC
         LIMIT 1
         """,
@@ -85,9 +85,9 @@ def update_forecast(forecast_id, quantity_kg, harvest_date, harvest_time):
         SET quantity_kg = %s,
             harvest_date = %s,
             harvest_time = %s,
-            status = 'pending'
+            status = 'PENDING'
         WHERE forecast_id = %s
-          AND status = 'pending'
+          AND status = 'PENDING'
         """,
         (quantity_kg, harvest_date, harvest_time, forecast_id)
     )
@@ -102,9 +102,9 @@ def cancel_forecast(forecast_id):
     execute_query(
         """
         UPDATE harvest_forecasts
-        SET status = 'cancelled'
+        SET status = 'CANCELLED'
         WHERE forecast_id = %s
-          AND status = 'pending'
+          AND status = 'PENDING'
         """,
         (forecast_id,)
     )
