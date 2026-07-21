@@ -15,7 +15,10 @@ router = APIRouter(prefix="/api/payments", tags=["Payments"])
 
 class PaymentInitializeRequest(BaseModel):
     allocation_id: int = Field(gt=0)
-    farmer_id: int | None = Field(default=None, gt=0)
+    # Required: a trip can carry several farmers' produce sharing one
+    # truck, each with their own payment for their own share, so the
+    # admin must say which farmer this request is for.
+    farmer_id: int = Field(gt=0)
 
 
 class PaymentActionRequest(BaseModel):
@@ -166,3 +169,4 @@ def get_payment(
         return PaymentService(db).get_payment(payment_id, user)
     except PaymentServiceError as error:
         raise service_error(error) from error
+    

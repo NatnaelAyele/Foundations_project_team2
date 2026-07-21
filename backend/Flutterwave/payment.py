@@ -99,8 +99,12 @@ class PaymentManager:
         """
         Create a local payment record for one reserved trip.
 
-        Receives one reserved trip dictionary and returns one trip-level payment.
-        Farmer split details are included only as context for future versions.
+        Receives one reserved trip dictionary for ONE farmer's own share
+        and returns one payment for that share. The caller (PaymentService)
+        is responsible for passing total_load_kg as that farmer's own
+        allocated quantity, not the whole trip's load, so the linear
+        per-kg rate below naturally produces a fair split when several
+        farmers share one truck.
         """
         self.validate_reservation(reservation)
         self.payment_counter += 1
@@ -134,8 +138,8 @@ class PaymentManager:
             "paid_at": None,
             "settled_at": None,
             "database_generated_id_pending": True,
-            "payment_scope": "TRIP",
-            "split_payments_enabled": False,
+            "payment_scope": "FARMER_SHARE",
+            "split_payments_enabled": True,
             "farmer_payment_context": farmer_payment_context,
             "farmer_count": len(farmer_payment_context),
         }
