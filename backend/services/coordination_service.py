@@ -14,7 +14,7 @@ from backend.models.operations import (
     TripAllocation,
     TripStatusEvent,
 )
-from backend.models.provider import ColdHub, ColdHubCapacityUpdate, Sector, Truck
+from backend.models.provider import ColdHub, ColdHubCapacityUpdate, Farmer, Sector, Truck
 from backend.services.payment_service import PaymentService, PaymentServiceError
 from sms_gateway.notifier import send_notification
 
@@ -59,8 +59,9 @@ class CoordinationService:
             plan.status = "COMPLETED"
             self.db.commit()
             self.db.refresh(plan)
-            payment_initialization = self.initialize_committed_payments_for_trips(trip_ids)
+            payment_notifications = self.notify_payments_ready_for_trips(trip_ids)
             dispatch_result = self.dispatch_plan_notifications(plan.plan_id)
+            exclusion_notifications = self.notify_exclusions(result["exclusions"])
 
             return {
                 "plan_id": plan.plan_id,
@@ -68,10 +69,11 @@ class CoordinationService:
                 "status": plan.status,
                 "trip_count": reservation_count,
                 "payment_count": payment_count,
-                **payment_initialization,
+                **payment_notifications,
                 "exclusion_count": exclusion_count,
                 "notification_count": notification_count,
                 **dispatch_result,
+                **exclusion_notifications,
             }
         except Exception as error:
             self.db.rollback()
@@ -115,6 +117,8 @@ class CoordinationService:
                 trip,
                 allocations_by_trip.get(reservation["temporary_trip_key"], []),
             )
+
+            self.db.flush()
             truck.status = "BUSY"
             hub.available_capacity_kg -= total_load
             self.db.add(
@@ -134,27 +138,47 @@ class CoordinationService:
         return persisted_count, trip_ids
 
     def create_payment_records_for_trips(self, trip_ids: dict[str, int]) -> int:
+        """
+        Creates one payment PER FARMER on each trip, not one payment per
+        trip. A truck typically carries several farmers' produce clustered
+        together; billing only whichever farmer happened to have the
+        lowest farmer_id for the whole truck's load was the original bug
+        this fixes.
+        """
         payment_service = PaymentService(self.db)
         created = 0
         for allocation_id in trip_ids.values():
-            payment_service.create_payment_record(allocation_id, auto_commit=False)
-            created += 1
+            farmers = payment_service.get_farmers_for_allocation(allocation_id)
+            for farmer in farmers:
+                payment_service.create_payment_record(
+                    allocation_id, farmer.farmer_id, auto_commit=False, farmer=farmer
+                )
+                created += 1
         return created
 
-    def initialize_committed_payments_for_trips(self, trip_ids: dict[str, int]) -> dict:
+    def notify_payments_ready_for_trips(self, trip_ids: dict[str, int]) -> dict:
+        """
+        Tells EACH farmer on each trip their own payment is ready via
+        USSD. This does NOT call Flutterwave or generate a hosted payment
+        link - USSD farmers have no browser to open one. The actual
+        Mobile Money charge only fires when a farmer presses Pay
+        themselves in the USSD menu (PaymentService.initialize_momo_payment).
+        """
         payment_service = PaymentService(self.db)
-        initialized = 0
+        notified = 0
         failed = 0
         for allocation_id in trip_ids.values():
-            try:
-                payment_service.initialize_payment(allocation_id)
-                initialized += 1
-            except PaymentServiceError:
-                self.db.rollback()
-                failed += 1
+            farmers = payment_service.get_farmers_for_allocation(allocation_id)
+            for farmer in farmers:
+                try:
+                    payment_service.notify_payment_ready_for_ussd(allocation_id, farmer.farmer_id)
+                    notified += 1
+                except PaymentServiceError:
+                    self.db.rollback()
+                    failed += 1
         return {
-            "payment_initialized_count": initialized,
-            "payment_initialization_failed_count": failed,
+            "payment_ready_notification_count": notified,
+            "payment_notification_failed_count": failed,
         }
 
     def persist_notifications(
@@ -167,6 +191,17 @@ class CoordinationService:
             trip["allocation_id"] = trip_ids[reservation["temporary_trip_key"]]
             result = notifier.create_notifications({"trip_allocations": [trip]})
             for notification in result["notifications"]:
+
+                farmer_id = None
+                if notification["recipient_type"] == "FARMER":
+                    farmer_id = next(
+                        (
+                            forecast.get("farmer_id")
+                            for forecast in trip.get("forecasts", [])
+                            if forecast.get("farmer_phone") == notification["recipient_phone"]
+                        ),
+                        None,
+                    )
                 self.db.add(
                     Notification(
                         recipient_type=notification["recipient_type"],
@@ -175,6 +210,7 @@ class CoordinationService:
                         message=notification["message"],
                         status="QUEUED",
                         related_trip_id=trip["allocation_id"],
+                        farmer_id=farmer_id,
                     )
                 )
                 saved += 1
@@ -194,17 +230,21 @@ class CoordinationService:
         failed_count = 0
         for notification in notifications:
             try:
+ 
                 send_notification(
-                    notification.recipient_phone,
-                    notification.message,
+                    farmer_id=notification.farmer_id,
+                    phone_number=notification.recipient_phone,
+                    message=notification.message,
                     notification_type=self.notification_type_for(notification),
                 )
                 notification.status = "SENT"
                 notification.sent_time = datetime.now()
                 sent_count += 1
-            except Exception:
+            except Exception as error:
                 notification.status = "FAILED"
                 failed_count += 1
+                print(f"[dispatch_plan_notifications] send failed for "
+                      f"notification {notification.notification_id}: {error}")
         self.db.commit()
         return {
             "sent_notification_count": sent_count,
@@ -271,6 +311,117 @@ class CoordinationService:
             )
             saved += 1
         return saved
+
+    EXCLUSION_MESSAGES = {
+        "NO_TRUCK": {
+            "en": "No truck is currently available in your area to collect "
+                  "your tomatoes. We will try again in the next coordination "
+                  "round - no action is needed from you.",
+            "rw": "Nta modoka ihari ubu yo gufata inyanya zawe. Tuzongera "
+                  "kugerageza vuba - nta kindi ugomba gukora.",
+        },
+        "NO_HUB_CAPACITY": {
+            "en": "The storage facility in your area is currently full. We "
+                  "will try again in the next coordination round - no "
+                  "action is needed from you.",
+            "rw": "Ububiko bwo mu karere kawe burimo bwuzuye ubu. Tuzongera "
+                  "kugerageza vuba - nta kindi ugomba gukora.",
+        },
+        "NOT_ELIGIBLE": {
+            "en": "Your harvest report could not be scheduled this round "
+                  "because the pickup date is outside our current planning "
+                  "window. Please check your report or submit a new one "
+                  "with a nearer date.",
+            "rw": "Raporo yawe y'umusaruro ntiyashoboye guhuzwa kubera ko "
+                  "itariki iri hanze y'igihe dutegura ubu. Reba raporo "
+                  "yawe cyangwa wandike indi ifite itariki iri hafi.",
+        },
+        "INVALID_FORECAST": {
+            "en": "There was a problem with your harvest report and it "
+                  "could not be scheduled. Please submit a new report or "
+                  "contact support.",
+            "rw": "Habaye ikibazo kuri raporo yawe y'umusaruro ntiyashoboye "
+                  "guhuzwa. Wandike indi raporo cyangwa uvugane n'ubufasha.",
+        },
+        "INVALID_CLUSTER": {
+            "en": "There was a problem scheduling your harvest report. "
+                  "Please contact support if this continues.",
+            "rw": "Habaye ikibazo mu guhuza raporo yawe y'umusaruro. "
+                  "Vugana n'ubufasha niba bikomeje.",
+        },
+        "INVALID_DEMAND": {
+            "en": "There was a problem scheduling your harvest report. "
+                  "Please contact support if this continues.",
+            "rw": "Habaye ikibazo mu guhuza raporo yawe y'umusaruro. "
+                  "Vugana n'ubufasha niba bikomeje.",
+        },
+    }
+
+    def notify_exclusions(self, exclusions: list[dict]) -> dict:
+        """
+        Sends one SMS per excluded forecast that has a farmer_id, so a
+        PENDING forecast that will never be matched doesn't fail silently.
+        Sent immediately (like create_payment_notification) rather than
+        merely queued, since exclusions have no trip_allocation to key a
+        later dispatch pass off of.
+        """
+        from sms_gateway.notifier import send_notification
+
+        notified = 0
+        failed = 0
+        seen_forecast_ids = set()
+        for exclusion in exclusions:
+            farmer_id = exclusion.get("farmer_id")
+            forecast_id = exclusion.get("forecast_id")
+            reason_code = exclusion.get("reason_code")
+            if farmer_id is None or forecast_id is None:
+                continue
+
+            if forecast_id in seen_forecast_ids:
+                continue
+            seen_forecast_ids.add(forecast_id)
+
+            farmer = self.db.get(Farmer, farmer_id)
+            if farmer is None:
+                continue
+
+            language = farmer.preferred_language if farmer.preferred_language in ("en", "rw") else "en"
+            text = self.EXCLUSION_MESSAGES.get(reason_code, self.EXCLUSION_MESSAGES["INVALID_FORECAST"])[language]
+
+            notification = Notification(
+                recipient_type="FARMER",
+                recipient_phone=farmer.phone,
+                channel="SMS",
+                message=text,
+                status="QUEUED",
+                related_trip_id=None,
+                farmer_id=farmer_id,
+                notification_type=f"EXCLUDED_{reason_code}",
+                language=language,
+            )
+            self.db.add(notification)
+            self.db.flush()
+            try:
+                send_notification(
+                    farmer_id=farmer_id,
+                    phone_number=farmer.phone,
+                    message=text,
+                    notification_type=f"EXCLUDED_{reason_code}",
+                    language=language,
+                )
+                notification.status = "SENT"
+                notification.sent_time = datetime.now()
+                notified += 1
+            except Exception as error:
+                notification.status = "FAILED"
+                failed += 1
+                print(f"[notify_exclusions] send failed for forecast "
+                      f"{forecast_id} ({reason_code}): {error}")
+        self.db.commit()
+        return {
+            "exclusion_notification_count": notified,
+            "exclusion_notification_failed_count": failed,
+        }
 
     def lock_truck(self, reservation: dict) -> Truck:
         truck = self.db.scalar(
