@@ -13,7 +13,7 @@ class Config:
     ENGINE_SCHEDULER_ENABLED = os.getenv("ENGINE_SCHEDULER_ENABLED", "true").lower() == "true"
     ENGINE_RUN_INTERVAL_HOURS = int(os.getenv("ENGINE_RUN_INTERVAL_HOURS", "2"))
     ENGINE_RUN_ON_FORECAST_CREATED = os.getenv(
-        "ENGINE_RUN_ON_FORECAST_CREATED", "false"
+        "ENGINE_RUN_ON_FORECAST_CREATED", "true"
     ).lower() == "true"
     AUTH_COOKIE_NAME = "freshlink_access_token"
     COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"

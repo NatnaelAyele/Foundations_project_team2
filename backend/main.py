@@ -6,6 +6,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
+import concurrent.futures
+import time
+
+# Importing fastapi frameworks
+from fastapi import FastAPI, Form
+from fastapi.responses import PlainTextResponse
+
+# importing functions from different files
+from backend.database import warm_up_pool, fetch_one
+from ussd_gateway.ussd_app import handle_ussd
+
+app = FastAPI(title="FreshLink USSD API")
+
 from backend.config import Config
 from backend.database.connection import Base, engine
 from backend.engine.scheduler import CoordinationScheduler
@@ -98,18 +111,6 @@ def create_app(create_database=True, start_scheduler=True):
 
 
 app = create_app()
-import concurrent.futures
-import time
-
-# Importing fastapi frameworks
-from fastapi import FastAPI, Form
-from fastapi.responses import PlainTextResponse
-
-# importing functions from different files
-from backend.database import warm_up_pool, fetch_one
-from ussd_gateway.ussd_app import handle_ussd
-
-app = FastAPI(title="FreshLink USSD API")
 
 # Africa's talking ends a session if it goes beyond 10 seconds, so we 
 # set out ussd timeout seconds to 10 as well

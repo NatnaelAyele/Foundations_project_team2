@@ -2,7 +2,6 @@
 -- farmers 
 CREATE INDEX IF NOT EXISTS idx_farmers_user_id    ON farmers (user_id);
 CREATE INDEX IF NOT EXISTS idx_farmers_sector_id  ON farmers (sector_id);
-CREATE INDEX IF NOT EXISTS idx_farmers_phone      ON farmers (phone);         
 
 -- transporters
 CREATE INDEX IF NOT EXISTS idx_transporters_user_id   ON transporters (user_id);
@@ -44,9 +43,6 @@ CREATE INDEX IF NOT EXISTS idx_excl_reason      ON excluded_trips (reason_code);
 CREATE INDEX IF NOT EXISTS idx_payments_allocation_id ON payments (allocation_id);
 CREATE INDEX IF NOT EXISTS idx_payments_farmer_id     ON payments (farmer_id);
 CREATE INDEX IF NOT EXISTS idx_payments_status        ON payments (status);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_tx_ref ON payments (tx_ref);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_payment_reference ON payments (payment_reference);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_transaction_id ON payments (transaction_id);
 
 CREATE INDEX IF NOT EXISTS idx_payment_webhook_events_payment_id
     ON payment_webhook_events (payment_id);
@@ -61,7 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_notif_phone   ON notifications (recipient_phone);
 -- so index just those instead of the whole table (Postgres-only trick).
 CREATE INDEX IF NOT EXISTS idx_notif_queued
     ON notifications (notification_id)
-    WHERE status = 'QUEUED';
+    WHERE LOWER(status) IN ('queued', 'pending');
 -- API extensions
 CREATE INDEX IF NOT EXISTS idx_farmer_profiles_status
     ON farmer_admin_profiles (registration_status);
@@ -95,3 +91,8 @@ CREATE INDEX IF NOT EXISTS idx_trip_status_events_allocation
     ON trip_status_events (allocation_id);
 CREATE INDEX IF NOT EXISTS idx_trip_status_events_status_time
     ON trip_status_events (status, created_at);
+
+-- USSD compatibility indexes
+CREATE INDEX IF NOT EXISTS idx_forecast_farmer_status ON harvest_forecasts (farmer_id, status, submitted_at);
+CREATE INDEX IF NOT EXISTS idx_payments_farmer ON payments (farmer_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_notifications_farmer_time ON notifications (farmer_id, sent_time DESC);

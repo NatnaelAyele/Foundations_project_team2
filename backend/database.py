@@ -20,14 +20,14 @@ def _build_pool():
     """
     return pool.ThreadedConnectionPool(
         minconn=1, # minimum number of database connections the pool can make
-        maxconn=int(os.getenv("DB_POOL_SIZE", "5")), # max number of databse connections
-        host=os.getenv("DB_HOST", "127.0.0.1"),
-        port=int(os.getenv("DB_PORT", "5432")),
-        user=os.getenv("DB_USER", "postgres"),
-        password=os.getenv("DB_PASSWORD"),
-        dbname=os.getenv("DB_NAME", "freshlink"),
+        maxconn=int(os.getenv("DATABASE_POOL_SIZE", "5")), # max number of databse connections
+        host=os.getenv("DATABASE_HOST", "127.0.0.1"),
+        port=int(os.getenv("DATABASE_PORT", "5432")),
+        user=os.getenv("DATABASE_USER", "postgres"),
+        password=os.getenv("DATABASE_PASSWORD"),
+        dbname=os.getenv("DATABASE_NAME", "freshlink_db"),
         connect_timeout=5,
-        sslmode=os.getenv("DB_SSLMODE", "prefer"),
+        sslmode=os.getenv("DATABASE_SSL_MODE", "prefer"),
     )
 
 

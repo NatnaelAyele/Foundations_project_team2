@@ -68,6 +68,21 @@ VALUES
     (146, 'farmer.martin.habumugisha', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'FARMER', TRUE, NULL, '2026-06-05 11:50:00', 'martin.habumugisha@example.rw'),
     (147, 'farmer.nadine.uwamahoro', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'FARMER', TRUE, '2026-07-16 12:10:00', '2026-06-05 11:55:00', 'nadine.uwamahoro@example.rw');
 
+-- Additional users: one hub operator for each sector that previously
+-- had no cold hub, plus two new transporter dispatcher logins.
+INSERT INTO users
+    (user_id, username, password_hash, role, is_active, last_login, created_at, email)
+VALUES
+    (200, 'hub.karama.manager', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'HUB_OPERATOR', TRUE, '2026-07-19 07:40:00', '2026-07-18 08:00:00', 'karama.hub@freshlink.rw'),
+    (201, 'hub.kayumbu.manager', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'HUB_OPERATOR', TRUE, '2026-07-19 07:45:00', '2026-07-18 08:05:00', 'kayumbu.hub@freshlink.rw'),
+    (202, 'hub.ngamba.manager', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'HUB_OPERATOR', TRUE, '2026-07-19 07:50:00', '2026-07-18 08:10:00', 'ngamba.hub@freshlink.rw'),
+    (203, 'hub.nyamiyaga.manager', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'HUB_OPERATOR', TRUE, '2026-07-19 07:55:00', '2026-07-18 08:15:00', 'nyamiyaga.hub@freshlink.rw'),
+    (204, 'hub.rugalika.manager', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'HUB_OPERATOR', TRUE, '2026-07-19 08:00:00', '2026-07-18 08:20:00', 'rugalika.hub@freshlink.rw'),
+    (205, 'hub.rukoma.manager', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'HUB_OPERATOR', TRUE, '2026-07-19 08:05:00', '2026-07-18 08:25:00', 'rukoma.hub@freshlink.rw'),
+    (208, 'hub.nyarubaka.manager', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'HUB_OPERATOR', TRUE, '2026-07-19 08:10:00', '2026-07-18 08:28:00', 'nyarubaka.hub@freshlink.rw'),
+    (206, 'ngamba.express.transport', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'TRANSPORTER', TRUE, '2026-07-19 06:30:00', '2026-07-18 08:30:00', 'dispatch@ngambaexpress.rw'),
+    (207, 'rugalika.swift.logistics', '$2b$12$freshlinkseedhash000000000000000000000000000000000000000000', 'TRANSPORTER', TRUE, '2026-07-19 06:35:00', '2026-07-18 08:35:00', 'ops@rugalikaswift.rw');
+
 INSERT INTO sectors
     (sector_id, name, district, cell, village)
 VALUES
@@ -197,6 +212,14 @@ VALUES
     (4, 12, 3, 'Green Route Logistics', '0788200004'),
     (5, 13, 9, 'Kamonyi Cooperative Transport', '0788200005');
 
+-- Two more transporters so sectors 7 and 10 (previously without any
+-- truck at all) have their own dispatcher.
+INSERT INTO transporters
+    (transporter_id, user_id, sector_id, name, phone)
+VALUES
+    (6, 206, 7, 'Ngamba Express Transport', '0788200006'),
+    (7, 207, 10, 'Rugalika Swift Logistics', '0788200007');
+
 INSERT INTO cold_hubs
     (hub_id, sector_id, name, phone, total_capacity_kg, available_capacity_kg, operating_status)
 VALUES
@@ -205,7 +228,18 @@ VALUES
     (3, 6, 'Musambira Agro Cold Hub', '0788300003', 48000, 28600, 'OPEN'),
     (4, 3, 'Kayenzi Farmers Cooling Center', '0788300004', 36000, 21400, 'OPEN'),
     (5, 5, 'Mugina Cold Storage Facility', '0788300005', 42000, 26100, 'OPEN'),
-    (6, 9, 'Nyarubaka Produce Cooling Point', '0788300006', 24000, 16800, 'OPEN');
+    (6, 9, 'Nyarubaka Produce Cooling Point', '0788300006', 24000, 16800, 'OPEN'),
+    -- New hubs so every one of the 12 sectors has cold storage.
+    (7, 2, 'Karama Community Cold Store', '0788300007', 30000, 27000, 'OPEN'),
+    (8, 4, 'Kayumbu Harvest Cooling Hub', '0788300008', 26000, 23500, 'OPEN'),
+    (9, 7, 'Ngamba Produce Cold Store', '0788300009', 28000, 25000, 'OPEN'),
+    -- Deliberately tight: only 1800kg free, so a normal-sized cluster
+    -- here demonstrates a NO_HUB_CAPACITY exclusion out of the box.
+    -- Bump available_capacity_kg (PATCH /api/hub/capacity, or an
+    -- UPDATE) to turn this into a success case for testing.
+    (10, 8, 'Nyamiyaga Cooling Center', '0788300010', 20000, 1800, 'OPEN'),
+    (11, 10, 'Rugalika Fresh Storage Hub', '0788300011', 32000, 29000, 'OPEN'),
+    (12, 11, 'Rukoma Cold Chain Facility', '0788300012', 24000, 21500, 'OPEN');
 
 INSERT INTO cold_hub_accounts
     (hub_id, user_id)
@@ -214,7 +248,14 @@ VALUES
     (2, 5),
     (3, 6),
     (4, 7),
-    (5, 8);
+    (5, 8),
+    (6, 208),
+    (7, 200),
+    (8, 201),
+    (9, 202),
+    (10, 203),
+    (11, 204),
+    (12, 205);
 
 INSERT INTO trucks
     (truck_id, transporter_id, plate_number, capacity_kg, sector_id, status)
@@ -228,7 +269,22 @@ VALUES
     (7, 4, 'RAH 144K', 4500, 3, 'AVAILABLE'),
     (8, 4, 'RAH 289L', 5500, 4, 'BUSY'),
     (9, 5, 'RAJ 391M', 7800, 9, 'AVAILABLE'),
-    (10, 5, 'RAJ 455N', 3500, 8, 'BUSY');
+    (10, 5, 'RAJ 455N', 3500, 8, 'BUSY'),
+    -- New trucks so every sector has at least one AVAILABLE truck.
+    -- The originals above are left BUSY/MAINTENANCE on purpose - they
+    -- still let you demo a sector with no available truck by setting
+    -- one of these new ones to BUSY too.
+    (11, 1, 'RAE 350P', 5500, 1, 'AVAILABLE'),
+    (12, 4, 'RAH 512Q', 4800, 4, 'AVAILABLE'),
+    (13, 2, 'RAF 630R', 6200, 6, 'AVAILABLE'),
+    (14, 6, 'RAK 701S', 5000, 7, 'AVAILABLE'),
+    (15, 5, 'RAJ 480T', 4500, 8, 'AVAILABLE'),
+    (16, 7, 'RAL 820U', 5800, 10, 'AVAILABLE'),
+    -- Deliberately the ONLY truck in sector 11, and deliberately too
+    -- small for the oversized forecast seeded below - demonstrates a
+    -- NO_TRUCK exclusion out of the box.
+    (17, 3, 'RAG 910V', 6000, 11, 'AVAILABLE'),
+    (18, 3, 'RAG 955W', 5200, 12, 'AVAILABLE');
 
 INSERT INTO truck_operational_details
     (truck_id, vehicle_model, driver_name, current_location, notes, updated_by_user_id, updated_at)
@@ -243,6 +299,18 @@ VALUES
     (8, 'Fuso Fighter Reefer', 'David Mutabazi', 'Kayumbu village route', 'Assigned to Kayumbu tomato route', 12, '2026-07-16 06:35:00'),
     (9, 'Isuzu NPR Refrigerated', 'Samuel Kwizera', 'Nyarubaka cooperative office', 'Available for afternoon dispatch', 13, '2026-07-16 07:25:00'),
     (10, 'Toyota Hiace Cold Van', 'Blaise Niyitegeka', 'Nyamiyaga collection point', 'Small-volume route for green pepper and tomatoes', 13, '2026-07-16 06:45:00');
+
+INSERT INTO truck_operational_details
+    (truck_id, vehicle_model, driver_name, current_location, notes, updated_by_user_id, updated_at)
+VALUES
+    (11, 'Toyota Dyna Cold Van', 'Vincent Ntawukuriryayo', 'Gacurabwenge collection yard', 'Backup truck added for full sector coverage', 9, '2026-07-19 09:00:00'),
+    (12, 'Isuzu NPR Refrigerated', 'Alexis Bizimana', 'Kayumbu village route', 'Backup truck for Kayumbu deliveries', 12, '2026-07-19 09:05:00'),
+    (13, 'Fuso Canter Reefer', 'Olivier Sibomana', 'Musambira cooperative yard', 'Second truck assigned to Musambira route', 10, '2026-07-19 09:10:00'),
+    (14, 'Hyundai Mighty Refrigerated', 'Theogene Byiringiro', 'Ngamba sector office', 'New transporter covering the Ngamba route', 206, '2026-07-19 09:15:00'),
+    (15, 'Toyota Hiace Cold Van', 'Faustin Nsengimana', 'Nyamiyaga collection point', 'Backup truck for Nyamiyaga route', 13, '2026-07-19 09:20:00'),
+    (16, 'Mercedes Atego Reefer', 'Gedeon Ntagungira', 'Rugalika garage', 'New transporter covering the Rugalika route', 207, '2026-07-19 09:25:00'),
+    (17, 'Isuzu FVR Refrigerated', 'Xavier Mucyo', 'Rukoma collection center', 'Only truck currently registered for Rukoma', 11, '2026-07-19 09:30:00'),
+    (18, 'Toyota Dyna Cold Van', 'Yves Havugimana', 'Runda sector office', 'Backup truck for the Runda route', 11, '2026-07-19 09:35:00');
 
 INSERT INTO harvest_forecasts
     (forecast_id, farmer_id, quantity_kg, harvest_date, status, submitted_at)
@@ -347,6 +415,116 @@ VALUES
     (46, TRUE, FALSE, 'Carrots; farm size 0.6 ha; transport only', 'WEB'),
     (47, TRUE, TRUE, 'Tomatoes; farm size 1.4 ha; pending buyer assignment', 'USSD'),
     (48, TRUE, TRUE, 'Irish Potatoes; farm size 1.2 ha; cool storage requested', 'WEB');
+
+-------------------------------------------------------------
+-- Fresh PENDING forecasts for every sector, dated relative to
+-- CURRENT_DATE so they stay inside the engine's coordination
+-- window (today .. today+3 days) no matter when this file is
+-- loaded. Each normal sector gets 2-3 farmers so a coordination
+-- run clusters multiple farmers onto one truck - useful for
+-- testing the payment split behaviour. Two sectors are seeded to
+-- deliberately fail (see notes below) so both the success and
+-- exclusion paths are exercised out of the box.
+-------------------------------------------------------------
+INSERT INTO harvest_forecasts
+    (forecast_id, farmer_id, quantity_kg, harvest_date, status, submitted_at)
+VALUES
+    -- Sector 1 (Gacurabwenge) - 3 farmers, fits truck 11 (5500kg)
+    (49, 1, 900,  CURRENT_DATE + INTERVAL '1 day 7 hours',  'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (50, 2, 1200, CURRENT_DATE + INTERVAL '1 day 7.5 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (51, 3, 1500, CURRENT_DATE + INTERVAL '2 days 6.75 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    -- Deliberately already in the past - demonstrates a NOT_ELIGIBLE
+    -- exclusion at the eligibility stage, BEFORE clustering, so it
+    -- does not affect the three forecasts above.
+    (52, 4, 700,  CURRENT_DATE - INTERVAL '2 days -7 hours', 'PENDING', CURRENT_DATE - INTERVAL '5 days 8 hours'),
+
+    -- Sector 2 (Karama) - 2 farmers, fits truck 2 (4200kg)
+    (53, 5, 1100, CURRENT_DATE + INTERVAL '1 day 8 hours',   'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (54, 6, 1400, CURRENT_DATE + INTERVAL '2 days 7.25 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 3 (Kayenzi) - 3 farmers, fits truck 7 (4500kg)
+    (55, 10, 800,  CURRENT_DATE + INTERVAL '9 hours',         'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (56, 11, 1600, CURRENT_DATE + INTERVAL '1 day 6.5 hours', 'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (57, 12, 900,  CURRENT_DATE + INTERVAL '3 days 7 hours',  'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 4 (Kayumbu) - 2 farmers, fits new truck 12 (4800kg)
+    (58, 13, 1300, CURRENT_DATE + INTERVAL '1 day 7.75 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (59, 14, 1700, CURRENT_DATE + INTERVAL '2 days 8 hours',  'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 5 (Mugina) - 3 farmers, fits truck 4 (5000kg)
+    (60, 17, 1000, CURRENT_DATE + INTERVAL '10 hours',        'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (61, 18, 1800, CURRENT_DATE + INTERVAL '1 day 9 hours',   'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (62, 19, 1200, CURRENT_DATE + INTERVAL '2 days 6.83 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 6 (Musambira) - 2 farmers, fits new truck 13 (6200kg)
+    (63, 21, 2000, CURRENT_DATE + INTERVAL '1 day 7.17 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (64, 22, 1500, CURRENT_DATE + INTERVAL '2 days 7.67 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 7 (Ngamba) - 3 farmers, fits new truck 14 (5000kg)
+    (65, 25, 1400, CURRENT_DATE + INTERVAL '11 hours',        'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (66, 26, 1100, CURRENT_DATE + INTERVAL '1 day 8.33 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (67, 27, 900,  CURRENT_DATE + INTERVAL '3 days 6.67 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 8 (Nyamiyaga) - 2 farmers, total 2700kg fits new truck
+    -- 15 (4500kg) but hub 10 only has 1800kg available: demonstrates
+    -- a NO_HUB_CAPACITY exclusion out of the box. PATCH the hub's
+    -- available_capacity_kg (or run an UPDATE) to flip this sector
+    -- to a success case for testing.
+    (68, 29, 1200, CURRENT_DATE + INTERVAL '1 day 7 hours',   'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (69, 30, 1500, CURRENT_DATE + INTERVAL '2 days 7.5 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 9 (Nyarubaka) - 3 farmers, fits truck 9 (7800kg, the
+    -- biggest available truck) and hub 6 (16800kg available)
+    (70, 33, 2000, CURRENT_DATE + INTERVAL '1 day 7 hours',   'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (71, 34, 2500, CURRENT_DATE + INTERVAL '2 days 7.5 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (72, 35, 1800, CURRENT_DATE + INTERVAL '3 days 6.83 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 10 (Rugalika) - 2 farmers, fits new truck 16 (5800kg)
+    (73, 37, 1600, CURRENT_DATE + INTERVAL '12 hours',        'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (74, 38, 1900, CURRENT_DATE + INTERVAL '1 day 7.83 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 11 (Rukoma) - single deliberately oversized forecast.
+    -- Truck 17 only carries 6000kg, so this demonstrates a NO_TRUCK
+    -- exclusion out of the box even though hub 12 has plenty of room.
+    (75, 41, 8200, CURRENT_DATE + INTERVAL '1 day 8 hours',   'PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+
+    -- Sector 12 (Runda) - 2 farmers, fits new truck 18 (5200kg)
+    (76, 45, 1500, CURRENT_DATE + INTERVAL '1 day 6.67 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours'),
+    (77, 46, 2000, CURRENT_DATE + INTERVAL '2 days 8.17 hours','PENDING', CURRENT_DATE - INTERVAL '1 day 8 hours');
+
+INSERT INTO forecast_requirements
+    (forecast_id, needs_transport, needs_storage, notes, source)
+VALUES
+    (49, TRUE, TRUE, 'Tomatoes; ready for USSD-triggered coordination test', 'USSD'),
+    (50, TRUE, TRUE, 'Tomatoes; second farmer on the same Gacurabwenge cluster', 'USSD'),
+    (51, TRUE, TRUE, 'Tomatoes; third farmer on the same Gacurabwenge cluster', 'USSD'),
+    (52, TRUE, TRUE, 'Tomatoes; intentionally past-dated to test NOT_ELIGIBLE exclusion', 'USSD'),
+    (53, TRUE, TRUE, 'Tomatoes; Karama coordination test', 'USSD'),
+    (54, TRUE, TRUE, 'Tomatoes; second farmer on the Karama cluster', 'USSD'),
+    (55, TRUE, TRUE, 'Tomatoes; Kayenzi coordination test', 'USSD'),
+    (56, TRUE, TRUE, 'Tomatoes; second farmer on the Kayenzi cluster', 'USSD'),
+    (57, TRUE, TRUE, 'Tomatoes; third farmer on the Kayenzi cluster', 'USSD'),
+    (58, TRUE, TRUE, 'Tomatoes; Kayumbu coordination test', 'USSD'),
+    (59, TRUE, TRUE, 'Tomatoes; second farmer on the Kayumbu cluster', 'USSD'),
+    (60, TRUE, TRUE, 'Tomatoes; Mugina coordination test', 'USSD'),
+    (61, TRUE, TRUE, 'Tomatoes; second farmer on the Mugina cluster', 'USSD'),
+    (62, TRUE, TRUE, 'Tomatoes; third farmer on the Mugina cluster', 'USSD'),
+    (63, TRUE, TRUE, 'Tomatoes; Musambira coordination test', 'USSD'),
+    (64, TRUE, TRUE, 'Tomatoes; second farmer on the Musambira cluster', 'USSD'),
+    (65, TRUE, TRUE, 'Tomatoes; Ngamba coordination test', 'USSD'),
+    (66, TRUE, TRUE, 'Tomatoes; second farmer on the Ngamba cluster', 'USSD'),
+    (67, TRUE, TRUE, 'Tomatoes; third farmer on the Ngamba cluster', 'USSD'),
+    (68, TRUE, TRUE, 'Tomatoes; Nyamiyaga coordination test - expect NO_HUB_CAPACITY', 'USSD'),
+    (69, TRUE, TRUE, 'Tomatoes; second farmer, same expected exclusion', 'USSD'),
+    (70, TRUE, TRUE, 'Tomatoes; Nyarubaka coordination test', 'USSD'),
+    (71, TRUE, TRUE, 'Tomatoes; second farmer on the Nyarubaka cluster', 'USSD'),
+    (72, TRUE, TRUE, 'Tomatoes; third farmer on the Nyarubaka cluster', 'USSD'),
+    (73, TRUE, TRUE, 'Tomatoes; Rugalika coordination test', 'USSD'),
+    (74, TRUE, TRUE, 'Tomatoes; second farmer on the Rugalika cluster', 'USSD'),
+    (75, TRUE, TRUE, 'Tomatoes; Rukoma coordination test - expect NO_TRUCK (oversized)', 'USSD'),
+    (76, TRUE, TRUE, 'Tomatoes; Runda coordination test', 'USSD'),
+    (77, TRUE, TRUE, 'Tomatoes; second farmer on the Runda cluster', 'USSD');
+
 
 INSERT INTO coordination_plans
     (plan_id, sector_id, generated_at, status)
@@ -508,3 +686,18 @@ VALUES
     (21, 14, 'SCHEDULED', 2, '2026-07-16 06:50:00'),
     (22, 15, 'SCHEDULED', 2, '2026-07-16 06:55:00'),
     (23, 16, 'SCHEDULED', 2, '2026-07-16 07:00:00');
+
+SELECT setval(pg_get_serial_sequence('users', 'user_id'), (SELECT MAX(user_id) FROM users), true);
+SELECT setval(pg_get_serial_sequence('sectors', 'sector_id'), (SELECT MAX(sector_id) FROM sectors), true);
+SELECT setval(pg_get_serial_sequence('farmers', 'farmer_id'), (SELECT MAX(farmer_id) FROM farmers), true);
+SELECT setval(pg_get_serial_sequence('transporters', 'transporter_id'), (SELECT MAX(transporter_id) FROM transporters), true);
+SELECT setval(pg_get_serial_sequence('cold_hubs', 'hub_id'), (SELECT MAX(hub_id) FROM cold_hubs), true);
+SELECT setval(pg_get_serial_sequence('trucks', 'truck_id'), (SELECT MAX(truck_id) FROM trucks), true);
+SELECT setval(pg_get_serial_sequence('harvest_forecasts', 'forecast_id'), (SELECT MAX(forecast_id) FROM harvest_forecasts), true);
+SELECT setval(pg_get_serial_sequence('coordination_plans', 'plan_id'), (SELECT MAX(plan_id) FROM coordination_plans), true);
+SELECT setval(pg_get_serial_sequence('trip_allocations', 'allocation_id'), (SELECT MAX(allocation_id) FROM trip_allocations), true);
+SELECT setval(pg_get_serial_sequence('excluded_trips', 'exclusion_id'), (SELECT MAX(exclusion_id) FROM excluded_trips), true);
+SELECT setval(pg_get_serial_sequence('payments', 'payment_id'), (SELECT MAX(payment_id) FROM payments), true);
+SELECT setval(pg_get_serial_sequence('notifications', 'notification_id'), (SELECT MAX(notification_id) FROM notifications), true);
+SELECT setval(pg_get_serial_sequence('cold_hub_capacity_updates', 'update_id'), (SELECT MAX(update_id) FROM cold_hub_capacity_updates), true);
+SELECT setval(pg_get_serial_sequence('trip_status_events', 'event_id'), (SELECT MAX(event_id) FROM trip_status_events), true);
