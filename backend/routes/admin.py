@@ -177,6 +177,7 @@ def create_forecast(payload: ForecastCreate, db: Session = Depends(get_db)):
     farmer = db.get(Farmer, payload.farmer_id)
     if farmer is None:
         raise HTTPException(status_code=404, detail="Farmer not found")
+    sector = db.get(Sector, farmer.sector_id)
 
     from backend.services.harvest_service import HarvestService
 
