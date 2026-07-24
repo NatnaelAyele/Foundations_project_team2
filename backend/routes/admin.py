@@ -444,7 +444,8 @@ def admin_reports(
 ):
     today = datetime.now(UTC).date()
     start_date = date_from or today.replace(day=1)
-    end_date = date_to or today
+    next_month_start = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
+    end_date = date_to or next_month_start - timedelta(days=1)
     if end_date < start_date:
         raise HTTPException(status_code=422, detail="date_to must be on or after date_from")
 
