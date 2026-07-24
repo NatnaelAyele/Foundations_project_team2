@@ -1,155 +1,235 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+      try { var t = localStorage.getItem("freshlink-theme"); if (t) document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+    </script>
     <title>Transporter Dashboard | FreshLink</title>
-    <meta name="description" content="View grouped tomato pickups, follow your route plan, and update truck status.">
-    <link rel="stylesheet" href="../static/css/transporter_dashboard.css">
+    <meta name="description" content="View trips the coordination engine assigned to you, update truck availability, and mark deliveries as you complete them.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/transporter_dashboard.css">
   </head>
   <body>
-    <header class="site-header">
-      <nav class="nav container" aria-label="Main navigation">
-        <a class="brand" href="#top" aria-label="FreshLink home">
-          <span class="brand-mark" aria-hidden="true">FL</span>
-          <span>FreshLink</span>
-        </a>
-        <button class="menu-toggle" type="button" aria-controls="nav-links" aria-expanded="false">
-          <span class="sr-only">Open menu</span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-          <span aria-hidden="true"></span>
-        </button>
-        <div class="nav-links" id="nav-links">
-          <a href="#top">Home</a>
-          <a class="nav-cta" href="truck_status_update_form.html">Update Truck Status</a>
-        </div>
-      </nav>
-    </header>
-    <main id="top">
-      <section class="page-banner">
-        <div class="container">
-          <p class="eyebrow">Transporter Dashboard</p>
-          <h1>Today's grouped pickups</h1>
-          <p>See tomato pickups grouped by nearby farmers, follow the suggested route, and keep your truck status current so admins and hubs can plan around it.</p>
-        </div>
-      </section>
-      <section class="page-body">
-        <div class="container page-grid">
-          <div>
-            <div class="panel">
-              <div class="panel-title">
-                <div>
-                  <h2>Grouped farmer pickups</h2>
-                  <p>Consolidated stops for your assigned route today.</p>
-                </div>
-              </div>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Farmer group</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Pickup window</th>
-                    <th scope="col">Destination hub</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Nyamiyaga cluster (3 farmers)</td>
-                    <td>410 kg</td>
-                    <td>9:00 – 10:00 AM</td>
-                    <td>Kamonyi Central Storage Hub</td>
-                    <td><span class="status-pill available">Confirmed</span></td>
-                  </tr>
-                  <tr>
-                    <td>Rukoma cluster (2 farmers)</td>
-                    <td>260 kg</td>
-                    <td>11:30 AM – 12:30 PM</td>
-                    <td>Rukoma Cold Storage</td>
-                    <td><span class="status-pill limited">Pending</span></td>
-                  </tr>
-                  <tr>
-                    <td>Kamonyi Central cluster (4 farmers)</td>
-                    <td>530 kg</td>
-                    <td>2:00 – 3:00 PM</td>
-                    <td>Kamonyi Central Storage Hub</td>
-                    <td><span class="status-pill limited">Pending</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="panel">
-              <div class="panel-title">
-                <div>
-                  <h2>Route plan</h2>
-                  <p>Suggested stop order based on farmer location and hub capacity.</p>
-                </div>
-              </div>
-              <div class="route-card">
-                <p>3 stops &middot; est. 38 km &middot; 1,200 kg total load</p>
-                <div class="route-strip">
-                  <span>Depot</span>
-                  <span>Nyamiyaga</span>
-                  <span>Rukoma</span>
-                  <span>Kamonyi Central Hub</span>
-                </div>
-                <dl>
-                  <div><dt>Distance</dt><dd>38 km</dd></div>
-                  <div><dt>Stops</dt><dd>3</dd></div>
-                  <div><dt>Load</dt><dd>1,200 kg</dd></div>
-                  <div><dt>Est. duration</dt><dd>2h 45m</dd></div>
-                </dl>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div class="panel">
-              <div class="panel-title">
-                <h2>Your truck</h2>
-              </div>
-              <div class="metrics" style="grid-template-columns: 1fr;">
-                <div><span>Truck</span><strong>RAD 812 K &middot; 2,000 kg cold truck</strong></div>
-                <div><span>Current status</span><strong><span class="status-pill available">Available</span></strong></div>
-              </div>
-              <a class="button button-primary" href="truck_status_update_form.html" style="margin-top: 18px; display: flex;">Update truck status</a>
-            </div>
-            <div class="panel">
-              <div class="panel-title">
-                <h2>Today at a glance</h2>
-              </div>
-              <div class="metrics">
-                <div><span>Grouped pickups</span><strong>3</strong></div>
-                <div><span>Confirmed</span><strong>1</strong></div>
-                <div><span>Total load</span><strong>1,200 kg</strong></div>
-                <div><span>Completed trips</span><strong>0</strong></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-    <footer class="site-footer">
-      <div class="container footer-layout">
-        <div>
-          <a class="brand footer-brand" href="#top">
+    <div class="layout">
+
+      <aside class="sidebar" id="sidebar" aria-label="Transporter navigation">
+        <div class="resize-handle" id="resizeHandle" title="Drag to resize" aria-hidden="true"></div>
+        <div class="sidebar-top">
+          <a class="brand" href="transporter_dashboard.html" aria-label="FreshLink home">
             <span class="brand-mark" aria-hidden="true">FL</span>
-            <span>FreshLink</span>
+            <span class="brand-name">FreshLink</span>
           </a>
-          <p>Helping farmers, cold hubs, and truck providers coordinate tomato harvests.</p>
+          <button class="sidebar-collapse" id="sidebarCollapse" type="button" aria-label="Collapse sidebar">&#8676;</button>
         </div>
-        <div>
-          <h2>Links</h2>
-          <a href="../storagehub_dashboard/hub_dashboard.html">Hub Dashboard</a>
-          <a href="transporter_dashboard.html">Transporter Dashboard</a>
+        <nav class="side-nav" aria-label="Main">
+          <p class="side-label">Cockpit</p>
+          <a class="side-link active" href="transporter_dashboard.html" data-view="overview">
+            <span class="side-ico" aria-hidden="true">&#9638;</span><span class="side-text">Overview</span>
+          </a>
+          <a class="side-link" href="#trips" data-view="trips">
+            <span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">Assigned Trips</span>
+            <span class="side-badge" id="navTripBadge">0</span>
+          </a>
+          <a class="side-link" href="#trucks" data-view="trucks">
+            <span class="side-ico" aria-hidden="true"></span><span class="side-text">My Trucks</span>
+          </a>
+          <p class="side-label">Reference</p>
+          <a class="side-link" href="#trans-details" data-view="details">
+            <span class="side-ico" aria-hidden="true">&#9873;</span><span class="side-text">Profile</span>
+          </a>
+        </nav>
+        <div class="sidebar-bottom">
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light or dark theme">
+            <span class="side-ico" aria-hidden="true">&#9681;</span>
+            <span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span>
+            <span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span>
+          </button>
+          <div class="who">
+            <span class="who-avatar" aria-hidden="true">RT</span>
+            <span class="who-meta">
+              <span class="who-role">Transporter</span>
+              <span class="who-name" id="sidebar-transporter-name">Loading&hellip;</span>
+            </span>
+          </div>
+          <a class="side-logout" href="/landing_page/login.html" data-logout>
+            <span class="side-ico" aria-hidden="true"></span><span class="side-text">Logout</span>
+          </a>
         </div>
-        <div>
-          <h2>Contact</h2>
-          <p>info.lego@gmail.com</p>
-          <p>2026 FreshLink. Team lego.</p>
+      </aside>
+
+      <div class="main">
+        <header class="topbar">
+          <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">&#9776;</button>
+          <div class="topbar-title">
+            <p class="eyebrow">Transporter Dashboard</p>
+            <h1 id="transporter-heading">Loading&hellip;</h1>
+          </div>
+          <a class="topbar-cta" href="#trucks">Update Availability</a>
+        </header>
+
+        <div class="content">
+
+          <section class="hero" id="hero" style="--hero-img: url('/transporter_dashboard/images/hero_truck.png');">
+            <div class="hero-scrim" aria-hidden="true"></div>
+
+            <div class="glass greeting-card">
+              <span class="role-chip">Transport &middot; Tomatoes (pilot)</span>
+              <h2 id="greeting">Good morning</h2>
+              <p class="greeting-sub" id="todayDate">&mdash;</p>
+              <p class="greeting-copy">Keep your trucks marked available so the coordination engine can assign you trips, and update each trip status as you pick up and deliver.</p>
+              <a class="greeting-action" href="#trucks">Update truck availability &rarr;</a>
+            </div>
+
+            <div class="glass hub-tag">
+              <span class="hub-tag-label">Fleet status</span>
+              <span class="hub-tag-value" id="fleet-status"><span class="dot"></span> Loading fleet status</span>
+            </div>
+
+            <div class="hero-stats" aria-label="Transporter statistics">
+              <article class="glass stat-card stripe-darkgreen">
+                <p class="stat-label">Assigned Trips</p>
+                <p class="stat-value"><span class="count" id="assigned-trips-count">0</span></p>
+                <p class="stat-note" id="assignedNote">awaiting pickup</p>
+              </article>
+              <article class="glass stat-card stripe-lightgreen">
+                <p class="stat-label">Available Trucks</p>
+                <p class="stat-value"><span class="count" id="available-trucks-count">0</span><span class="stat-unit" id="total-trucks-count">/ 0</span></p>
+                <p class="stat-note">marked available</p>
+              </article>
+              <article class="glass stat-card stripe-navy">
+                <p class="stat-label">Total Capacity</p>
+                <p class="stat-value"><span class="count" id="available-capacity-count">0</span><span class="stat-unit">kg</span></p>
+                <p class="stat-note">across available trucks</p>
+              </article>
+              <article class="glass stat-card stripe-orange">
+                <p class="stat-label">Delivered Today</p>
+                <p class="stat-value"><span class="count" id="delivered-today-count">0</span></p>
+                <p class="stat-note">trips completed</p>
+              </article>
+            </div>
+          </section>
+
+          <div class="panel-cols">
+            <div class="col-main">
+              <section class="panel scroll-panel" id="trips">
+                <div class="panel-title">
+                  <div>
+                    <h3>Assigned trips</h3>
+                    <p>Pickups the coordination engine matched to your trucks.</p>
+                  </div>
+                  <span class="panel-count" id="tripCount">Loading&hellip;</span>
+                </div>
+                <div class="table-scroll">
+                  <table class="data-table" id="tripsTable">
+                    <thead>
+                      <tr><th>Pickup</th><th>Load</th><th>Destination hub</th><th>Truck</th><th>Status</th><th></th></tr>
+                    </thead>
+                    <tbody id="tripsBody"></tbody>
+                  </table>
+                  <p class="hint" id="tripsEmpty" style="display:none;">No trips assigned yet. Keep a truck marked available and the engine will assign you pickups at the next run.</p>
+                </div>
+              </section>
+
+              <section class="panel" id="trucks">
+                <div class="panel-title">
+                  <div>
+                    <h3>My trucks</h3>
+                    <p>Register a truck and update its availability for future assignments.</p>
+                  </div>
+                  <span class="panel-count" id="truckCount">Loading&hellip;</span>
+                </div>
+
+                <div class="add-truck-card" aria-labelledby="add-truck-title">
+                  <div class="add-truck-heading">
+                    <span class="add-truck-icon" aria-hidden="true">+</span>
+                    <div>
+                      <h4 id="add-truck-title">Add a truck to your fleet</h4>
+                      <p>New trucks are marked available and can be considered in the next coordination run.</p>
+                    </div>
+                  </div>
+                  <div class="add-truck-fields">
+                    <label class="truck-field" for="newPlate">
+                      <span>Plate number <b>Required</b></span>
+                      <input id="newPlate" type="text" placeholder="e.g. RAD 500 D" autocomplete="off">
+                    </label>
+                    <label class="truck-field" for="newModel">
+                      <span>Truck model <em>Optional</em></span>
+                      <input id="newModel" type="text" placeholder="e.g. Isuzu ELF" autocomplete="off">
+                    </label>
+                    <label class="truck-field capacity-field" for="newCapacity">
+                      <span>Capacity <b>Required</b></span>
+                      <div class="capacity-input">
+                        <input id="newCapacity" type="number" min="1" step="10" placeholder="e.g. 1500">
+                        <span>kg</span>
+                      </div>
+                    </label>
+                  </div>
+                  <div class="add-truck-footer">
+                    <button class="btn btn-start" type="button" id="addTruckBtn">Add truck</button>
+                  </div>
+                </div>
+
+                <!-- Trucks render here -->
+                <div class="truck-list" id="truckList"></div>
+                <p class="hint" id="truckEmpty" style="display:none;">No trucks registered yet. Add one above so the engine can assign you trips.</p>
+              </section>
+            </div>
+
+            <div class="col-side">
+              <section class="panel">
+                <div class="panel-title"><div><h3>Fleet utilisation</h3></div></div>
+                <div class="gauge" id="fleetGauge" data-available="0" data-total="0">
+                  <svg viewBox="0 0 120 120" class="gauge-svg" aria-hidden="true">
+                    <circle class="gauge-bg" cx="60" cy="60" r="52"></circle>
+                    <circle class="gauge-fill" cx="60" cy="60" r="52"></circle>
+                  </svg>
+                  <div class="gauge-center">
+                    <span class="gauge-pct" id="gaugePct">0%</span>
+                    <span class="gauge-sub">available</span>
+                  </div>
+                </div>
+                <div class="gauge-legend">
+                  <span><b id="gaugeAvail">0</b> available</span>
+                  <span><b id="gaugeTotal">0</b> trucks total</span>
+                </div>
+                <p class="hint">Mark more trucks available to receive more trips.</p>
+              </section>
+            </div>
+          </div>
+
+          <section class="panel hub-details-card" id="trans-details">
+            <div class="hub-details-head">
+              <h3>Transporter profile</h3>
+              <span class="hub-details-badge"><span class="dot ok"></span> Active</span>
+            </div>
+            <div class="hub-details-grid">
+              <div class="hd-item">
+                <div><span class="hd-label">Operator</span><b class="hd-value" id="profile-name">Loading&hellip;</b></div>
+              </div>
+              <div class="hd-item">
+                <div><span class="hd-label">Base sector</span><b class="hd-value" id="profile-sector">Loading&hellip;</b></div>
+              </div>
+              <div class="hd-item">
+                <div><span class="hd-label">Fleet size</span><b class="hd-value" id="profile-fleet">Loading&hellip;</b></div>
+              </div>
+              <div class="hd-item">
+                <div><span class="hd-label">Status</span><b class="hd-value ok" id="profile-status">Loading&hellip;</b></div>
+              </div>
+            </div>
+          </section>
+
+          <footer class="dash-footer">
+            FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District
+          </footer>
         </div>
       </div>
-    </footer>
-    <script src="../static/js/transporter_dashboard.js"></script>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
+    <script src="./js/transporter_dashboard.js"></script>
   </body>
 </html>

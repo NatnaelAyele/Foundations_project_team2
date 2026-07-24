@@ -1,59 +1,37 @@
-# Currently stores active sessions
-# But in the future will be moved to Redis or databas
+import time
+
 SESSIONS = {}
 
-# Currently stores harvest forecast
-# Will be moved to the db in the future
-FORECASTS = []
+SESSION_MAX_AGE_SECONDS = 300
+
+
+def touch(session_key):
+    """
+    Marks a session as recently used so the sweeper does not remove it.
+    Called on every USSD request for that session.
+    """
+    session = SESSIONS.get(session_key)
+    if session is not None:
+        session["last_seen"] = time.time()
+
+
+def sweep_expired(max_age_seconds=SESSION_MAX_AGE_SECONDS):
+    """
+    Removes abandoned sessions (farmer closed the simulator/phone
+    without pressing 0). Without this, a long-running server slowly
+    accumulates dead session dictionaries forever.
+    """
+    now = time.time()
+    expired_keys = [
+        key
+        for key, session in SESSIONS.items()
+        if now - session.get("last_seen", now) > max_age_seconds
+    ]
+    for key in expired_keys:
+        SESSIONS.pop(key, None)
+    return len(expired_keys)
 
 
 def reset_state():
-    """
-    Clears all temporary demo data.
-    Employed before making a new test or demo.
-    """
+    """Clear all active sessions (used before a fresh demo/test)."""
     SESSIONS.clear()
-    FORECASTS.clear()
-
-
-def save_forecast(forecast):
-    """
-    Saves a new harvest forecast.
-    """
-    FORECASTS.append(forecast)
-    return forecast
-
-
-def get_latest_forecast(phone_number):
-    """
-    Gets the latest harvest forecast for one farmer.
-    """
-    farmer_forecasts = [
-        forecast for forecast in FORECASTS
-        if forecast["phone_number"] == phone_number
-    ]
-
-    if not farmer_forecasts:
-        return None
-
-    return farmer_forecasts[-1]
-
-
-def update_forecast(forecast, quantity_kg, harvest_date, harvest_time):
-    """
-    Updates a pending harvest forecast.
-    """
-    forecast["quantity_kg"] = quantity_kg
-    forecast["harvest_date"] = harvest_date
-    forecast["harvest_time"] = harvest_time
-    forecast["status"] = "pending"
-
-    return forecast
-
-
-def cancel_forecast(forecast):
-    """
-    Cancels a pending harvest forecast.
-    """
-    forecast["status"] = "cancelled"
-    return forecast

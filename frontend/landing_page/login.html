@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | FreshLink</title>
+    <meta
+      name="description"
+      content="Login for FreshLink cold hub operators and truck providers."
+    >
+    <link rel="stylesheet" href="./css/landing.css">
+    <link rel="stylesheet" href="./css/register.css">
+    <script src="/shared/api.js" defer></script>
+    <script src="./js/login.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="nav container" aria-label="Login navigation">
+        <a class="brand" href="index.html" aria-label="FreshLink home">
+          <span class="brand-mark" aria-hidden="true">FL</span>
+          <span>FreshLink</span>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="register.html">Register</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="auth-hero">
+        <div class="container auth-heading">
+          <p class="eyebrow">Dashboard login</p>
+          <h1>Login to FreshLink.</h1>
+          <p>
+            Administrators, cold hub operators, and truck providers can access their own dashboards here.
+            Farmers receive updates by SMS.
+          </p>
+        </div>
+      </section>
+
+      <section class="login-section">
+        <div class="container">
+          <article class="register-card login-card">
+            <div class="register-card-header">
+              <p class="eyebrow">Operator access</p>
+              <h2>Access your dashboard</h2>
+            </div>
+
+            <form class="register-form" id="login-form" action="#" method="post">
+              <label for="login-id">Username, email, or phone number</label>
+              <input id="login-id" name="login_id" type="text" placeholder="Username, email, or phone number" required>
+
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" placeholder="Enter your password" required>
+
+              <button class="button button-primary" type="submit">Login</button>
+            </form>
+
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

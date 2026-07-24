@@ -1,148 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Register Farmer &mdash; FreshLink</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../static/css/admin.css?v=2" />
-</head>
-<body>
-
-  <nav class="top-nav">
-    <div class="nav-inner">
-      <a class="nav-brand" href="admin-dashboard.html">
-        <span class="mark"></span>
-        FreshLink
-      </a>
-
-      <ul class="nav-links">
-        <li><a class="nav-link" href="admin-dashboard.html">Workspace</a></li>
-
-        <li class="has-dropdown">
-          <a class="nav-link active" href="#">Farmers <span class="nav-caret">&#9662;</span></a>
-          <div class="dropdown">
-            <a href="register-farmer.html">Register Farmer</a>
-            <a href="view-farmers.html">View Farmers</a>
-          </div>
-        </li>
-
-        <li class="has-dropdown">
-          <a class="nav-link" href="#">Harvest Forecast <span class="nav-caret">&#9662;</span></a>
-          <div class="dropdown">
-            <a href="forecast.html">New Forecast</a>
-            <a href="view-forecasts.html">View Forecasts</a>
-          </div>
-        </li>
-
-        <li><a class="nav-link" href="reports.html">Reports</a></li>
-        <li><a class="nav-link nav-logout" href="login.html">Logout</a></li>
-      </ul>
-
-      <button class="nav-toggle" aria-label="Toggle menu">&#9776;</button>
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>try{var t=localStorage.getItem("freshlink-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+    <title>Register Farmer | FreshLink Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/admin.css">
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
+        <div class="sidebar-top">
+          <a class="brand" href="admin-dashboard.html" aria-label="FreshLink home"><span class="brand-mark" aria-hidden="true">FL</span><span class="brand-name">FreshLink</span></a>
+          <button class="sidebar-collapse" id="sidebarCollapse" type="button" aria-label="Collapse sidebar">&#8676;</button>
+        </div>
+        <nav class="side-nav" aria-label="Main">
+          <p class="side-label">Console</p>
+          <a class="side-link " href="admin-dashboard.html"><span class="side-ico" aria-hidden="true">&#9638;</span><span class="side-text">Overview</span></a>
+          <p class="side-label">Farmers</p>
+          <a class="side-link " href="view-farmers.html"><span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">View Farmers</span></a>
+          <a class="side-link active" href="register-farmer.html"><span class="side-ico" aria-hidden="true">&#43;</span><span class="side-text">Register Farmer</span></a>
+          <p class="side-label">Forecasts</p>
+          <a class="side-link " href="view-forecasts.html"><span class="side-ico" aria-hidden="true">&#9636;</span><span class="side-text">View Forecasts</span></a>
+          <a class="side-link " href="forecast.html"><span class="side-ico" aria-hidden="true">&#43;</span><span class="side-text">New Forecast</span></a>
+          <p class="side-label">Insights</p>
+          <a class="side-link " href="reports.html"><span class="side-ico" aria-hidden="true">&#9707;</span><span class="side-text">Reports</span></a>
+        </nav>
+        <div class="sidebar-bottom">
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme"><span class="side-ico" aria-hidden="true">&#9681;</span><span class="tt-txt"><span class="tt-label-light">Light mode</span><span class="tt-label-dark">Dark mode</span></span><span class="tt-track" aria-hidden="true"><span class="tt-knob"></span></span></button>
+          <div class="who"><span class="who-avatar" aria-hidden="true">AD</span><span class="who-meta"><span class="who-role">Administrator</span><span class="who-name">FreshLink Ops</span></span></div>
+          <a class="side-logout" href="/landing_page/login.html" data-logout><span class="side-ico" aria-hidden="true">&#9211;</span><span class="side-text">Logout</span></a>
+        </div>
+      </aside>
+      <div class="main">
+        <header class="topbar">
+          <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">&#9776;</button>
+          <div class="topbar-title"><p class="eyebrow">Farmers</p><h1>Register a Farmer</h1></div>
+          <a class="topbar-cta" href="view-farmers.html">View Farmers</a>
+        </header>
+        <div class="content">
+          <div class="page-header"><p>Add a smallholder tomato farmer to the Kamonyi network. Fields map to the <b>farmers</b> table.</p></div>
+          <section class="panel form-panel">
+            <form id="register-farmer-form" novalidate>
+              <div class="form-section">
+                <h3>Farmer identity</h3>
+                <p class="form-section-note">Basic details used to register and contact the farmer.</p>
+                <div class="form-grid">
+                  <div class="field full"><label for="rf-name">Full name</label><input type="text" id="rf-name" name="name" required placeholder="e.g. Jean Baptiste Nzeyimana"><span class="field-error-text">Please enter the farmer's name.</span></div>
+                  <div class="field"><label for="rf-phone">Phone number <span class="hint">(for SMS)</span></label><input type="tel" id="rf-phone" name="phone" required placeholder="+250 7XX XXX XXX"><span class="field-error-text">A phone number is required for SMS updates.</span></div>
+                  <div class="field"><label for="rf-nid">National ID <span class="hint">(optional)</span></label><input type="text" id="rf-nid" name="national_id" placeholder="1 XXXX X XXXXXXX X XX"></div>
+                </div>
+              </div>
+              <div class="form-section">
+                <h3>Location</h3>
+                <div class="form-grid">
+                  <div class="field"><label for="rf-sector">Sector</label><select id="rf-sector" name="sector" required><option value="" disabled selected>Loading sectors&hellip;</option></select><span class="field-error-text">Please select a sector.</span></div>
+                  <div class="field"><label for="rf-cell">Cell</label><input type="text" id="rf-cell" name="cell" required placeholder="e.g. Kayenzi"><span class="field-error-text">Please enter the cell.</span></div>
+                  <div class="field full"><label for="rf-village">Village</label><input type="text" id="rf-village" name="village" required placeholder="e.g. Kavumu"><span class="field-error-text">Please enter the village.</span></div>
+                </div>
+              </div>
+              <div class="form-footer"><button type="submit" class="btn btn-primary">Register farmer</button><a class="btn btn-outline" href="view-farmers.html">Cancel</a></div>
+              <div class="form-success" id="register-success">Farmer registered successfully. They can now report harvests by USSD.</div>
+            </form>
+          </section>
+          <footer class="dash-footer">FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District</footer>
+        </div>
+      </div>
     </div>
-  </nav>
-
-  <main class="shell">
-
-    <div class="page-header">
-      <span class="eyebrow">Farmers</span>
-      <h1>Register Farmer</h1>
-      <p>Add a new smallholder farmer to the FreshLink network so their harvests can be planned and coordinated.</p>
-    </div>
-
-    <div class="panel" style="margin: 28px 0 60px;">
-      <form id="register-farmer-form" novalidate>
-
-        <div class="form-section">
-          <h3>Personal Information</h3>
-          <p class="form-section-note">Basic contact and location details for the farmer.</p>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="farmer-name">Farmer Name</label>
-              <input type="text" id="farmer-name" name="farmerName" required />
-              <span class="field-error-text">Please enter the farmer's name.</span>
-            </div>
-
-            <div class="field">
-              <label for="phone-number">Phone Number</label>
-              <input type="tel" id="phone-number" name="phoneNumber" placeholder="+250 7xx xxx xxx" required />
-              <span class="field-error-text">Please enter a phone number.</span>
-            </div>
-
-            <div class="field">
-              <label for="district">District</label>
-              <input type="text" id="district" name="district" value="Kamonyi" required />
-              <span class="field-error-text">Please enter the district.</span>
-            </div>
-
-            <div class="field">
-              <label for="sector">Sector</label>
-              <input type="text" id="sector" name="sector" required />
-              <span class="field-error-text">Please enter the sector.</span>
-            </div>
-
-            <div class="field full">
-              <label for="village">Village</label>
-              <input type="text" id="village" name="village" required />
-              <span class="field-error-text">Please enter the village.</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3>Farm Information</h3>
-          <p class="form-section-note">Details about what the farmer grows and how their harvest is usually collected.</p>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="main-crop">Main Crop</label>
-              <select id="main-crop" name="mainCrop" required>
-                <option value="">Select a crop</option>
-                <option value="Tomato">Tomato</option>
-                <option value="Maize">Maize</option>
-                <option value="Beans">Beans</option>
-                <option value="Cassava">Cassava</option>
-                <option value="Other">Other</option>
-              </select>
-              <span class="field-error-text">Please select a main crop.</span>
-            </div>
-
-            <div class="field">
-              <label for="estimated-production">Estimated Tomato Production
-                <span class="hint">(kg per season)</span>
-              </label>
-              <input type="number" id="estimated-production" name="estimatedProduction" min="0" placeholder="e.g. 350" required />
-              <span class="field-error-text">Please enter an estimated production amount.</span>
-            </div>
-
-            <div class="field full">
-              <label for="pickup-point">Preferred Pickup Point</label>
-              <input type="text" id="pickup-point" name="pickupPoint" placeholder="e.g. Kavumu trading center" required />
-              <span class="field-error-text">Please enter a preferred pickup point.</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-footer">
-          <button type="submit" class="btn btn-primary">Save Farmer</button>
-          <button type="reset" class="btn btn-outline">Clear Form</button>
-        </div>
-
-        <div class="form-success" id="register-success">
-          Farmer saved successfully.
-        </div>
-      </form>
-    </div>
-
-    <footer class="site-footer">
-      FreshLink &mdash; Post-Harvest Logistics Coordination Platform, Kamonyi District
-    </footer>
-
-  </main>
-
-  <script src="../static/js/admin.js?v=2"></script>
-</body>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/api.js"></script>
+    <script src="./js/admin.js"></script>
+  </body>
 </html>
