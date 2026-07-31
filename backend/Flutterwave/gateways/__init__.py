@@ -1,1 +1,1 @@
-"""Payment gateway implementations for the Tomato Logistics Platform."""
+"""Payment gateway implementations for FreshLink."""

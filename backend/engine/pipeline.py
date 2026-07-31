@@ -328,7 +328,7 @@ class DemandAnalyzer:
 
 def run_group1_pipeline(db: Session, today: date | None = None) -> list[dict]:
     """
-    Run all Group 1 pipeline steps.
+    Run all demand pipeline steps.
 
     Receives a database session and optional date. Returns demand dictionaries
     that are ready for TruckMatcher. Exclusion records are available from the

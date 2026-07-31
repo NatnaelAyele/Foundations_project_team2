@@ -1,5 +1,5 @@
 """
-Main orchestration engine for the Tomato Logistics Platform.
+Main coordination engine for FreshLink.
 
 This module coordinates the entire logistics workflow by calling
 each processing module in sequence.
@@ -199,7 +199,6 @@ class CoordinationEngine:
             return normalized_plan
 
         return {
-            # The database will generate the real integer plan_id later.
             "plan_id": None,
             "temporary_plan_key": f"TEMP-PLAN-{datetime.now().strftime('%Y%m%d%H%M%S%f')}",
             "status": "RUNNING",
@@ -214,11 +213,7 @@ class CoordinationEngine:
 
     def load_pending_forecasts(self):
         """
-        Load pending forecasts using Group 1's real pipeline reader.
-
-        A database session is required for real Sprint 2 data. If no session
-        is provided, this method returns an empty list as a temporary demo
-        state that can be replaced by service-layer database logic later.
+        Load pending forecasts from the pipeline reader.
         """
         if self.db is None:
             self.logger.warning(
@@ -233,7 +228,7 @@ class CoordinationEngine:
         """
         Return only matches that can be planned.
 
-        Group 2 may return excluded entries when no truck or hub is available.
+        Matchers may return excluded entries when no truck or hub is available.
         Planner should receive only successful matches.
         """
         return [
@@ -244,7 +239,7 @@ class CoordinationEngine:
 
     def get_truck_matcher(self):
         """
-        Create or return Group 2's TruckMatcher.
+        Create or return the truck matcher.
 
         The import happens here so missing model dependencies produce a clear
         error only when truck matching is actually needed.
@@ -259,10 +254,9 @@ class CoordinationEngine:
 
     def get_hub_matcher(self):
         """
-        Create or return Group 2's HubMatcher.
+        Create or return the hub matcher.
 
-        The coordinator uses this class for hub matching and does not duplicate
-        Group 2's matching logic.
+        The coordinator delegates hub matching to this class.
         """
         if self.hub_matcher is None:
             _, HubMatcher = self.import_group2_matchers()
@@ -274,7 +268,7 @@ class CoordinationEngine:
 
     def import_group2_matchers(self):
         """
-        Import Group 2 matcher classes.
+        Import matcher classes.
 
         Returns TruckMatcher and HubMatcher from backend.engine2, or raises a
         clear ImportError when their package or model dependencies are missing.
@@ -294,10 +288,9 @@ class CoordinationEngine:
 
     def attach_match_context_to_trips(self, planning_results, successful_matches):
         """
-        Add match context needed by later engine steps.
+        Add match context needed by downstream engine steps.
 
-        Planner creates the trip fields, while this method keeps contact and
-        forecast data from Group 2 available for reservation and later
+        Keeps contact and forecast data available for reservation and
         notification processing.
         """
         trip_allocations = planning_results.get("trip_allocations", [])
@@ -340,8 +333,7 @@ class CoordinationEngine:
         """
         Mark the coordination plan as completed in engine memory.
 
-        Receives a plan dictionary and returns it with completion fields. The
-        future service layer should persist this status to coordination_plans.
+        Receives a plan dictionary and returns it with completion fields.
         """
         plan["status"] = "COMPLETED"
         plan["completed_at"] = datetime.now()
@@ -351,8 +343,7 @@ class CoordinationEngine:
         """
         Mark the coordination plan as failed in engine memory.
 
-        Receives a plan dictionary and returns it with failure fields. The
-        future service layer should persist this status to coordination_plans.
+        Receives a plan dictionary and returns it with failure fields.
         """
         plan["status"] = "FAILED"
         plan["failed_at"] = datetime.now()

@@ -1,9 +1,5 @@
 """
-Exclusion logging for the Tomato Logistics engine.
-
-This module records forecasts or clusters that cannot continue through the
-engine. It does not write to PostgreSQL. Instead, it creates plain dictionaries
-that a future service layer can persist into an excluded_trips-style table.
+Creates exclusion records for forecasts and clusters that cannot proceed.
 """
 
 from datetime import datetime
@@ -82,8 +78,7 @@ class ExclusionLogger:
         """
         Build a structured exclusion dictionary.
 
-        Receives forecast-like data and reason details. Returns a dictionary
-        ready for future database persistence.
+        Receives forecast-like data and reason details.
         """
         return {
             "forecast_id": forecast.get("forecast_id"),

@@ -1,5 +1,5 @@
 """
-Planner module for the Tomato Logistics Platform.
+Planner module for FreshLink.
 
 The planner receives successful truck and hub matches, then creates plain
 Python dictionaries that match the database schema. It does not save anything
@@ -23,9 +23,8 @@ class Planner:
     """
     Creates planned trip and forecast allocation dictionaries.
 
-    The planner receives successful matches from Group 2 and returns plain
-    dictionaries. It does not save to the database; it only prepares records
-    that a future service layer can insert in the right order.
+        Creates planned trip and forecast allocation records from successful
+        matches.
     """
 
     def __init__(self, logger=None):
@@ -47,7 +46,7 @@ class Planner:
         Create trip and forecast allocations from successful matches.
 
         Receives a database plan_id when available and a list of successful
-        Group 2 matches. Returns trip_allocations first, because trips must be
+        matches. Returns trip_allocations first, because trips must be
         inserted before forecast_allocations can receive allocation_id.
         """
         self.logger.info("Planning started.")
@@ -143,9 +142,7 @@ class Planner:
         """
         Create one forecast allocation for each forecast in the cluster.
 
-        Receives a successful match and optional temporary trip key. Returns
-        records that can later receive the generated trip allocation_id after
-        the trip row is inserted.
+        Receives a successful match and optional temporary trip key.
         """
         forecasts = self.get_forecasts(match)
         allocations = []

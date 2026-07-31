@@ -1,10 +1,4 @@
-"""
-Payment manager for the Tomato Logistics Platform.
-
-The payment manager runs after reservation and before notification. It creates
-simple payment records and asks a payment gateway to initialize the payment.
-No database queries, real payment links, or external API calls are made here.
-"""
+"""Payment manager for FreshLink."""
 
 import logging
 import uuid
@@ -35,9 +29,7 @@ class PaymentManager:
     """
     Controls the payment process after reservation and before notification.
 
-    The manager prepares payment dictionaries that match the database contract
-    and are ready for a future Flutterwave integration. It does not generate
-    database IDs and does not make network requests.
+        Prepares payment dictionaries that match the database contract.
     """
 
     def __init__(
@@ -246,8 +238,8 @@ class PaymentManager:
         """
         Add simple payment details to a reserved trip.
 
-        Receives a trip and payment record, then returns a copied trip enriched
-        with payment fields for notification and future persistence.
+        Receives a trip and payment record, then returns a copied trip with
+        payment fields for notification.
         """
         enriched_trip = trip.copy()
         enriched_trip["payment_id"] = payment["payment_id"]
@@ -267,7 +259,7 @@ class PaymentManager:
 
     def get_farmer_payment_context(self, reservation):
         """
-        Collect farmer details for future payment splitting.
+        Collect farmer details for payment splitting.
 
         Receives one reserved trip and returns a list of farmer payment context
         dictionaries. It does not split the payment amount.
@@ -292,8 +284,8 @@ class PaymentManager:
         """
         Generate a unique payment reference for Flutterwave.
 
-        Receives an optional reservation dictionary. Returns a reference that is
-        independent from the database payment_id and suitable for tx_ref later.
+        Receives an optional reservation dictionary and returns a transaction
+        reference independent from the database payment ID.
         """
         reservation = reservation or {}
         allocation_part = reservation.get("allocation_id")
@@ -359,8 +351,8 @@ class PaymentManager:
         """
         Get the farmer phone number for a payment.
 
-        Receives a reserved trip dictionary. Returns the first farmer phone when
-        available, otherwise None for the service layer to complete later.
+        Receives a reserved trip dictionary and returns the first farmer phone
+        when available.
         """
         farmer_phones = reservation.get("farmer_phones") or []
         if farmer_phones:

@@ -1,5 +1,5 @@
 """
-Logging utility for the Tomato Logistics Platform.
+Logging utility for FreshLink.
 
 This is a simple logger that can be shared across
 the coordination engine modules.

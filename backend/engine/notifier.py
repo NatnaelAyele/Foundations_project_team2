@@ -1,5 +1,5 @@
 """
-Notification module for the Tomato Logistics Platform.
+Notification module for FreshLink.
 
 The notifier receives reservation results and creates notification
 objects for farmers, transporters, hub operators, and administrators.
@@ -27,9 +27,7 @@ class Notifier:
     """
     Creates notification objects after successful reservations and payments.
 
-    The notifier receives trip/payment dictionaries and returns notification
-    dictionaries. It does not send SMS; it prepares queued or failed records for
-    a future SMS service.
+        Creates notification records from trip and payment dictionaries.
     """
 
     SUPPORTED_EVENTS = {

@@ -1,9 +1,9 @@
 """
-HubMatcher (Group 2 - Engine Person 2)
+Hub matching component.
 
 Finds a cold_hub with enough available_capacity_kg for a cluster that
 already has a matched truck, then assembles the full payload the
-Planner (Group 3) needs to create a trip - so planner.py doesn't have
+Planner needs to create a trip - so planner.py doesn't have
 to re-fetch anything.
 
 Interface contract (engine_integration_guide.md):

@@ -1,5 +1,5 @@
 """
-Payment gateway interface for the Tomato Logistics Platform.
+Payment gateway interface for FreshLink.
 
 This module defines the methods that every payment provider must support.
 It does not contain real payment logic. Real providers, such as Flutterwave,

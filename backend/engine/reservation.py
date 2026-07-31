@@ -1,11 +1,5 @@
 """
-Reservation module for the Tomato Logistics Platform.
-
-The reservation manager receives the planning results from planner.py and
-marks the assigned truck, hub capacity, and trip as reserved.
-
-This module only changes temporary engine dictionaries. Database updates will
-be added later in the service layer after the engine output is approved.
+Prepares reservation state for planned trips.
 """
 
 import logging
@@ -26,11 +20,7 @@ class ReservationError(ValueError):
 
 class ReservationManager:
     """
-    Reserves trucks and hub capacity for planned trips.
-
-    The manager applies reservation business rules to dictionaries. It does not
-    write to PostgreSQL, but it prepares the fields that a future service layer
-    should use to update trucks, cold_hubs, and trip_allocations safely.
+        Applies reservation business rules to planned trips.
     """
 
     ENGINE_RESERVED_STATUS = "RESERVED"
@@ -55,9 +45,7 @@ class ReservationManager:
         """
         Reserve resources for every trip allocation.
 
-        Receives planner output with trip and forecast allocations. Returns a
-        dictionary that separates temporary engine state from future database
-        persistence work.
+        Receives planner output with trip and forecast allocations.
         """
         self.logger.info("Reservation started.")
 
@@ -126,8 +114,7 @@ class ReservationManager:
         """
         Reserve cold hub capacity for the trip load.
 
-        Receives one trip dictionary and returns it with hub reservation fields
-        that can later be persisted to the database.
+        Receives one trip dictionary and returns hub reservation fields.
         """
         return self.prepare_hub_capacity_update(trip)
 
@@ -142,10 +129,9 @@ class ReservationManager:
 
     def prepare_truck_status_update(self, trip: dict) -> dict:
         """
-        Prepare the future database update for the assigned truck.
+        Prepare the assigned truck status update.
 
-        Receives one trip dictionary. Returns it with truck status fields and a
-        persistence action that a service layer can later apply to trucks.
+        Receives one trip dictionary and returns truck status fields.
         """
         trip["truck_status"] = self.DATABASE_TRUCK_STATUS_AFTER_RESERVATION
         trip["truck_update"] = {
@@ -158,10 +144,9 @@ class ReservationManager:
 
     def prepare_hub_capacity_update(self, trip: dict) -> dict:
         """
-        Prepare the future database update for hub capacity.
+        Prepare the hub capacity update.
 
-        Receives one trip dictionary. Returns it with reserved capacity and
-        next available capacity when that capacity was provided by Group 2.
+        Receives one trip dictionary and returns reserved and available capacity.
         """
         total_load = float(trip["total_load_kg"])
 
@@ -198,7 +183,7 @@ class ReservationManager:
 
     def prepare_trip_status_update(self, trip: dict) -> dict:
         """
-        Prepare the future database update for the trip allocation.
+        Prepare the trip allocation status update.
 
         Receives one scheduled trip. Returns it with a reservation event status
         for the engine and a database-compatible trip status for persistence.
@@ -223,10 +208,7 @@ class ReservationManager:
 
     def mark_persistence_pending(self, trip: dict) -> dict:
         """
-        Mark future database work without doing database updates.
-
-        Receives a reserved trip and returns it with a small summary that tells
-        the service layer what must be saved later.
+        Mark database persistence work for a reserved trip.
         """
         trip["persistence_status"] = "PENDING_DATABASE_UPDATE"
         trip["temporary_engine_state"] = True
